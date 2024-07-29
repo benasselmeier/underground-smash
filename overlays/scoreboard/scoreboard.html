@@ -156,7 +156,7 @@
             <div class="scoreboard-score-container">
                 <p id="p1-score" class="scoreboard-side-score">
                     <script>
-                        fetch('../../text-files/Player1-Score.txt')
+                        fetch('../../text-files/player-1/Player1-Score.txt')
                             .then(response => response.text())
                             .then(data => {
                                 // Use the 'data' variable to access the contents of the text file
@@ -171,7 +171,7 @@
             <div class="scoreboard-side-box">
                 <p id="p1-player" class="scoreboard-side-player">
                     <script>
-                        fetch('../../text-files/Player1-Name.txt')
+                        fetch('../../text-files/player-1/Player1-Name.txt')
                             .then(response => response.text())
                             .then(data => {
                                 // Use the 'data' variable to access the contents of the text file
@@ -184,7 +184,7 @@
                 </p>
                 <img class="character-slice" id="p1-character">
                 <script>
-                    fetch('../../text-files/Player1-Fighter.txt')
+                    fetch('../../text-files/player-1/Player1-Fighter.txt')
                         .then(response => response.text())
                         .then(data => {
                             console.log(data)
@@ -201,7 +201,7 @@
             <div class="scoreboard-center">
                 <p id="round" class="scoreboard-round">
                     <script>
-                        fetch('../../text-files/Current-Round.txt')
+                        fetch('../../text-files/info/Current-Round.txt')
                             .then(response => response.text())
                             .then(data => {
                                 // Use the 'data' variable to access the contents of the text file
@@ -215,7 +215,7 @@
                 <img src="../../images/Smash_Ball.png">
                 <p id="bracket" class="scoreboard-bracket">
                     <script>
-                        fetch('../../text-files/Bracket-Name.txt')
+                        fetch('../../text-files/info/Bracket-Name.txt')
                             .then(response => response.text())
                             .then(data => {
                                 // Use the 'data' variable to access the contents of the text file
@@ -230,7 +230,7 @@
             <div class="scoreboard-side-box">
                 <img class="character-slice" id="p2-character">
                 <script>
-                    fetch('../../text-files/Player2-Fighter.txt')
+                    fetch('../../text-files/player-2/Player2-Fighter.txt')
                         .then(response => response.text())
                         .then(data => {
                             console.log(data)
@@ -245,7 +245,7 @@
                 </script>
                 <p id="p2-player" class="scoreboard-side-player">
                     <script>
-                        fetch('../../text-files/Player2-Name.txt')
+                        fetch('../../text-files/player-2/Player2-Name.txt')
                             .then(response => response.text())
                             .then(data => {
                                 // Use the 'data' variable to access the contents of the text file
@@ -260,7 +260,7 @@
             <div class="scoreboard-score-container">
                 <p id="p2-score"class="scoreboard-side-score">
                     <script>
-                        fetch('../../text-files/Player2-Score.txt')
+                        fetch('../../text-files/player-2/Player2-Score.txt')
                             .then(response => response.text())
                             .then(data => {
                                 // Use the 'data' variable to access the contents of the text file
@@ -276,7 +276,7 @@
         <div class="scoreboard-bottom-row">
             <p id="event-info" class="scoreboard-event-title">
                 <script>
-                    fetch('../../text-files/Event-Info.txt')
+                    fetch('../../text-files/info/Event-Info.txt')
                         .then(response => response.text())
                         .then(data => {
                             // Use the 'data' variable to access the contents of the text file
