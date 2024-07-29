@@ -1,0 +1,13 @@
+.form-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-bottom: 1em;
+    gap: 1em;
+}
+.form-row textarea {
+    flex-grow: .3;
+}
+.form-row select {
+    flex-grow: .3;
+}

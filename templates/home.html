@@ -2,23 +2,12 @@
 <html>
     <head>
         <title>Underground Smash Overlay Tool</title>
-        <style>
-            .form-row {
-                display: flex;
-                flex-direction: row;
-                justify-content: flex-start;
-                margin-bottom: 1em;
-                gap: 1em;
-            }
-            .form-row textarea {
-                flex-grow: .3;
-            }
-            .form-row select {
-                flex-grow: .3;
-            }
-        </style>
+        <link rel="stylesheet" type="text/css" href="home.css">
     </head>
 <body>
+    <div class="title">
+        <h1>Underground Smash Overlay Tool</h1>
+    </div>
     <form method="POST">
         {% for file, content in files.items() %}
             <div class="form-row">
