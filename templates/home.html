@@ -1,29 +1,58 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Underground Smash Overlay Tool</title>
-        <link rel="stylesheet" type="text/css" href="home.css">
-    </head>
+
+<head>
+    <title>Underground Smash Overlay Tool</title>
+    <style>
+        .form-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            margin-bottom: 1em;
+            gap: 1em;
+        }
+
+    </style>
+</head>
+
 <body>
     <div class="title">
         <h1>Underground Smash Overlay Tool</h1>
     </div>
+
     <form method="POST">
-        {% for file, content in files.items() %}
-            <div class="form-row">
-                <h2>{{ file }}</h2>
-                {% if 'Fighter' in file %}
-                    <select name="{{ file }}" class="fighter-select">
-                        {% for fighter in fighters %}
-                            <option value="{{ fighter }}" {% if fighter == content %}selected{% endif %}>{{ fighter }}</option>
-                        {% endfor %}
-                    </select>
-                {% else %}
+        <div class="form-players-section">
+                    <h2>Players Files</h2>
+            {% for file, content in players_files.items() %}
+                <div class="form-row">
+                    <h3>{{ file }}</h3>
                     <textarea name="{{ file }}">{{ content }}</textarea>
-                {% endif %}
+                </div>
+            {% endfor %}
             </div>
-        {% endfor %}
+
+        <div class="form-info-section">
+            <h2>Tournament Info</h2>
+            {% for file, content in info_files.items() %}
+                <div class="form-row">
+                    <h3>{{ file }}</h3>
+                    <textarea name="{{ file }}">{{ content }}</textarea>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-casters-section">
+            <h2>Casters Files</h2>
+            {% for file, content in casters_files.items() %}
+                <div class="form-row">
+                    <h3>{{ file }}</h3>
+                    <textarea name="{{ file }}">{{ content }}</textarea>
+                </div>
+            {% endfor %}
+        </div>
+
         <input type="submit" value="Save Changes">
     </form>
 </body>
+
 </html>
