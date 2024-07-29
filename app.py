@@ -17,14 +17,23 @@ def read_files_from_directory(directory):
     print(f"Files read from {directory}: {file_contents.keys()}")  # Debug statement
     return file_contents
 
+def format_filename(filename):
+    # Remove the file extension
+    filename = os.path.splitext(filename)[0]
+    # Replace dashes with spaces
+    return filename.replace('-', ' ')
+
+app.jinja_env.globals.update(format_filename=format_filename)
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     info_files = read_files_from_directory(os.path.join(base_directory, 'info'))
-    players_files = read_files_from_directory(os.path.join(base_directory, 'players'))
+    player_1_files = read_files_from_directory(os.path.join(base_directory, 'player-1'))
+    player_2_files = read_files_from_directory(os.path.join(base_directory, 'player-2'))
     casters_files = read_files_from_directory(os.path.join(base_directory, 'casters'))
 
     if request.method == 'POST':
-        for directory, files in [('info', info_files), ('players', players_files), ('casters', casters_files)]:
+        for directory, files in [('info', info_files), ('player-1', player_1_files), ('player-2', player_2_files), ('casters', casters_files)]:
             for file in files:
                 content = request.form.get(file)
                 if content is not None:
@@ -36,7 +45,7 @@ def home():
     with open(os.path.join('resources', 'Fighters.txt'), 'r') as file:
         fighters = file.read().splitlines()
 
-    return render_template('home.html', info_files=info_files, players_files=players_files, casters_files=casters_files, fighters=fighters)
+    return render_template('home.html', info_files=info_files, player_1_files=player_1_files, player_2_files=player_2_files, casters_files=casters_files, fighters=fighters)
 
 @app.route('/view/<filename>')
 def view(filename):
@@ -50,12 +59,6 @@ def update(filename):
     with open(os.path.join(base_directory, filename), 'w') as f:
         f.write(content)
     return redirect(url_for('view', filename=filename))
-
-def format_filename(filename):
-    # Remove the file extension
-    filename = os.path.splitext(filename)[0]
-    # Replace dashes with spaces
-    return filename.replace('-', ' ')
 
 if __name__ == '__main__':
     app.run(debug=True)

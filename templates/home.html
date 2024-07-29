@@ -6,52 +6,100 @@
     <style>
         .form-row {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             justify-content: flex-start;
             margin-bottom: 1em;
             gap: 1em;
         }
-
+        .form-players-section {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .form-player-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-info-section {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+        }
+        .form-casters-section {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+        }
+        .form-section-header {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+        .header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
     </style>
 </head>
 
 <body>
-    <div class="title">
+    <div class="header">
         <h1>Underground Smash Overlay Tool</h1>
+        <input type="submit" value="Save Changes">
     </div>
 
     <form method="POST">
+        <div class="form-section-header">
+            <h2>Player Info</h2>
+        </div>
         <div class="form-players-section">
-                    <h2>Players Files</h2>
-            {% for file, content in players_files.items() %}
-                <div class="form-row">
-                    <h3>{{ file }}</h3>
-                    <textarea name="{{ file }}">{{ content }}</textarea>
-                </div>
-            {% endfor %}
+            <div class="form-player-container">
+                {% for file, content in player_1_files.items() %}
+                    <div class="form-row">
+                        <h3>{{ format_filename(file) }}</h3>
+                        <textarea name="{{ file }}">{{ content }}</textarea>
+                    </div>
+                {% endfor %}
             </div>
+            <div class="form-vs-divider">
+                <h1>VS</h1>
+            </div>
+            <div class="form-player-container">
+                {% for file, content in player_2_files.items() %}
+                    <div class="form-row">
+                        <h3>{{ format_filename(file) }}</h3>
+                        <textarea name="{{ file }}">{{ content }}</textarea>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
 
-        <div class="form-info-section">
+        <div class="form-section-header">
             <h2>Tournament Info</h2>
+        </div>
+        <div class="form-info-section">
             {% for file, content in info_files.items() %}
                 <div class="form-row">
-                    <h3>{{ file }}</h3>
+                    <h3>{{ format_filename(file) }}</h3>
                     <textarea name="{{ file }}">{{ content }}</textarea>
                 </div>
             {% endfor %}
         </div>
 
+        <div class="form-section-header">
+            <h2>Caster Info</h2>
+        </div>
         <div class="form-casters-section">
-            <h2>Casters Files</h2>
             {% for file, content in casters_files.items() %}
                 <div class="form-row">
-                    <h3>{{ file }}</h3>
+                    <h3>{{ format_filename(file) }}</h3>
                     <textarea name="{{ file }}">{{ content }}</textarea>
                 </div>
             {% endfor %}
         </div>
-
-        <input type="submit" value="Save Changes">
     </form>
 </body>
 
