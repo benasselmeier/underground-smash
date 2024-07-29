@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .scoreboard {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .scoreboard-top-row {
+            display: flex;
+            flex-direction: row;
+            align-items: bottom;
+            padding: 0;
+            margin: auto auto 0 auto;
+        }
+
+        .scoreboard-container {
+            height: 10vh;
+        }
+
+        .scoreboard-center {
+            background: rgba(207, 85, 255, 0.768);
+            border: 2px solid white;
+            justify-content: center;
+            height: 7vh;
+            width: 22vw;
+            text-align: center;
+            display: flex;
+            flex-direction: row;
+            gap: 1em;
+            font-size: 1.5em;
+            color: #000000;
+            margin-top: 1vh;
+        }
+
+        .scoreboard-side-box {
+            background: rgba(207, 85, 255, 0.768);
+            border: 2px solid white;
+            height: 5vh;
+            width: 15vw;
+            margin: 16px 4px 0;
+            text-align: center;
+            font-size: 2em;
+            padding: 4px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .scoreboard-score-container {
+            background: rgba(207, 85, 255, 0.768);
+            border: 2px solid white;
+            height: 5vh;
+            width: 3vw;
+            margin: 16px 4px 0;
+            text-align: center;
+            font-size: 2em;
+            padding: 4px;
+            align-content: center;
+        }
+
+        .scoreboard-side-player {
+            margin: 0 0 4px 0;
+        }
+
+        .scoreboard-side-score {
+            font-size: 1.5em;
+            margin: 0 0 4px 0;
+        }
+
+        .scoreboard-bottom-row {
+            background: rgba(207, 85, 255, 0.768);
+            border: 2px solid white;
+            height: 4vh;
+            width: 30vw;
+            margin: auto;
+            text-align: center;
+            font-size: 1.25em;
+            font-weight: bold;
+            color: #000000;
+            align-content: center;
+            margin-top: 8px;
+        }
+
+        .scoreboard-bracket {
+            margin-top: 8px;
+            width: 40%;
+            align-content: center;
+        }
+
+        .scoreboard-round {
+            margin-top: 8px;
+            width: 40%;
+            align-content: center;
+        }
+
+        .scoreboard-event-title {
+            margin-top: 0.75em;
+        }
+
+        .character-slice {
+            height: inherit;
+        }
+
+        .cams-container {
+            gap: 1em;
+            margin: auto;
+            padding: 0;
+            height: 20vh;
+            width: 90vw;
+            border: 1px solid black;
+            position: fixed;
+            bottom: 5vh;
+            left: 5vw;
+            right: 5vw;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .playercam {
+            margin: 16px 0 auto;
+            border: 1px solid blue;
+            height: 80%;
+            width: 20%;
+
+        }
+
+        .graphics-container {
+            margin: auto;
+            padding: 0;
+            height: 10vh;
+            width: 15vw;
+            position: fixed;
+            bottom: 5vh;
+            left: 5vw;
+            right: 5vw;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="scoreboard">
+        <div class="scoreboard-top-row">
+            <div class="scoreboard-score-container">
+                <p id="p1-score" class="scoreboard-side-score">
+                    <script>
+                        fetch('../../text-files/Player1-Score.txt')
+                            .then(response => response.text())
+                            .then(data => {
+                                // Use the 'data' variable to access the contents of the text file
+                                document.getElementById('p1-score').textContent = data;
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    </script>
+                </p>
+            </div>
+            <div class="scoreboard-side-box">
+                <p id="p1-player" class="scoreboard-side-player">
+                    <script>
+                        fetch('../../text-files/Player1-Name.txt')
+                            .then(response => response.text())
+                            .then(data => {
+                                // Use the 'data' variable to access the contents of the text file
+                                document.getElementById('p1-player').textContent = data;
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    </script>
+                </p>
+                <img class="character-slice" id="p1-character">
+                <script>
+                    fetch('../../text-files/Player1-Fighter.txt')
+                        .then(response => response.text())
+                        .then(data => {
+                            console.log(data)
+                            // Use the 'data' variable to access the contents of the text file
+                            document.getElementById('p1-character').textContent = data;
+                            // Use the text taken from the file to display the correct image
+                            document.getElementById('p1-character').src = "../../images/fighter-ui-slice/" + data + ".png";
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                </script>
+            </div>
+            <div class="scoreboard-center">
+                <p id="round" class="scoreboard-round">
+                    <script>
+                        fetch('../../text-files/Current-Round.txt')
+                            .then(response => response.text())
+                            .then(data => {
+                                // Use the 'data' variable to access the contents of the text file
+                                document.getElementById('round').textContent = data;
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    </script>
+                </p>
+                <img src="../../images/Smash_Ball.png">
+                <p id="bracket" class="scoreboard-bracket">
+                    <script>
+                        fetch('../../text-files/Bracket-Name.txt')
+                            .then(response => response.text())
+                            .then(data => {
+                                // Use the 'data' variable to access the contents of the text file
+                                document.getElementById('bracket').textContent = data;
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    </script>
+                </p>
+            </div>
+            <div class="scoreboard-side-box">
+                <img class="character-slice" id="p2-character">
+                <script>
+                    fetch('../../text-files/Player2-Fighter.txt')
+                        .then(response => response.text())
+                        .then(data => {
+                            console.log(data)
+                            // Use the 'data' variable to access the contents of the text file
+                            document.getElementById('p2-character').textContent = data;
+                            // Use the text taken from the file to display the correct image
+                            document.getElementById('p2-character').src = "../../images/fighter-ui-slice/" + data + ".png";
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                </script>
+                <p id="p2-player" class="scoreboard-side-player">
+                    <script>
+                        fetch('../../text-files/Player2-Name.txt')
+                            .then(response => response.text())
+                            .then(data => {
+                                // Use the 'data' variable to access the contents of the text file
+                                document.getElementById('p2-player').textContent = data;
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    </script>
+                </p>
+            </div>
+            <div class="scoreboard-score-container">
+                <p id="p2-score"class="scoreboard-side-score">
+                    <script>
+                        fetch('../../text-files/Player2-Score.txt')
+                            .then(response => response.text())
+                            .then(data => {
+                                // Use the 'data' variable to access the contents of the text file
+                                document.getElementById('p2-score').textContent = data;
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    </script>
+                </p>
+            </div>
+        </div>
+        <div class="scoreboard-bottom-row">
+            <p id="event-info" class="scoreboard-event-title">
+                <script>
+                    fetch('../../text-files/Event-Info.txt')
+                        .then(response => response.text())
+                        .then(data => {
+                            // Use the 'data' variable to access the contents of the text file
+                            document.getElementById('event-info').textContent = data;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                </script>
+            </p>
+        </div>
+    </div>
+</body>
+
+
+
+</html>

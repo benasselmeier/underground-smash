@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<head>
+    <style>
+        body {
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+        }
+
+        .casters-info {
+            width: 19vw;
+            height: 8vh;
+            margin: 75vh 14vw;
+            color: white;
+            font-weight: bolder;
+            font-size: 3em;
+            text-align: center;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="casters-info">
+        <p id="c1-name">
+            <script>
+                fetch('../../text-files/Caster1-Name.txt')
+                    .then(response => response.text())
+                    .then(data => {
+                        // Use the 'data' variable to access the contents of the text file
+                        document.getElementById('c1-name').textContent = data;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            </script>
+        </p>
+        <p id="c1-profile">
+            <script>
+                fetch('../../text-files/Caster1-Profile.txt')
+                    .then(response => response.text())
+                    .then(data => {
+                        // Use the 'data' variable to access the contents of the text file
+                        document.getElementById('c1-profile').textContent = data;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            </script>
+    </div>
+    <div class="casters-info">
+        <p id="c2-name">
+            <script>
+                fetch('../../text-files/Caster2-Name.txt')
+                    .then(response => response.text())
+                    .then(data => {
+                        // Use the 'data' variable to access the contents of the text file
+                        document.getElementById('c2-name').textContent = data;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            </script>
+        </p>
+        <p id="c2-profile">
+            <script>
+                fetch('../../text-files/Caster2-Profile.txt')
+                    .then(response => response.text())
+                    .then(data => {
+                        // Use the 'data' variable to access the contents of the text file
+                        document.getElementById('c2-profile').textContent = data;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            </script>
+    </div>
+</body>
+
+</html>

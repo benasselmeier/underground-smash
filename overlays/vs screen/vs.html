@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body{
+            background-image: url("../../Underground_Smash_Overlay/2.png");
+            background-repeat: no-repeat;
+            background-size: 100%;
+            background-position: top;
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .p1-character-image {
+            background-image: url("../../Underground_Smash_Overlay/28.png");
+            background-repeat: no-repeat;
+            background-size: 100%;
+            background-position: top;
+            height: 100%;
+            width: 40%;
+            margin: auto 0 ;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .p2-character-image {
+            background-image: url("../../Underground_Smash_Overlay/61.png");
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: top;
+            height: 100%;
+            width: 40%;
+            margin: auto 0 auto;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .vs-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .vs-top-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 13vh;
+            width: 55vw;
+            /* border: 1px solid red; */
+            margin: 24px auto;
+            font-size: 4em;
+            font-family: 'Roboto', sans-serif;
+            font-weight: bold;
+        }
+
+        .vs-character-section {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            height: 60vh;
+            width: 70vw;
+            margin: 16px auto;
+            /* border: 1px solid blue; */
+        }
+
+        .character-image {
+            margin: 0;
+            height: 55vh;
+            width: 25vw;
+            /* border: 1px solid green; */
+            align-content: center;
+            
+            img {
+                height: inherit;
+            }
+        }
+
+        .vs-bottom-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            height: 9vh;
+            width: 75vw;
+            margin: 0px auto;
+            /* border: 1px solid red; */
+        }
+
+        .player-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3em;
+            height: auto;
+            width: 20vw;
+            /* border: 1px solid blue; */
+            margin: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="vs-container">
+
+        <div class="vs-top-info">
+            <p id="round">
+                <script>
+                    fetch('../../text-files/Current-Round.txt')
+                        .then(response => response.text())
+                        .then(data => {
+                            // Use the 'data' variable to access the contents of the text file
+                            document.getElementById('round').textContent = data;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                </script>
+            </p>
+        </div>
+
+        <div class="vs-character-section">
+            <div class="p1-character-image">
+                <img class="character-image" id="p1-character">
+                <script>
+                    fetch('../../text-files/Player1-Fighter.txt')
+                        .then(response => response.text())
+                        .then(data => {
+                            console.log(data)
+                            // Use the 'data' variable to access the contents of the text file
+                            document.getElementById('p1-character').textContent = data;
+                            // Use the text taken from the file to display the correct image
+                            document.getElementById('p1-character').src = "../../images/fighter-portraits-stylized/" + data + ".png";
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                </script>            </div>
+            <div class="middle-graphic">
+                vs
+            </div>
+            <div class="p2-character-image">
+                <img class="character-image" id="p2-character">
+                <script>
+                    fetch('../../text-files/Player2-Fighter.txt')
+                        .then(response => response.text())
+                        .then(data => {
+                            console.log(data)
+                            // Use the 'data' variable to access the contents of the text file
+                            document.getElementById('p2-character').textContent = data;
+                            // Use the text taken from the file to display the correct image
+                            document.getElementById('p2-character').src = "../../images/fighter-portraits-stylized/" + data + ".png";
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                </script>
+            </div>
+        </div>
+
+        <div class="vs-bottom-container">
+            <div class="player-info">
+                <p id="p1-player">
+                    <script>
+                        fetch('../../text-files/Player1-Name.txt')
+                            .then(response => response.text())
+                            .then(data => {
+                                // Use the 'data' variable to access the contents of the text file
+                                document.getElementById('p1-player').textContent = data;
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    </script>
+                </p>
+            </div>
+            <div class="player-info">
+                <p id="p2-player">
+                    <script>
+                        fetch('../../text-files/Player2-Name.txt')
+                            .then(response => response.text())
+                            .then(data => {
+                                // Use the 'data' variable to access the contents of the text file
+                                document.getElementById('p2-player').textContent = data;
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    </script>
+                </p>
+            </div>
+            </div>
+    </div>
+
+</body>
+
+</html>
