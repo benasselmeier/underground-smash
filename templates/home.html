@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Underground Smash Overlay Tool</title>
+    <title>MB's Smash Overlay Tool</title>
     <style>
         .form-row {
             display: flex;
@@ -25,11 +25,15 @@
             display: flex;
             flex-direction: row;
             justify-content: space-around;
+            width: 69%;
+            margin: auto;
         }
         .form-casters-section {
             display: flex;
             flex-direction: row;
             justify-content: space-around;
+            width: 69%;
+            margin: auto;
         }
         .form-section-header {
             display: flex;
@@ -39,16 +43,23 @@
         .header {
             display: flex;
             flex-direction: row;
-            justify-content: space-between;
+            justify-content: space-around;
             align-items: center;
+            margin: auto;
+            width: 50%;
+        }
+        .form-submit-button {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            margin-top: 3em;
         }
     </style>
 </head>
 
 <body>
     <div class="header">
-        <h1>Underground Smash Overlay Tool</h1>
-        <input type="submit" value="Save Changes">
+        <h1>MB's Smash Overlay Tool</h1>
     </div>
 
     <form method="POST">
@@ -56,22 +67,40 @@
             <h2>Player Info</h2>
         </div>
         <div class="form-players-section">
-            <div class="form-player-container">
-                {% for file, content in player_1_files.items() %}
-                    <div class="form-row">
-                        <h3>{{ format_filename(file) }}</h3>
-                        <textarea name="{{ file }}">{{ content }}</textarea>
+                <div class="form-players-section">
+                    <div class="form-player-container">
+                        {% for file, content in player_1_files.items() %}
+                            <div class="form-row">
+                                <h3>{{ format_filename(file) }}</h3>
+                                {% if file == 'Player1-Fighter.txt' %}
+                                    <select name="{{ file }}">
+                                        {% for fighter in fighters %}
+                                            <option value="{{ fighter }}" {% if content == fighter %}selected{% endif %}>{{ fighter }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% else %}
+                                    <textarea name="{{ file }}">{{ content }}</textarea>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
-            </div>
+                </div>
             <div class="form-vs-divider">
-                <h1>VS</h1>
+                    <h1>VS</h1>
             </div>
             <div class="form-player-container">
                 {% for file, content in player_2_files.items() %}
                     <div class="form-row">
                         <h3>{{ format_filename(file) }}</h3>
-                        <textarea name="{{ file }}">{{ content }}</textarea>
+                        {% if file == 'Player2-Fighter.txt' %}
+                            <select name="{{ file }}">
+                                {% for fighter in fighters %}
+                                    <option value="{{ fighter }}" {% if content == fighter %}selected{% endif %}>{{ fighter }}</option>
+                                {% endfor %}
+                            </select>
+                        {% else %}
+                            <textarea name="{{ file }}">{{ content }}</textarea>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>
@@ -88,7 +117,6 @@
                 </div>
             {% endfor %}
         </div>
-
         <div class="form-section-header">
             <h2>Caster Info</h2>
         </div>
@@ -99,6 +127,9 @@
                     <textarea name="{{ file }}">{{ content }}</textarea>
                 </div>
             {% endfor %}
+        </div>
+        <div class="form-submit-button">
+            <input type="submit" value="Save Changes">
         </div>
     </form>
 </body>

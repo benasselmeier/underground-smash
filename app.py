@@ -27,6 +27,9 @@ app.jinja_env.globals.update(format_filename=format_filename)
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    # Read the contents of the Fighters.txt file
+    with open(os.path.join('resources', 'Fighters.txt'), 'r') as file:
+        fighters = file.read().splitlines()
     info_files = read_files_from_directory(os.path.join(base_directory, 'info'))
     player_1_files = read_files_from_directory(os.path.join(base_directory, 'player-1'))
     player_2_files = read_files_from_directory(os.path.join(base_directory, 'player-2'))
@@ -41,9 +44,6 @@ def home():
                         f.write(content)
         return redirect(url_for('home'))
 
-    # Read the contents of the Fighters.txt file
-    with open(os.path.join('resources', 'Fighters.txt'), 'r') as file:
-        fighters = file.read().splitlines()
 
     return render_template('home.html', info_files=info_files, player_1_files=player_1_files, player_2_files=player_2_files, casters_files=casters_files, fighters=fighters)
 
