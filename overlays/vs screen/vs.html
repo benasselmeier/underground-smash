@@ -14,7 +14,7 @@
             font-family: 'Roboto', sans-serif;
         }
 
-        .p1-character-image {
+        /* .p1-character-image {
             background-image: url("../../Underground_Smash_Overlay/28.png");
             background-repeat: no-repeat;
             background-size: 100%;
@@ -34,7 +34,8 @@
             width: 40%;
             margin: auto 0 auto;
             font-family: 'Roboto', sans-serif;
-        }
+        } */
+
 
         .vs-container {
             display: flex;
@@ -72,6 +73,7 @@
             width: 25vw;
             /* border: 1px solid green; */
             align-content: center;
+            object-fit: scale-down;
             
             img {
                 height: inherit;
@@ -131,7 +133,7 @@
                             // Use the 'data' variable to access the contents of the text file
                             document.getElementById('p1-character').textContent = data;
                             // Use the text taken from the file to display the correct image
-                            document.getElementById('p1-character').src = "../../images/fighter-portraits-stylized/" + data + ".png";
+                            document.getElementById('p1-character').src = "../../images/fighter-portraits-stylized/cropped/" + data + ".png";
                         })
                         .catch(error => {
                             console.error('Error:', error);
@@ -150,7 +152,7 @@
                             // Use the 'data' variable to access the contents of the text file
                             document.getElementById('p2-character').textContent = data;
                             // Use the text taken from the file to display the correct image
-                            document.getElementById('p2-character').src = "../../images/fighter-portraits-stylized/" + data + ".png";
+                            document.getElementById('p2-character').src = "../../images/fighter-portraits-stylized/cropped/" + data + ".png";
                         })
                         .catch(error => {
                             console.error('Error:', error);

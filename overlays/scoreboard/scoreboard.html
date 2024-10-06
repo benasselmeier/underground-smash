@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoreboard</title>
     <style>
         :root {
             --underground-purple: rgba(207, 85, 255, 0.768);
@@ -33,8 +36,8 @@
         }
 
         .scoreboard-center {
-            /* background: var(--underground-purple); */
-            background: var(--semo-smash-red);
+            background: var(--underground-purple);
+            /* background: var(--semo-smash-red); */
             border: 2px solid white;
             justify-content: center;
             height: 7vh;
@@ -49,8 +52,8 @@
         }
 
         .scoreboard-side-box {
-            /* background: var(--underground-purple); */
-            background: var(--semo-smash-red);
+            background: var(--underground-purple);
+            /* background: var(--semo-smash-red); */
             border: 2px solid white;
             height: 5vh;
             width: 15vw;
@@ -65,8 +68,8 @@
         }
 
         .scoreboard-score-container {
-            /* background: var(--underground-purple); */
-            background: var(--semo-smash-red);
+            background: var(--underground-purple);
+            /* background: var(--semo-smash-red); */
             border: 2px solid white;
             height: 5vh;
             width: 3vw;
@@ -87,8 +90,8 @@
         }
 
         .scoreboard-bottom-row {
-            /* background: var(--underground-purple); */
-            background: var(--semo-smash-red);
+            background: var(--underground-purple);
+            /* background: var(--semo-smash-red); */
             border: 2px solid white;
             height: 4vh;
             width: 30vw;
@@ -118,7 +121,7 @@
         }
 
         .character-slice {
-            height: inherit;
+            height: 69%;
         }
 
         .cams-container {
@@ -169,6 +172,16 @@
             <div class="scoreboard-side-box">
                 <p id="p1-player" class="scoreboard-side-player"></p>
                 <img class="character-slice" id="p1-character">
+                <script>
+                    fetch('../../text-files/player-1/Player1-Fighter.txt')
+                        .then(response => response.text())
+                        .then(data => {
+                            document.getElementById('p1-character').src = "../../images/fighter-ui-slice/" + data + ".png";
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                </script>
             </div>
             <div class="scoreboard-center">
                 <p id="round" class="scoreboard-round"></p>
@@ -177,6 +190,16 @@
             </div>
             <div class="scoreboard-side-box">
                 <img class="character-slice" id="p2-character">
+                <script>
+                    fetch('../../text-files/player-2/Player2-Fighter.txt')
+                        .then(response => response.text())
+                        .then(data => {
+                            document.getElementById('p2-character').src = "../../images/fighter-ui-slice/" + data + ".png";
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                </script>
                 <p id="p2-player" class="scoreboard-side-player"></p>
             </div>
             <div class="scoreboard-score-container">
@@ -194,6 +217,7 @@
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById(elementId).textContent = data;
+                    document.getElementbyId(elementId).src = "../../images/fighter-ui-slice/" + data + ".png";
                 })
                 .catch(error => {
                     console.error('Error:', error);
