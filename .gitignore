@@ -1,1 +1,4 @@
 /images/fighter-portraits-stylized/*
+.DS_Store/*
+/media/*
+/venv/
