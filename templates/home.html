@@ -4,23 +4,32 @@
 <head>
     <title>MB's Smash Overlay Tool</title>
     <style>
+        body {
+            background-color: rgb(71, 71, 88);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         .form-row {
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             margin-bottom: 1em;
             gap: 1em;
+            color: white;
         }
+
         .form-players-section {
             display: flex;
             flex-direction: row;
             justify-content: space-around;
             align-items: center;
         }
+
         .form-player-container {
             display: flex;
             flex-direction: column;
         }
+
         .form-info-section {
             display: flex;
             flex-direction: row;
@@ -28,6 +37,7 @@
             width: 69%;
             margin: auto;
         }
+
         .form-casters-section {
             display: flex;
             flex-direction: row;
@@ -35,11 +45,14 @@
             width: 69%;
             margin: auto;
         }
+
         .form-section-header {
             display: flex;
             flex-direction: row;
             justify-content: center;
+            color: white;
         }
+
         .header {
             display: flex;
             flex-direction: row;
@@ -47,85 +60,123 @@
             align-items: center;
             margin: auto;
             width: 50%;
+            color: white;
         }
+
         .form-submit-button {
             display: flex;
             flex-direction: row;
             justify-content: center;
             margin-top: 3em;
         }
+
+        .form-vs-divider {
+            color: white;
+        }
+
+        .form-select {
+            background: #8a8a8a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            font-weight: bold;
+        }
+
+        .form-text {
+            background: #8a8a8a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            font-weight: bold;
+        }
+        .page-title {
+            margin: 4px;
+        }
     </style>
 </head>
 
 <body>
     <div class="header">
-        <h1>MB's Smash Overlay Tool</h1>
+        <h1 class="page-title">MB's Smash Overlay Tool</h1>
     </div>
 
     <form method="POST">
         <div class="form-section-header">
-            <h2>Player Info</h2>
+            <h2 class="page-title">Player Info</h2>
         </div>
         <div class="form-players-section">
-                <div class="form-players-section">
-                    <div class="form-player-container">
-                        {% for file, content in player_1_files.items() %}
-                            <div class="form-row">
-                                <h3>{{ format_filename(file) }}</h3>
-                                {% if file == 'Player1-Fighter.txt' %}
-                                    <select name="{{ file }}">
-                                        {% for fighter in fighters %}
-                                            <option value="{{ fighter }}" {% if content == fighter %}selected{% endif %}>{{ fighter }}</option>
-                                        {% endfor %}
-                                    </select>
-                                {% else %}
-                                    <textarea name="{{ file }}">{{ content }}</textarea>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
+            <div class="form-players-section">
+                <div class="form-player-container">
+                    {% for file, content in player_1_files.items() %}
+                    <div class="form-row">
+                        <h3 class="page-title">{{ format_filename(file) }}</h3>
+                        {% if file == 'Player1-Fighter.txt' %}
+                        <select class="form-select" name="{{ file }}">
+                            {% for fighter in fighters %}
+                            <option value="{{ fighter }}" {% if content == fighter %}selected{% endif %}>{{ fighter }}</option>
+                            {% endfor %}
+                        </select>
+                        {% elif file == 'Player1-Score.txt' %}
+                        <select class="form-select" name="{{ file }}">
+                            <option value="0" {% if content == '0' %}selected{% endif %}>0</option>
+                            <option value="1" {% if content == '1' %}selected{% endif %}>1</option>
+                            <option value="2" {% if content == '2' %}selected{% endif %}>2</option>
+                            <option value="3" {% if content == '3' %}selected{% endif %}>3</option>
+                        </select>
+                        {% else %}
+                        <textarea class="form-text" name="{{ file }}">{{ content }}</textarea>
+                        {% endif %}
                     </div>
+                    {% endfor %}
                 </div>
+            </div>
             <div class="form-vs-divider">
-                    <h1>VS</h1>
+                <h1 class="page-title">VS</h1>
             </div>
             <div class="form-player-container">
                 {% for file, content in player_2_files.items() %}
-                    <div class="form-row">
-                        <h3>{{ format_filename(file) }}</h3>
-                        {% if file == 'Player2-Fighter.txt' %}
-                            <select name="{{ file }}">
-                                {% for fighter in fighters %}
-                                    <option value="{{ fighter }}" {% if content == fighter %}selected{% endif %}>{{ fighter }}</option>
-                                {% endfor %}
-                            </select>
-                        {% else %}
-                            <textarea name="{{ file }}">{{ content }}</textarea>
-                        {% endif %}
-                    </div>
+                <div class="form-row">
+                    <h3 class="page-title">{{ format_filename(file) }}</h3>
+                    {% if file == 'Player2-Fighter.txt' %}
+                    <select class="form-select" name="{{ file }}">
+                        {% for fighter in fighters %}
+                        <option value="{{ fighter }}" {% if content==fighter %}selected{% endif %}>{{ fighter }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% elif file == 'Player2-Score.txt' %}
+                    <select class="form-select" name="{{ file }}">
+                        <option value="0" {% if content == '0' %}selected{% endif %}>0</option>
+                        <option value="1" {% if content == '1' %}selected{% endif %}>1</option>
+                        <option value="2" {% if content == '2' %}selected{% endif %}>2</option>
+                        <option value="3" {% if content == '3' %}selected{% endif %}>3</option>
+                    </select>
+                    {% else %}
+                    <textarea class="form-text" name="{{ file }}">{{ content }}</textarea>
+                    {% endif %}
+                </div>
                 {% endfor %}
             </div>
         </div>
 
         <div class="form-section-header">
-            <h2>Tournament Info</h2>
+            <h2 class="page-title">Tournament Info</h2>
         </div>
         <div class="form-info-section">
             {% for file, content in info_files.items() %}
-                <div class="form-row">
-                    <h3>{{ format_filename(file) }}</h3>
-                    <textarea name="{{ file }}">{{ content }}</textarea>
-                </div>
+            <div class="form-row">
+                <h3 class="page-title">{{ format_filename(file) }}</h3>
+                <textarea class="form-text" name="{{ file }}">{{ content }}</textarea>
+            </div>
             {% endfor %}
         </div>
         <div class="form-section-header">
-            <h2>Caster Info</h2>
+            <h2 class="page-title">Caster Info</h2>
         </div>
         <div class="form-casters-section">
             {% for file, content in casters_files.items() %}
-                <div class="form-row">
-                    <h3>{{ format_filename(file) }}</h3>
-                    <textarea name="{{ file }}">{{ content }}</textarea>
-                </div>
+            <div class="form-row">
+                <h3 class="page-title">{{ format_filename(file) }}</h3>
+                <textarea class="form-text" name="{{ file }}">{{ content }}</textarea>
+            </div>
             {% endfor %}
         </div>
         <div class="form-submit-button">
