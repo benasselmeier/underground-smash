@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoreboard</title>
+    <style>
+        :root {
+            --underground-purple: rgba(225, 148, 255, 0.677);
+            --semo-smash-red: #9e0000;
+        }
+        
+        body {
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            font-family: 'Abduction2002', sans-serif;
+        }
+
+        .scoreboard {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .scoreboard-top-row {
+            display: flex;
+            flex-direction: row;
+            align-items: bottom;
+            padding: 0;
+            margin: auto auto 0 auto;
+        }
+
+        .scoreboard-container {
+            height: 10vh;
+        }
+
+        .scoreboard-center {
+            background: var(--underground-purple);
+            /* background: var(--semo-smash-red); */
+            border: 2px solid white;
+            justify-content: center;
+            height: 7vh;
+            width: 20vw;
+            text-align: center;
+            display: flex;
+            flex-direction: row;
+            gap: 1em;
+            font-size: 1.5em;
+            color: white;
+            margin-top: 1vh;
+        }
+
+        .scoreboard-side-box {
+            background: var(--underground-purple);
+            /* background: var(--semo-smash-red); */
+            border: 2px solid white;
+            height: 5vh;
+            width: 15vw;
+            margin: 16px 4px 0;
+            text-align: center;
+            font-size: 1.5em;
+            padding: 4px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .scoreboard-score-container {
+            background: var(--underground-purple);
+            /* background: var(--semo-smash-red); */
+            border: 2px solid white;
+            height: 5vh;
+            width: 3vw;
+            margin: 16px 4px 0;
+            text-align: center;
+            font-size: 2em;
+            padding: 4px;
+            align-content: center;
+        }
+
+        .scoreboard-side-player {
+            margin: auto;
+            color: white;
+            font-size: 1.2em;
+
+        }
+
+        .scoreboard-side-score {
+            display: flex;
+            font-size: 1.5em;
+            /* border: 1px solid blue; */
+            margin: 8px auto;
+            justify-content: center;
+            color: white;
+        }
+
+        .scoreboard-bottom-row {
+            background: var(--underground-purple);
+            /* background: var(--semo-smash-red); */
+            border: 2px solid white;
+            height: 4vh;
+            width: 25vw;
+            margin: auto;
+            text-align: center;
+            font-size: 1.25em;
+            font-weight: bold;
+            color: white;
+            align-content: center;
+            margin-top: 4px;
+        }
+
+        .scoreboard-bracket {
+            display: flex;
+            justify-content: center;
+            margin-top: 16px;
+            width: 40%;
+            align-content: center;
+        }
+
+        .scoreboard-round {
+            display: flex;
+            justify-content: center;
+            margin-top: 16px;
+            width: 40%;
+            align-content: center;
+        }
+
+        .scoreboard-event-title {
+            margin-top: 0.75em;
+        }
+
+        .scoreboard-player-cam-container {
+            gap: 50%;
+            margin: auto;
+            bottom: 2vh;
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+
+        .scoreboard-player-cam {
+            margin: auto;
+            width: 360px;
+            height: 200px;
+            border: 3px solid var(--underground-purple);
+        }
+
+
+        .character-slice {
+            height: 69%;
+        }
+
+        .graphics-container {
+            margin: auto;
+            padding: 0;
+            height: 10vh;
+            width: 15vw;
+            position: fixed;
+            bottom: 5vh;
+            left: 5vw;
+            right: 5vw;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+
+</head>
+<body>
+    <div class="scoreboard">
+        <div class="scoreboard-top-row">
+            <div class="scoreboard-score-container">
+                <p id="p1-score" class="scoreboard-side-score"></p>
+            </div>
+            <div class="scoreboard-side-box">
+                <p id="p1-player" class="scoreboard-side-player"></p>
+                <img class="character-slice" id="p1-character">
+                <script>
+                    fetch('../../text-files/player-1/Player1-Fighter.txt')
+                        .then(response => response.text())
+                        .then(data => {
+                            document.getElementById('p1-character').src = "../../images/fighter-ui-slice/" + data + ".png";
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                </script>
+            </div>
+            <div class="scoreboard-center">
+                <p id="round" class="scoreboard-round"></p>
+                <img src="../../images/Smash_Ball.png">
+                <p id="bracket" class="scoreboard-bracket"></p>
+            </div>
+            <div class="scoreboard-side-box">
+                <img class="character-slice" id="p2-character">
+                <script>
+                    fetch('../../text-files/player-2/Player2-Fighter.txt')
+                        .then(response => response.text())
+                        .then(data => {
+                            document.getElementById('p2-character').src = "../../images/fighter-ui-slice/" + data + ".png";
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                </script>
+                <p id="p2-player" class="scoreboard-side-player"></p>
+            </div>
+            <div class="scoreboard-score-container">
+                <p id="p2-score" class="scoreboard-side-score"></p>
+            </div>
+        </div>
+        <div class="scoreboard-bottom-row">
+            <p id="event-info" class="scoreboard-event-title"></p>
+        </div>
+
+        <div class="scoreboard-player-cam-container">
+            <div class="scoreboard-player-cam">
+
+            </div>
+            <div class="scoreboard-player-cam">
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fetchData = (url, elementId) => {
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById(elementId).textContent = data;
+                    document.getElementbyId(elementId).src = "../../images/fighter-ui-slice/" + data + ".png";
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        };
+
+        fetchData('../../text-files/player-1/Player1-Score.txt', 'p1-score');
+        fetchData('../../text-files/player-1/Enter Player 1 Name.txt', 'p1-player');
+        fetchData('../../text-files/player-1/Player1-Fighter.txt', 'p1-character');
+        fetchData('../../text-files/info/Current-Round.txt', 'round');
+        fetchData('../../text-files/info/Bracket-Name.txt', 'bracket');
+        fetchData('../../text-files/player-2/Player2-Fighter.txt', 'p2-character');
+        fetchData('../../text-files/player-2/Enter Player 2 Name.txt', 'p2-player');
+        fetchData('../../text-files/player-2/Player2-Score.txt', 'p2-score');
+        fetchData('../../text-files/info/Event-Info.txt', 'event-info');
+    </script>
+</body>
+
+
+
+</html>
