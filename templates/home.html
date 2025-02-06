@@ -98,7 +98,7 @@
         <h1 class="page-title">MB's Smash Overlay Tool</h1>
     </div>
 
-    <form method="POST">
+    <form id="auto-save-form" method="POST">
         <div class="form-section-header">
             <h2 class="page-title">Player Info</h2>
         </div>
@@ -183,6 +183,19 @@
             <input type="submit" value="Save Changes">
         </div>
     </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const form = document.getElementById('auto-save-form');
+            const formElements = form.querySelectorAll('input, select, textarea');
+    
+            formElements.forEach(element => {
+                element.addEventListener('change', () => {
+                    form.submit();
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>
