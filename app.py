@@ -1,8 +1,29 @@
-from flask import Flask, request, redirect, url_for, render_template
+from flask import Flask, request, redirect, url_for, render_template, send_from_directory
 import os
 
+from pathlib import Path
 app = Flask(__name__)
 base_directory = 'text-files/'
+
+# Set up static folder for images
+app.static_folder = os.path.abspath('images')
+app.static_url_path = '/images'
+print(f"Static folder path: {app.static_folder}")  # Debug print
+
+# Serve text files
+@app.route('/text-files/<path:filename>')
+def serve_text_file(filename):
+    return send_from_directory(base_directory, filename)
+
+# Serve resources files
+@app.route('/resources/<path:filename>')
+def serve_resource_file(filename):
+    return send_from_directory('resources', filename)
+
+# Serve fighter images
+@app.route('/images/fighter-ui-slice/<path:filename>')
+def serve_fighter_image(filename):
+    return send_from_directory('images/fighter-ui-slice', filename)
 
 def read_files_from_directory(directory):
     print(f"Reading files from directory: {directory}")  # Debug statement
@@ -60,5 +81,15 @@ def update(filename):
         f.write(content)
     return redirect(url_for('view', filename=filename))
 
+@app.route('/debug-static')
+def debug_static():
+    static_folder = os.path.abspath(app.static_folder)
+    return {
+        'static_folder': static_folder,
+        'static_url_path': app.static_url_path,
+        'exists': os.path.exists(static_folder),
+        'files': os.listdir(static_folder) if os.path.exists(static_folder) else []
+    }
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-
+<html>
 <head>
     <style>
         body {
@@ -18,66 +18,52 @@
             color: white;
             font-size: 3em;
             text-align: center;
+        }
 
+        .caster-sponsor {
+            color: #FFD700;
+            font-size: 0.7em;
+            margin: 0;
+            padding: 0;
         }
     </style>
 </head>
 
 <body>
     <div class="casters-info">
-        <p id="c1-name">
-            <script>
-                fetch('../../text-files/casters/Caster1-Name.txt')
-                    .then(response => response.text())
-                    .then(data => {
-                        // Use the 'data' variable to access the contents of the text file
-                        document.getElementById('c1-name').textContent = data;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-            </script>
-        </p>
-        <p id="c1-profile">
-            <script>
-                fetch('../../text-files/casters/Caster1-Profile.txt')
-                    .then(response => response.text())
-                    .then(data => {
-                        // Use the 'data' variable to access the contents of the text file
-                        document.getElementById('c1-profile').textContent = data;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-            </script>
+        <p id="c1-sponsor" class="caster-sponsor"></p>
+        <p id="c1-name"></p>
+        <p id="c1-profile"></p>
     </div>
     <div class="casters-info">
-        <p id="c2-name">
-            <script>
-                fetch('../../text-files/casters/Caster2-Name.txt')
-                    .then(response => response.text())
-                    .then(data => {
-                        // Use the 'data' variable to access the contents of the text file
-                        document.getElementById('c2-name').textContent = data;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-            </script>
-        </p>
-        <p id="c2-profile">
-            <script>
-                fetch('../../text-files/casters/Caster2-Profile.txt')
-                    .then(response => response.text())
-                    .then(data => {
-                        // Use the 'data' variable to access the contents of the text file
-                        document.getElementById('c2-profile').textContent = data;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-            </script>
+        <p id="c2-sponsor" class="caster-sponsor"></p>
+        <p id="c2-name"></p>
+        <p id="c2-profile"></p>
     </div>
+
+    <script>
+        // Helper function to fetch and update text content
+        function fetchText(url, elementId) {
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById(elementId).textContent = data;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        // Fetch caster 1 information
+        fetchText('../../text-files/casters/Caster1-Sponsor.txt', 'c1-sponsor');
+        fetchText('../../text-files/casters/Caster1-Name.txt', 'c1-name');
+        fetchText('../../text-files/casters/Caster1-Profile.txt', 'c1-profile');
+        
+        // Fetch caster 2 information
+        fetchText('../../text-files/casters/Caster2-Sponsor.txt', 'c2-sponsor');
+        fetchText('../../text-files/casters/Caster2-Name.txt', 'c2-name');
+        fetchText('../../text-files/casters/Caster2-Profile.txt', 'c2-profile');
+    </script>
 </body>
 
 </html>

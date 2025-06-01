@@ -7,21 +7,17 @@
     <title>Scoreboard</title>
     <style>
         :root {
-            --underground-purple: rgba(225, 148, 255, 0.677);
-            --semo-smash-red: #9e0000;
-            --heartland-gaming-con-red: #ec1d23;
-            --heartland-gaming-con-gray: #b6b6b6;
-            --heartland-gaming-con-gold: #e7bd1b;
-            --heartland-gaming-con-black: #261d22;
-
+            --greenhill-brown: #915A26;
+            --greenhill-dark-brown: #6A3A1D;
+            --greenhill-grass: #1ED400;
+            --greenhill-outline: #000;
         }
-        
+
         body {
             height: 100vh;
             width: 100vw;
             margin: 0;
-            /* font-family: 'Abduction2002', sans-serif; */
-            font-family: 'IM Fell English SC', serif;
+            font-family: 'Bebitron', sans-serif;
         }
 
         .scoreboard {
@@ -33,7 +29,6 @@
             display: flex;
             flex-direction: row;
             align-items: bottom;
-            padding: 0;
             margin: auto auto 0 auto;
         }
 
@@ -41,12 +36,27 @@
             height: 10vh;
         }
 
+        .scoreboard-center,
+        .scoreboard-side-box,
+        .scoreboard-score-container,
+        .scoreboard-bottom-row {
+            background-color: var(--greenhill-brown);
+            background-image:
+                linear-gradient(45deg, var(--greenhill-dark-brown) 25%, transparent 25%),
+                linear-gradient(-45deg, var(--greenhill-dark-brown) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, var(--greenhill-dark-brown) 75%),
+                linear-gradient(-45deg, transparent 75%, var(--greenhill-dark-brown) 75%);
+            background-size: 20px 20px;
+            background-position:
+                0 0,
+                0 10px,
+                10px -10px,
+                -10px 0px;
+            border: 4px solid var(--greenhill-outline);
+            box-shadow: inset 0 8px var(--greenhill-grass);
+        }
+
         .scoreboard-center {
-            /* background: var(--underground-purple); */
-            /* background: var(--semo-smash-red); */
-            background: var(--heartland-gaming-con-gold);
-            /* border: 2px solid white; */
-            border: 2px solid var(--heartland-gaming-con-gray);
             justify-content: center;
             height: 7vh;
             width: 20vw;
@@ -55,16 +65,11 @@
             flex-direction: row;
             gap: 1em;
             font-size: 1.5em;
-            color: var(--heartland-gaming-con-black);
+            color: white;
             margin-top: 1vh;
         }
 
         .scoreboard-side-box {
-            /* background: var(--underground-purple); */
-            /* background: var(--semo-smash-red); */
-            background: var(--heartland-gaming-con-gold);
-            /* border: 2px solid white; */
-            border: 2px solid var(--heartland-gaming-con-gray);
             height: 5vh;
             width: 15vw;
             margin: 16px 4px 0;
@@ -78,11 +83,6 @@
         }
 
         .scoreboard-score-container {
-            /* background: var(--underground-purple); */
-            /* background: var(--semo-smash-red); */
-            background: var(--heartland-gaming-con-gold);
-            /* border: 2px solid white; */
-            border: 2px solid var(--heartland-gaming-con-gray);
             height: 5vh;
             width: 3vw;
             margin: 16px 4px 0;
@@ -91,47 +91,45 @@
             align-content: center;
         }
 
-        .scoreboard-side-player {
-            margin: auto;
-            color: var(--heartland-gaming-con-black);
-            font-size: 1.5em;
-
+        .scoreboard-side-player,
+        .scoreboard-side-score {
+            color: white;
+            font-weight: bold;
         }
 
         .scoreboard-side-score {
             display: flex;
             font-size: 3em;
-            /* border: 1px solid blue; */
             margin: auto;
             justify-content: center;
             align-content: center;
-            color: var(--heartland-gaming-con-black);
-            font-weight: bolder;
+        }
+
+        .player-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .player-sponsor {
+            font-size: 0.7em;
+            color: #FFD700;
+            margin: 0;
+            padding: 0;
         }
 
         .scoreboard-bottom-row {
-            /* background: var(--underground-purple); */
-            /* background: var(--semo-smash-red); */
-            background: var(--heartland-gaming-con-gold);
-            /* border: 2px solid white; */
-            border: 2px solid var(--heartland-gaming-con-gray);
             height: 4vh;
             width: 25vw;
             margin: auto;
             text-align: center;
-            color: var(--heartland-gaming-con-black);
+            color: white;
             align-content: center;
             margin-top: 4px;
+            box-shadow: inset 0 6px var(--greenhill-grass);
         }
 
-        .scoreboard-bracket {
-            display: flex;
-            justify-content: center;
-            margin-top: 16px;
-            width: 40%;
-            align-content: center;
-        }
-
+        .scoreboard-bracket,
         .scoreboard-round {
             display: flex;
             justify-content: center;
@@ -145,47 +143,14 @@
             margin: auto;
         }
 
-        .scoreboard-player-cam-container {
-            gap: 50%;
-            margin: auto;
-            bottom: 2vh;
-            position: fixed;
-            width: 100vw;
-            height: 30vh;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-        }
-
-
-        .scoreboard-player-cam {
-            margin: auto;
-            width: 360px;
-            height: 200px;
-            border: 3px solid var(--heartland-gaming-con-gold);
-        }
-
-
         .character-slice {
             height: 69%;
-        }
-
-        .graphics-container {
-            margin: auto;
-            padding: 0;
-            height: 10vh;
-            width: 15vw;
-            position: fixed;
-            bottom: 5vh;
-            left: 5vw;
-            right: 5vw;
-            display: flex;
-            justify-content: space-between;
         }
     </style>
 </head>
 
 </head>
+
 <body>
     <div class="scoreboard">
         <div class="scoreboard-top-row">
@@ -193,7 +158,10 @@
                 <p id="p1-score" class="scoreboard-side-score"></p>
             </div>
             <div class="scoreboard-side-box">
-                <p id="p1-player" class="scoreboard-side-player"></p>
+                <div class="player-info">
+                    <p id="p1-sponsor" class="player-sponsor"></p>
+                    <p id="p1-player" class="scoreboard-side-player"></p>
+                </div>
                 <img class="character-slice" id="p1-character">
                 <script>
                     fetch('../../text-files/player-1/Player1-Fighter.txt')
@@ -223,7 +191,10 @@
                             console.error('Error:', error);
                         });
                 </script>
-                <p id="p2-player" class="scoreboard-side-player"></p>
+                <div class="player-info">
+                    <p id="p2-sponsor" class="player-sponsor"></p>
+                    <p id="p2-player" class="scoreboard-side-player"></p>
+                </div>
             </div>
             <div class="scoreboard-score-container">
                 <p id="p2-score" class="scoreboard-side-score"></p>
@@ -249,7 +220,6 @@
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById(elementId).textContent = data;
-                    document.getElementbyId(elementId).src = "../../images/fighter-ui-slice/" + data + ".png";
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -258,10 +228,10 @@
 
         fetchData('../../text-files/player-1/Player1-Score.txt', 'p1-score');
         fetchData('../../text-files/player-1/Enter Player 1 Name.txt', 'p1-player');
-        fetchData('../../text-files/player-1/Player1-Fighter.txt', 'p1-character');
+        fetchData('../../text-files/player-1/Player1-Sponsor.txt', 'p1-sponsor');
         fetchData('../../text-files/info/Current-Round.txt', 'round');
         fetchData('../../text-files/info/Bracket-Name.txt', 'bracket');
-        fetchData('../../text-files/player-2/Player2-Fighter.txt', 'p2-character');
+        fetchData('../../text-files/player-2/Player2-Sponsor.txt', 'p2-sponsor');
         fetchData('../../text-files/player-2/Enter Player 2 Name.txt', 'p2-player');
         fetchData('../../text-files/player-2/Player2-Score.txt', 'p2-score');
         fetchData('../../text-files/info/Event-Info.txt', 'event-info');

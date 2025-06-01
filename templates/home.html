@@ -87,6 +87,123 @@
             color: white;
             font-weight: bold;
         }
+
+        .character-selector-button {
+            background: #6a6a6a;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .character-selector-button:hover {
+            background: #555555;
+        }
+
+        .character-grid {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #333340;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #555;
+            z-index: 1000;
+            width: 98%;
+            max-width: none;
+            max-height: 80vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .character-grid.active {
+            display: grid;
+            grid-template-columns: repeat(13, 1fr);
+            gap: 10px;
+            width: 95%;
+            max-width: 1300px;
+        }
+
+        .character-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 3px;
+            border-radius: 4px;
+        }
+
+        .character-item:hover {
+            background: #555560;
+        }
+
+        .character-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .character-item span {
+            font-size: 0.7em;
+            color: white;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        .character-grid-header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .character-grid-header h3 {
+            color: white;
+            margin: 0;
+        }
+
+        .character-grid-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+
+        .character-grid-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .character-grid-backdrop.active {
+            display: block;
+        }
+
+        .selected-character {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .selected-character img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            object-fit: contain;
+        }
+
         .page-title {
             margin: 4px;
         }
@@ -109,11 +226,14 @@
                     <div class="form-row">
                         <h3 class="page-title">{{ format_filename(file) }}</h3>
                         {% if file == 'Player1-Fighter.txt' %}
-                        <select class="form-select" name="{{ file }}">
-                            {% for fighter in fighters %}
-                            <option value="{{ fighter }}" {% if content == fighter %}selected{% endif %}>{{ fighter }}</option>
-                            {% endfor %}
-                        </select>
+                        <div class="character-selection">
+                            <input type="hidden" name="{{ file }}" id="player1-fighter-input" value="{{ content }}">
+                            <button type="button" class="character-selector-button" onclick="openCharacterGrid('player1')">Select Character</button>
+                            <div class="selected-character">
+                                <img src="/images/fighter-ui-slice/{{ content|lower }}.png" id="player1-fighter-preview">
+                                <span>{{ content }}</span>
+                            </div>
+                        </div>
                         {% elif file == 'Player1-Score.txt' %}
                         <select class="form-select" name="{{ file }}">
                             <option value="0" {% if content == '0' %}selected{% endif %}>0</option>
@@ -121,6 +241,8 @@
                             <option value="2" {% if content == '2' %}selected{% endif %}>2</option>
                             <option value="3" {% if content == '3' %}selected{% endif %}>3</option>
                         </select>
+                        {% elif file == 'Player1-Sponsor.txt' %}
+                        <input type="text" class="form-text" name="{{ file }}" value="{{ content }}" placeholder="Sponsor (optional)">
                         {% else %}
                         <textarea class="form-text" name="{{ file }}">{{ content }}</textarea>
                         {% endif %}
@@ -136,12 +258,14 @@
                 <div class="form-row">
                     <h3 class="page-title">{{ format_filename(file) }}</h3>
                     {% if file == 'Player2-Fighter.txt' %}
-                    <select class="form-select" name="{{ file }}">
-                        {% for fighter in fighters %}
-                        <option value="{{ fighter }}" {% if content==fighter %}selected{% endif %}>{{ fighter }}
-                        </option>
-                        {% endfor %}
-                    </select>
+                    <div class="character-selection">
+                        <input type="hidden" name="{{ file }}" id="player2-fighter-input" value="{{ content }}">
+                        <button type="button" class="character-selector-button" onclick="openCharacterGrid('player2')">Select Character</button>
+                        <div class="selected-character">
+                            <img src="/images/fighter-ui-slice/{{ content|lower }}.png" id="player2-fighter-preview">
+                            <span>{{ content }}</span>
+                        </div>
+                    </div>
                     {% elif file == 'Player2-Score.txt' %}
                     <select class="form-select" name="{{ file }}">
                         <option value="0" {% if content == '0' %}selected{% endif %}>0</option>
@@ -149,6 +273,8 @@
                         <option value="2" {% if content == '2' %}selected{% endif %}>2</option>
                         <option value="3" {% if content == '3' %}selected{% endif %}>3</option>
                     </select>
+                    {% elif file == 'Player2-Sponsor.txt' %}
+                    <input type="text" class="form-text" name="{{ file }}" value="{{ content }}" placeholder="Sponsor (optional)">
                     {% else %}
                     <textarea class="form-text" name="{{ file }}">{{ content }}</textarea>
                     {% endif %}
@@ -175,7 +301,11 @@
             {% for file, content in casters_files.items() %}
             <div class="form-row">
                 <h3 class="page-title">{{ format_filename(file) }}</h3>
+                {% if file == 'Caster1-Sponsor.txt' or file == 'Caster2-Sponsor.txt' %}
+                <input type="text" class="form-text" name="{{ file }}" value="{{ content }}" placeholder="Sponsor (optional)">
+                {% else %}
                 <textarea class="form-text" name="{{ file }}">{{ content }}</textarea>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
@@ -183,6 +313,16 @@
             <input type="submit" value="Save Changes">
         </div>
     </form>
+
+    <!-- Character Selection Grid -->
+    <div class="character-grid-backdrop" id="character-grid-backdrop"></div>
+    <div class="character-grid" id="character-grid">
+        <div class="character-grid-header">
+            <h3>Select a Character</h3>
+            <button class="character-grid-close" onclick="closeCharacterGrid()">×</button>
+        </div>
+        <!-- Characters will be loaded here dynamically -->
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
@@ -194,7 +334,86 @@
                     form.submit();
                 });
             });
+
+            // Load all fighters for the character grid
+            loadFighters();
         });
+
+        let currentPlayer = '';
+
+        function openCharacterGrid(player) {
+            currentPlayer = player;
+            document.getElementById('character-grid-backdrop').classList.add('active');
+            document.getElementById('character-grid').classList.add('active');
+        }
+
+        function closeCharacterGrid() {
+            document.getElementById('character-grid-backdrop').classList.remove('active');
+            document.getElementById('character-grid').classList.remove('active');
+        }
+
+        function selectCharacter(fighter) {
+            const inputId = currentPlayer + '-fighter-input';
+            const previewId = currentPlayer + '-fighter-preview';
+            
+            document.getElementById(inputId).value = fighter;
+            document.getElementById(previewId).src = '/images/fighter-ui-slice/' + fighter.toLowerCase() + '.png';
+            document.getElementById(previewId).nextElementSibling.textContent = fighter;
+            
+            closeCharacterGrid();
+            
+            // Trigger form submission
+            document.getElementById(inputId).dispatchEvent(new Event('change'));
+        }
+
+        function loadFighters() {
+            // Define the order of fighters as they appear in SSBU
+            const fighterOrder = [
+                'Mario', 'Donkey-Kong', 'Link', 'Samus', 'Dark-Samus', 'Yoshi', 'Kirby', 'Fox', 
+                'Pikachu', 'Luigi', 'Ness', 'Captain-Falcon', 'Jigglypuff', 'Peach', 'Daisy', 'Bowser',
+                'Ice-Climbers', 'Sheik', 'Zelda', 'Dr-Mario', 'Pichu', 'Falco', 'Marth', 'Lucina',
+                'Young-Link', 'Ganondorf', 'Mewtwo', 'Roy', 'Chrom', 'Mr-Game-Watch', 'Meta-Knight',
+                'Pit', 'Dark-Pit', 'Zero-Suit-Samus', 'Wario', 'Snake', 'Ike', 'Pokemon-Trainer',
+                'Diddy-Kong', 'Lucas', 'Sonic', 'King-Dedede', 'Olimar', 'Lucario', 'ROB', 'Toon-Link',
+                'Wolf', 'Villager', 'Mega-Man', 'Wii-Fit-Trainer', 'Rosalina-Luma', 'Little-Mac',
+                'Greninja', 'Palutena', 'Pac-Man', 'Robin', 'Shulk', 'Bowser-Jr', 'Duck-Hunt', 'Ryu',
+                'Ken', 'Cloud', 'Corrin', 'Bayonetta', 'Inkling', 'Ridley', 'Simon', 'Richter', 'King-K-Rool',
+                'Isabelle', 'Incineroar', 'Piranha-Plant', 'Joker', 'Hero', 'Banjo-Kazooie', 'Terry',
+                'Byleth', 'Min-Min', 'Steve', 'Sephiroth', 'Pyra-Mythra', 'Kazuya', 'Sora',
+                'Mii-Brawler', 'Mii-Swordfighter', 'Mii-Gunner'
+            ];
+
+            const grid = document.getElementById('character-grid');
+            
+            // Keep the header, remove any existing character items
+            const header = grid.querySelector('.character-grid-header');
+            grid.innerHTML = '';
+            grid.appendChild(header);
+            
+            fighterOrder.forEach(fighter => {
+                const item = document.createElement('div');
+                item.className = 'character-item';
+                item.onclick = function() { selectCharacter(fighter); };
+                
+                const img = document.createElement('img');
+                // Handle special cases for filenames
+                let filename = fighter.toLowerCase();
+                if (filename === 'wii-fit-trainer') filename = 'wiifit';
+                if (filename === 'meta-knight') filename = 'metaknight';
+                if (filename === 'sheik') filename = 'shiek';  // Common misspelling in filenames
+                if (filename === 'pokemon-trainer') filename = 'pokemon-trainer';
+                if (filename === 'rosalina-luma') filename = 'rosalina';
+                img.src = '/images/fighter-ui-slice/' + filename + '.png';
+                img.alt = fighter;
+                
+                const name = document.createElement('span');
+                name.textContent = fighter.replace(/-/g, ' ');
+                
+                item.appendChild(img);
+                item.appendChild(name);
+                grid.appendChild(item);
+            });
+        }
     </script>
 </body>
 
