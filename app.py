@@ -25,6 +25,11 @@ def serve_resource_file(filename):
 def serve_fighter_image(filename):
     return send_from_directory('images/fighter-ui-slice', filename)
 
+# Serve static images like Smash_Ball.png
+@app.route('/static/<path:filename>')
+def serve_static_image(filename):
+    return send_from_directory('images', filename)
+
 def read_files_from_directory(directory):
     print(f"Reading files from directory: {directory}")  # Debug statement
     files = sorted(os.listdir(directory))

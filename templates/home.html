@@ -7,50 +7,9 @@
         body {
             background-color: rgb(71, 71, 88);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .form-row {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            margin-bottom: 1em;
-            gap: 1em;
-            color: white;
-        }
-
-        .form-players-section {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-around;
-            align-items: center;
-        }
-
-        .form-player-container {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-info-section {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-around;
-            width: 69%;
-            margin: auto;
-        }
-
-        .form-casters-section {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-around;
-            width: 69%;
-            margin: auto;
-        }
-
-        .form-section-header {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            color: white;
+            margin: 0;
+            padding: 8px;
+            position: relative;
         }
 
         .header {
@@ -58,20 +17,127 @@
             flex-direction: row;
             justify-content: space-around;
             align-items: center;
-            margin: auto;
-            width: 50%;
+            margin: 0 auto 8px;
+            width: 100%;
             color: white;
         }
 
-        .form-submit-button {
+        /* Main layout container */
+        .main-layout {
             display: flex;
             flex-direction: row;
-            justify-content: center;
-            margin-top: 3em;
+            width: 100%;
+            gap: 20px;
         }
 
-        .form-vs-divider {
+        .layout-content {
+            width: 60%;
+
+        }
+        
+        /* Section row for headers */
+        .section-headers {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            gap: 20px;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        
+        /* Section content row */
+        .section-content {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            gap: 20px;
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+        
+        /* Player stack for vertical arrangement */
+        .player-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 120px;
+            max-width: 200px;
+            flex: 1;
+        }
+        
+        /* Form item styling */
+        .form-item {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-width: 120px;
+            max-width: 200px;
+        }
+        
+        /* Section header styling */
+        .form-section-header {
+            margin-bottom: 5px;
+            flex: 1;
+            padding: 5px 10px;
+            background-color: #444;
+            border-radius: 4px;
+        }
+        
+        /* Header text styling */
+        .form-section-header h2 {
+            margin: 0;
+            padding: 0;
+            font-size: 18px;
             color: white;
+            text-align: center;
+        }
+        
+        /* Content section */
+        .content-section {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            gap: 20px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Save Button Styling */
+        .form-submit-button {
+
+        }
+        
+        .form-submit-button input[type="submit"] {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        
+        .form-submit-button input[type="submit"]:hover {
+            background-color: #357ac7;
+        }
+
+        /* Form text elements */
+        .form-text {
+            background: #8a8a8a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            font-weight: bold;
+            padding: 4px 6px;
+            height: 24px;
+            border-radius: 3px;
+            border: 1px solid #666;
+        }
+
+        textarea.form-text {
+            height: 24px;
+            resize: none;
+            overflow: hidden;
         }
 
         .form-select {
@@ -79,30 +145,53 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: white;
             font-weight: bold;
+            height: 30px;
+            border-radius: 3px;
+            border: 1px solid #666;
+            padding: 0 4px;
         }
 
-        .form-text {
-            background: #8a8a8a;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: white;
-            font-weight: bold;
+        /* Character selector styles */
+        .character-selection {
+            width: 100%;
         }
 
         .character-selector-button {
             background: #6a6a6a;
             color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 4px 10px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            transition: background-color 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .character-selector-button:hover {
             background: #555555;
         }
+        
+        .character-selector-button:active {
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            transform: translateY(1px);
+        }
 
+        .selected-character {
+            display: flex;
+            align-items: center;
+            margin-top: 2px;
+        }
+
+        .selected-character img {
+            width: 32px;
+            height: 32px;
+            margin-right: 8px;
+            object-fit: contain;
+        }
+
+        /* Character grid styling */
         .character-grid {
             display: none;
             position: fixed;
@@ -128,31 +217,20 @@
             width: 95%;
             max-width: 1300px;
         }
-
-        .character-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            padding: 3px;
-            border-radius: 4px;
+        
+        .character-grid-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
         }
 
-        .character-item:hover {
-            background: #555560;
-        }
-
-        .character-item img {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-        }
-
-        .character-item span {
-            font-size: 0.7em;
-            color: white;
-            text-align: center;
-            margin-top: 2px;
+        .character-grid-backdrop.active {
+            display: block;
         }
 
         .character-grid-header {
@@ -176,36 +254,68 @@
             cursor: pointer;
         }
 
-        .character-grid-backdrop {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        .character-grid-backdrop.active {
-            display: block;
-        }
-
-        .selected-character {
+        .character-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            margin-top: 5px;
+            cursor: pointer;
+            padding: 3px;
+            border-radius: 4px;
+            transition: background-color 0.2s, transform 0.1s;
         }
 
-        .selected-character img {
-            width: 40px;
-            height: 40px;
-            margin-right: 10px;
+        .character-item:hover {
+            background: #555560;
+            transform: scale(1.05);
+        }
+        
+        .character-item:active {
+            transform: scale(0.95);
+        }
+
+        .character-item img {
+            width: 50px;
+            height: 50px;
             object-fit: contain;
         }
 
+        .character-item span {
+            font-size: 0.7em;
+            color: white;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        /* Typography */
         .page-title {
-            margin: 4px;
+            margin: 2px;
+            font-size: 1em;
+        }
+
+        h1.page-title {
+            font-size: 1.5em;
+        }
+
+        h2.page-title {
+            font-size: 1.2em;
+        }
+
+        h3.page-title {
+            font-size: 0.9em;
+            margin: 1px 0;
+        }
+        
+        /* Responsive styles for smaller screens */
+        @media (max-width: 1500px) {
+            .form-item {
+                min-width: 110px;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .form-item {
+                min-width: 100px;
+            }
         }
     </style>
 </head>
@@ -216,101 +326,162 @@
     </div>
 
     <form id="auto-save-form" method="POST">
-        <div class="form-section-header">
-            <h2 class="page-title">Player Info</h2>
-        </div>
-        <div class="form-players-section">
-            <div class="form-players-section">
-                <div class="form-player-container">
-                    {% for file, content in player_1_files.items() %}
-                    <div class="form-row">
-                        <h3 class="page-title">{{ format_filename(file) }}</h3>
-                        {% if file == 'Player1-Fighter.txt' %}
-                        <div class="character-selection">
-                            <input type="hidden" name="{{ file }}" id="player1-fighter-input" value="{{ content }}">
-                            <button type="button" class="character-selector-button" onclick="openCharacterGrid('player1')">Select Character</button>
-                            <div class="selected-character">
-                                <img src="/images/fighter-ui-slice/{{ content|lower }}.png" id="player1-fighter-preview">
-                                <span>{{ content }}</span>
+        <div class="main-layout">
+            <div class="layout-content">
+            <!-- Section Headers Row -->
+            <div class="section-headers">
+                <div class="form-section-header">
+                    <h2 class="page-title">Player Info</h2>
+                </div>
+                <div class="form-section-header">
+                    <h2 class="page-title">Tournament Info</h2>
+                </div>
+                <div class="form-section-header">
+                    <h2 class="page-title">Caster Info</h2>
+                </div>
+            </div>
+            
+            <!-- Section Content Row -->
+            <div class="section-content">
+                <!-- Player Info Section Content -->
+                <div class="content-section">
+                    <!-- Player 1 Column -->
+                    <div class="player-stack">
+                        <div class="form-item">
+                            <h3 class="page-title">Player 1 Sponsor</h3>
+                            <input type="text" class="form-text" name="Player1-Sponsor.txt" value="{{ player_1_files['Player1-Sponsor.txt'] }}" placeholder="Sponsor (optional)">
+                        </div>
+                        
+                        <div class="form-item">
+                            <h3 class="page-title">Player 1 Name</h3>
+                            <textarea class="form-text" name="Enter Player 1 Name.txt" placeholder="Enter Player 1 Name">{{ player_1_files['Enter Player 1 Name.txt'] }}</textarea>
+                        </div>
+                        
+                        <div class="form-item">
+                            <h3 class="page-title">Player 1 Score</h3>
+                            <select class="form-select" name="Player1-Score.txt" title="Player 1 Score">
+                                <option value="0" {% if player_1_files['Player1-Score.txt'] == '0' %}selected{% endif %}>0</option>
+                                <option value="1" {% if player_1_files['Player1-Score.txt'] == '1' %}selected{% endif %}>1</option>
+                                <option value="2" {% if player_1_files['Player1-Score.txt'] == '2' %}selected{% endif %}>2</option>
+                                <option value="3" {% if player_1_files['Player1-Score.txt'] == '3' %}selected{% endif %}>3</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-item">
+                            <h3 class="page-title">Player 1 Fighter</h3>
+                            <div class="character-selection">
+                                <input type="hidden" name="Player1-Fighter.txt" id="player1-fighter-input" value="{{ player_1_files['Player1-Fighter.txt'] }}">
+                                <button type="button" class="character-selector-button" onclick="openCharacterGrid('player1')">Select Character</button>
+                                <div class="selected-character">
+                                    <img src="/images/fighter-ui-slice/{{ player_1_files['Player1-Fighter.txt']|lower }}.png" id="player1-fighter-preview" onerror="this.src='/static/Smash_Ball.png'; this.style.opacity='0.7';">
+                                    <span>{{ player_1_files['Player1-Fighter.txt'] }}</span>
+                                </div>
                             </div>
                         </div>
-                        {% elif file == 'Player1-Score.txt' %}
-                        <select class="form-select" name="{{ file }}">
-                            <option value="0" {% if content == '0' %}selected{% endif %}>0</option>
-                            <option value="1" {% if content == '1' %}selected{% endif %}>1</option>
-                            <option value="2" {% if content == '2' %}selected{% endif %}>2</option>
-                            <option value="3" {% if content == '3' %}selected{% endif %}>3</option>
-                        </select>
-                        {% elif file == 'Player1-Sponsor.txt' %}
-                        <input type="text" class="form-text" name="{{ file }}" value="{{ content }}" placeholder="Sponsor (optional)">
-                        {% else %}
-                        <textarea class="form-text" name="{{ file }}">{{ content }}</textarea>
-                        {% endif %}
                     </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="form-vs-divider">
-                <h1 class="page-title">VS</h1>
-            </div>
-            <div class="form-player-container">
-                {% for file, content in player_2_files.items() %}
-                <div class="form-row">
-                    <h3 class="page-title">{{ format_filename(file) }}</h3>
-                    {% if file == 'Player2-Fighter.txt' %}
-                    <div class="character-selection">
-                        <input type="hidden" name="{{ file }}" id="player2-fighter-input" value="{{ content }}">
-                        <button type="button" class="character-selector-button" onclick="openCharacterGrid('player2')">Select Character</button>
-                        <div class="selected-character">
-                            <img src="/images/fighter-ui-slice/{{ content|lower }}.png" id="player2-fighter-preview">
-                            <span>{{ content }}</span>
+                    
+                    <!-- Player 2 Column -->
+                    <div class="player-stack">
+                        <div class="form-item">
+                            <h3 class="page-title">Player 2 Sponsor</h3>
+                            <input type="text" class="form-text" name="Player2-Sponsor.txt" value="{{ player_2_files['Player2-Sponsor.txt'] }}" placeholder="Sponsor (optional)">
+                        </div>
+                        
+                        <div class="form-item">
+                            <h3 class="page-title">Player 2 Name</h3>
+                            <textarea class="form-text" name="Enter Player 2 Name.txt" placeholder="Enter Player 2 Name">{{ player_2_files['Enter Player 2 Name.txt'] }}</textarea>
+                        </div>
+                        
+                        <div class="form-item">
+                            <h3 class="page-title">Player 2 Score</h3>
+                            <select class="form-select" name="Player2-Score.txt" title="Player 2 Score">
+                                <option value="0" {% if player_2_files['Player2-Score.txt'] == '0' %}selected{% endif %}>0</option>
+                                <option value="1" {% if player_2_files['Player2-Score.txt'] == '1' %}selected{% endif %}>1</option>
+                                <option value="2" {% if player_2_files['Player2-Score.txt'] == '2' %}selected{% endif %}>2</option>
+                                <option value="3" {% if player_2_files['Player2-Score.txt'] == '3' %}selected{% endif %}>3</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-item">
+                            <h3 class="page-title">Player 2 Fighter</h3>
+                            <div class="character-selection">
+                                <input type="hidden" name="Player2-Fighter.txt" id="player2-fighter-input" value="{{ player_2_files['Player2-Fighter.txt'] }}">
+                                <button type="button" class="character-selector-button" onclick="openCharacterGrid('player2')">Select Character</button>
+                                <div class="selected-character">
+                                    <img src="/images/fighter-ui-slice/{{ player_2_files['Player2-Fighter.txt']|lower }}.png" id="player2-fighter-preview" onerror="this.src='/static/Smash_Ball.png'; this.style.opacity='0.7';">
+                                    <span>{{ player_2_files['Player2-Fighter.txt'] }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    {% elif file == 'Player2-Score.txt' %}
-                    <select class="form-select" name="{{ file }}">
-                        <option value="0" {% if content == '0' %}selected{% endif %}>0</option>
-                        <option value="1" {% if content == '1' %}selected{% endif %}>1</option>
-                        <option value="2" {% if content == '2' %}selected{% endif %}>2</option>
-                        <option value="3" {% if content == '3' %}selected{% endif %}>3</option>
-                    </select>
-                    {% elif file == 'Player2-Sponsor.txt' %}
-                    <input type="text" class="form-text" name="{{ file }}" value="{{ content }}" placeholder="Sponsor (optional)">
-                    {% else %}
-                    <textarea class="form-text" name="{{ file }}">{{ content }}</textarea>
-                    {% endif %}
                 </div>
-                {% endfor %}
+                
+                <!-- Tournament Info Section Content -->
+                <div class="content-section">
+                    <div class="player-stack">
+                        <div class="form-item">
+                            <h3 class="page-title">Bracket Name</h3>
+                            <textarea class="form-text" name="Bracket-Name.txt" placeholder="Bracket Name">{{ info_files['Bracket-Name.txt'] }}</textarea>
+                        </div>
+                        
+                        <!-- Current Round -->
+                        <div class="form-item">
+                            <h3 class="page-title">Current Round</h3>
+                            <textarea class="form-text" name="Current-Round.txt" placeholder="Current Round">{{ info_files['Current-Round.txt'] }}</textarea>
+                        </div>
+                        
+                        <!-- Event Info -->
+                        <div class="form-item">
+                            <h3 class="page-title">Event Info</h3>
+                            <textarea class="form-text" name="event-info.txt" placeholder="Event Info">{{ info_files['event-info.txt'] }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Caster Info Section Content -->
+                <div class="content-section">
+                    <!-- Caster 1 Column -->
+                    <div class="player-stack">
+                        <div class="form-item">
+                            <h3 class="page-title">Caster 1 Sponsor</h3>
+                            <input type="text" class="form-text" name="Caster1-Sponsor.txt" value="{{ casters_files['Caster1-Sponsor.txt'] }}" placeholder="Sponsor (optional)">
+                        </div>
+                        
+                        <div class="form-item">
+                            <h3 class="page-title">Caster 1 Name</h3>
+                            <textarea class="form-text" name="Caster1-Name.txt" placeholder="Caster 1 Name">{{ casters_files['Caster1-Name.txt'] }}</textarea>
+                        </div>
+                        
+                        <div class="form-item">
+                            <h3 class="page-title">Caster 1 Profile</h3>
+                            <textarea class="form-text" name="Caster1-Profile.txt" placeholder="Caster 1 Profile/Tag">{{ casters_files['Caster1-Profile.txt'] }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Caster 2 Column -->
+                    <div class="player-stack">
+                        <div class="form-item">
+                            <h3 class="page-title">Caster 2 Sponsor</h3>
+                            <input type="text" class="form-text" name="Caster2-Sponsor.txt" value="{{ casters_files['Caster2-Sponsor.txt'] }}" placeholder="Sponsor (optional)">
+                        </div>
+                        
+                        <div class="form-item">
+                            <h3 class="page-title">Caster 2 Name</h3>
+                            <textarea class="form-text" name="Caster2-Name.txt" placeholder="Caster 2 Name">{{ casters_files['Caster2-Name.txt'] }}</textarea>
+                        </div>
+                        
+                        <div class="form-item">
+                            <h3 class="page-title">Caster 2 Profile</h3>
+                            <textarea class="form-text" name="Caster2-Profile.txt" placeholder="Caster 2 Profile/Tag">{{ casters_files['Caster2-Profile.txt'] }}</textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <div class="form-section-header">
-            <h2 class="page-title">Tournament Info</h2>
-        </div>
-        <div class="form-info-section">
-            {% for file, content in info_files.items() %}
-            <div class="form-row">
-                <h3 class="page-title">{{ format_filename(file) }}</h3>
-                <textarea class="form-text" name="{{ file }}">{{ content }}</textarea>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="form-section-header">
-            <h2 class="page-title">Caster Info</h2>
-        </div>
-        <div class="form-casters-section">
-            {% for file, content in casters_files.items() %}
-            <div class="form-row">
-                <h3 class="page-title">{{ format_filename(file) }}</h3>
-                {% if file == 'Caster1-Sponsor.txt' or file == 'Caster2-Sponsor.txt' %}
-                <input type="text" class="form-text" name="{{ file }}" value="{{ content }}" placeholder="Sponsor (optional)">
-                {% else %}
-                <textarea class="form-text" name="{{ file }}">{{ content }}</textarea>
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
+        
         <div class="form-submit-button">
-            <input type="submit" value="Save Changes">
+            <input type="submit" form="auto-save-form" value="Save Changes">
+        </div>
         </div>
     </form>
 
@@ -328,16 +499,51 @@
         document.addEventListener('DOMContentLoaded', (event) => {
             const form = document.getElementById('auto-save-form');
             const formElements = form.querySelectorAll('input, select, textarea');
+            const header = document.querySelector('.header');
+            const savingIndicator = document.createElement('div');
+            
+            // Create and style saving indicator
+            savingIndicator.className = 'saving-indicator';
+            savingIndicator.textContent = 'Saving...';
+            savingIndicator.style.display = 'none';
+            savingIndicator.style.color = '#4CAF50';
+            savingIndicator.style.fontWeight = 'bold';
+            savingIndicator.style.marginLeft = '10px';
+            header.appendChild(savingIndicator);
     
+            // Handle auto-expanding textareas
+            const textareas = form.querySelectorAll('textarea');
+            textareas.forEach(textarea => {
+                // Set initial height based on content
+                adjustTextareaHeight(textarea);
+                
+                // Add input event listener to adjust height as user types
+                textarea.addEventListener('input', function() {
+                    adjustTextareaHeight(this);
+                });
+            });
+            
             formElements.forEach(element => {
                 element.addEventListener('change', () => {
+                    savingIndicator.style.display = 'inline';
                     form.submit();
+                    
+                    // Auto-hide the indicator after 1 second
+                    setTimeout(() => {
+                        savingIndicator.style.display = 'none';
+                    }, 1000);
                 });
             });
 
             // Load all fighters for the character grid
             loadFighters();
         });
+        
+        // Function to adjust textarea height based on content
+        function adjustTextareaHeight(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        }
 
         let currentPlayer = '';
 
@@ -357,7 +563,17 @@
             const previewId = currentPlayer + '-fighter-preview';
             
             document.getElementById(inputId).value = fighter;
-            document.getElementById(previewId).src = '/images/fighter-ui-slice/' + fighter.toLowerCase() + '.png';
+            
+            // Handle special cases for filenames
+            let filename = fighter.toLowerCase();
+            if (filename === 'wii-fit-trainer') filename = 'wiifit';
+            if (filename === 'meta-knight') filename = 'metaknight';
+            if (filename === 'sheik') filename = 'shiek';  // Common misspelling in filenames
+            if (filename === 'pokemon-trainer') filename = 'pokemon-trainer';
+            if (filename === 'rosalina-luma') filename = 'rosalina';
+            
+            // Set the image source
+            document.getElementById(previewId).src = '/images/fighter-ui-slice/' + filename + '.png';
             document.getElementById(previewId).nextElementSibling.textContent = fighter;
             
             closeCharacterGrid();
@@ -403,8 +619,16 @@
                 if (filename === 'sheik') filename = 'shiek';  // Common misspelling in filenames
                 if (filename === 'pokemon-trainer') filename = 'pokemon-trainer';
                 if (filename === 'rosalina-luma') filename = 'rosalina';
+                
                 img.src = '/images/fighter-ui-slice/' + filename + '.png';
                 img.alt = fighter;
+                
+                // Add error handling for missing images
+                img.onerror = function() {
+                    this.src = '/static/Smash_Ball.png';
+                    this.style.opacity = '0.7';
+                    name.style.color = '#ffaa00';
+                };
                 
                 const name = document.createElement('span');
                 name.textContent = fighter.replace(/-/g, ' ');
