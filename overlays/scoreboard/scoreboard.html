@@ -107,13 +107,20 @@
 
         .player-info {
             display: flex;
-            flex-direction: column;
+            gap: 2px;
             align-items: center;
         }
 
         .player-sponsor {
             font-size: 0.7em;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .gimme_pipe {
             color: #FFD700;
+            font-size: 1.5em;
             margin: 0;
             padding: 0;
         }
@@ -160,6 +167,7 @@
             <div class="scoreboard-side-box">
                 <div class="player-info">
                     <p id="p1-sponsor" class="player-sponsor"></p>
+                    <p class="gimme_pipe">|</p>
                     <p id="p1-player" class="scoreboard-side-player"></p>
                 </div>
                 <img class="character-slice" id="p1-character">
@@ -193,6 +201,7 @@
                 </script>
                 <div class="player-info">
                     <p id="p2-sponsor" class="player-sponsor"></p>
+                    <p class="gimme_pipe">|</p>
                     <p id="p2-player" class="scoreboard-side-player"></p>
                 </div>
             </div>

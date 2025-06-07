@@ -5,8 +5,9 @@
     <title>MB's Smash Overlay Tool</title>
     <style>
         body {
-            background-color: rgb(71, 71, 88);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #303040;
+            background-image: radial-gradient(circle at center, #404060 0%, #202030 100%);
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 8px;
             position: relative;
@@ -17,9 +18,14 @@
             flex-direction: row;
             justify-content: space-around;
             align-items: center;
-            margin: 0 auto 8px;
+            margin: 0 auto 15px;
             width: 100%;
             color: white;
+            background-color: #000;
+            border: 3px solid #fff;
+            border-radius: 10px;
+            padding: 8px 0;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.5);
         }
 
         /* Main layout container */
@@ -55,7 +61,7 @@
             align-items: flex-start;
         }
         
-        /* Player stack for vertical arrangement */
+        /* Player stack for vertical arrangement with SSB64 styling */
         .player-stack {
             display: flex;
             flex-direction: column;
@@ -63,9 +69,54 @@
             min-width: 120px;
             max-width: 200px;
             flex: 1;
+            position: relative;
+            border: 3px solid #000;
+            padding: 10px;
+            border-radius: 6px;
+            background-image: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1),
+                rgba(0, 0, 0, 0.1) 2px,
+                rgba(0, 0, 0, 0) 2px,
+                rgba(0, 0, 0, 0) 4px
+            );
         }
         
-        /* Form item styling */
+        /* Player 1 specific styling */
+        .player-stack.player1 {
+            background-color: rgba(255, 50, 50, 0.7);
+        }
+        
+        /* Player 2 specific styling */
+        .player-stack.player2 {
+            background-color: rgba(50, 50, 255, 0.7);
+        }
+        
+        /* Tournament info specific styling - Gray like CPU cards in SSB64 */
+        .player-stack.tournament-info {
+            background-color: rgba(120, 120, 120, 0.7);
+        }
+        
+        /* Caster info specific styling - Gray like CPU cards in SSB64 */
+        .player-stack.caster-info {
+            background-color: rgba(120, 120, 120, 0.7);
+        }
+        
+        /* Player indicator badge */
+        .player-indicator {
+            position: absolute;
+            top: -15px;
+            left: 10px;
+            background: #000;
+            color: #fff;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 2px solid #fff;
+        }
+        
+        /* Form item styling with SSB64 theme */
         .form-item {
             display: flex;
             flex-direction: column;
@@ -74,22 +125,53 @@
             max-width: 200px;
         }
         
-        /* Section header styling */
+        /* Special styling for player name field to resemble SSB64 character names */
+        .player-name-field .form-text {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.6);
+            border: 2px solid #fff;
+            color: white;
+            border-radius: 0;
+            padding: 6px 8px;
+        }
+        
+        /* Player 1 name styling */
+        .player1 .player-name-field .form-text {
+            color: #fff;
+            text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+        }
+        
+        /* Player 2 name styling */
+        .player2 .player-name-field .form-text {
+            color: #fff;
+            text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+        }
+        
+        /* Section header styling with SSB64 theme */
         .form-section-header {
             margin-bottom: 5px;
             flex: 1;
             padding: 5px 10px;
-            background-color: #444;
+            background-color: #000;
             border-radius: 4px;
+            border: 2px solid #777;
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
         }
         
-        /* Header text styling */
+        /* Header text styling with SSB64 theme */
         .form-section-header h2 {
             margin: 0;
             padding: 0;
             font-size: 18px;
             color: white;
             text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
         
         /* Content section */
@@ -102,36 +184,96 @@
             min-width: 0;
         }
 
-        /* Save Button Styling */
-        .form-submit-button {
-
+        /* Quick Actions Area with SSB64 theme */
+        .quick-actions {
+            margin-top: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
         
-        .form-submit-button input[type="submit"] {
-            background-color: #4a90e2;
+        .quick-actions-title {
             color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 4px;
+            text-transform: uppercase;
+            font-size: 1.2em;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0 #000;
+            margin-bottom: 5px;
+        }
+        
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .action-button {
+            background-color: #000;
+            color: white;
+            border: 3px solid #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.5);
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 70px;
         }
         
-        .form-submit-button input[type="submit"]:hover {
-            background-color: #357ac7;
+        .action-button:hover {
+            background-color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.5);
+        }
+        
+        .action-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
+        }
+        
+        .action-button i {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        
+        .action-button.p1 {
+            background-color: rgba(255, 50, 50, 0.7);
+        }
+        
+        .action-button.p2 {
+            background-color: rgba(50, 50, 255, 0.7);
+        }
+        
+        .action-button.refresh {
+            background-color: rgba(50, 180, 50, 0.7);
+        }
+        
+        .action-button.swap {
+            background-color: rgba(180, 180, 50, 0.7);
         }
 
-        /* Form text elements */
+        /* Form text elements with SSB64 styling */
         .form-text {
-            background: #8a8a8a;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: rgba(0, 0, 0, 0.6);
+            font-family: 'Arial', sans-serif;
             color: white;
             font-weight: bold;
             padding: 4px 6px;
             height: 24px;
             border-radius: 3px;
-            border: 1px solid #666;
+            border: 2px solid #fff;
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
         }
 
         textarea.form-text {
@@ -141,47 +283,54 @@
         }
 
         .form-select {
-            background: #8a8a8a;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: rgba(0, 0, 0, 0.6);
+            font-family: 'Arial', sans-serif;
             color: white;
             font-weight: bold;
             height: 30px;
             border-radius: 3px;
-            border: 1px solid #666;
+            border: 2px solid #fff;
             padding: 0 4px;
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
         }
 
-        /* Character selector styles */
+        /* Character selector styles with SSB64 theme */
         .character-selection {
             width: 100%;
         }
 
         .character-selector-button {
-            background: #6a6a6a;
+            background: #000;
             color: white;
-            border: none;
+            border: 2px solid #fff;
             padding: 4px 10px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
             margin-bottom: 5px;
             transition: background-color 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .character-selector-button:hover {
-            background: #555555;
+            background: #333;
         }
         
         .character-selector-button:active {
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-            transform: translateY(1px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+            transform: translateY(2px);
         }
 
         .selected-character {
             display: flex;
             align-items: center;
             margin-top: 2px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            border-radius: 4px;
+            border: 2px solid #fff;
         }
 
         .selected-character img {
@@ -189,25 +338,35 @@
             height: 32px;
             margin-right: 8px;
             object-fit: contain;
+            filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.7));
+        }
+        
+        .selected-character span {
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
         }
 
-        /* Character grid styling */
+        /* Character grid styling with SSB64 theme */
         .character-grid {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: #333340;
+            background: #000;
             padding: 20px;
             border-radius: 8px;
-            border: 2px solid #555;
+            border: 3px solid #fff;
             z-index: 1000;
             width: 98%;
             max-width: none;
             max-height: 80vh;
             overflow-y: auto;
             overflow-x: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
         }
 
         .character-grid.active {
@@ -239,19 +398,35 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            background: #222;
+            padding: 10px;
+            border-radius: 5px;
+            border: 2px solid #777;
         }
 
         .character-grid-header h3 {
             color: white;
             margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            font-size: 18px;
         }
 
         .character-grid-close {
             background: none;
-            border: none;
+            border: 2px solid #fff;
             color: white;
             font-size: 1.5em;
             cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1;
+            padding: 0;
         }
 
         .character-item {
@@ -259,14 +434,18 @@
             flex-direction: column;
             align-items: center;
             cursor: pointer;
-            padding: 3px;
+            padding: 5px;
             border-radius: 4px;
-            transition: background-color 0.2s, transform 0.1s;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            background: rgba(50, 50, 50, 0.7);
         }
 
         .character-item:hover {
-            background: #555560;
+            background: #333;
             transform: scale(1.05);
+            border-color: #fff;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
         }
         
         .character-item:active {
@@ -277,6 +456,11 @@
             width: 50px;
             height: 50px;
             object-fit: contain;
+            filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.7));
+            margin-bottom: 5px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 25px;
+            padding: 3px;
         }
 
         .character-item span {
@@ -284,25 +468,35 @@
             color: white;
             text-align: center;
             margin-top: 2px;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
         }
 
-        /* Typography */
+        /* Typography with SSB64 style */
         .page-title {
             margin: 2px;
             font-size: 1em;
+            text-transform: uppercase;
         }
 
         h1.page-title {
             font-size: 1.5em;
+            color: #fff;
+            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+            letter-spacing: 1px;
         }
 
         h2.page-title {
             font-size: 1.2em;
+            letter-spacing: 1px;
         }
 
         h3.page-title {
             font-size: 0.9em;
             margin: 1px 0;
+            color: #fff;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
         }
         
         /* Responsive styles for smaller screens */
@@ -316,6 +510,26 @@
             .form-item {
                 min-width: 100px;
             }
+        }
+        
+        /* Additional animations for quick actions */
+        @keyframes pulse-animation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse-animation {
+            animation: pulse-animation 0.5s ease;
+        }
+        
+        /* Quick action icons */
+        .action-button i {
+            display: block;
+            font-style: normal;
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -346,13 +560,14 @@
                 <!-- Player Info Section Content -->
                 <div class="content-section">
                     <!-- Player 1 Column -->
-                    <div class="player-stack">
+                    <div class="player-stack player1">
+                        <div class="player-indicator">1P</div>
                         <div class="form-item">
                             <h3 class="page-title">Player 1 Sponsor</h3>
                             <input type="text" class="form-text" name="Player1-Sponsor.txt" value="{{ player_1_files['Player1-Sponsor.txt'] }}" placeholder="Sponsor (optional)">
                         </div>
                         
-                        <div class="form-item">
+                        <div class="form-item player-name-field">
                             <h3 class="page-title">Player 1 Name</h3>
                             <textarea class="form-text" name="Enter Player 1 Name.txt" placeholder="Enter Player 1 Name">{{ player_1_files['Enter Player 1 Name.txt'] }}</textarea>
                         </div>
@@ -381,13 +596,14 @@
                     </div>
                     
                     <!-- Player 2 Column -->
-                    <div class="player-stack">
+                    <div class="player-stack player2">
+                        <div class="player-indicator">2P</div>
                         <div class="form-item">
                             <h3 class="page-title">Player 2 Sponsor</h3>
                             <input type="text" class="form-text" name="Player2-Sponsor.txt" value="{{ player_2_files['Player2-Sponsor.txt'] }}" placeholder="Sponsor (optional)">
                         </div>
                         
-                        <div class="form-item">
+                        <div class="form-item player-name-field">
                             <h3 class="page-title">Player 2 Name</h3>
                             <textarea class="form-text" name="Enter Player 2 Name.txt" placeholder="Enter Player 2 Name">{{ player_2_files['Enter Player 2 Name.txt'] }}</textarea>
                         </div>
@@ -418,7 +634,7 @@
                 
                 <!-- Tournament Info Section Content -->
                 <div class="content-section">
-                    <div class="player-stack">
+                    <div class="player-stack tournament-info">
                         <div class="form-item">
                             <h3 class="page-title">Bracket Name</h3>
                             <textarea class="form-text" name="Bracket-Name.txt" placeholder="Bracket Name">{{ info_files['Bracket-Name.txt'] }}</textarea>
@@ -441,7 +657,7 @@
                 <!-- Caster Info Section Content -->
                 <div class="content-section">
                     <!-- Caster 1 Column -->
-                    <div class="player-stack">
+                    <div class="player-stack caster-info">
                         <div class="form-item">
                             <h3 class="page-title">Caster 1 Sponsor</h3>
                             <input type="text" class="form-text" name="Caster1-Sponsor.txt" value="{{ casters_files['Caster1-Sponsor.txt'] }}" placeholder="Sponsor (optional)">
@@ -459,7 +675,7 @@
                     </div>
                     
                     <!-- Caster 2 Column -->
-                    <div class="player-stack">
+                    <div class="player-stack caster-info">
                         <div class="form-item">
                             <h3 class="page-title">Caster 2 Sponsor</h3>
                             <input type="text" class="form-text" name="Caster2-Sponsor.txt" value="{{ casters_files['Caster2-Sponsor.txt'] }}" placeholder="Sponsor (optional)">
@@ -479,8 +695,34 @@
             </div>
         </div>
         
-        <div class="form-submit-button">
-            <input type="submit" form="auto-save-form" value="Save Changes">
+        <div class="quick-actions">
+            <div class="quick-actions-title">Quick Actions</div>
+            <div class="quick-actions-grid">
+                <button type="button" class="action-button p1" onclick="updatePlayerScore('player1', 1)">
+                    <i>+1</i>
+                    <span>P1 Score</span>
+                </button>
+                <button type="button" class="action-button swap" onclick="swapPlayers()">
+                    <i>⇄</i>
+                    <span>Swap Players</span>
+                </button>
+                <button type="button" class="action-button p2" onclick="updatePlayerScore('player2', 1)">
+                    <i>+1</i>
+                    <span>P2 Score</span>
+                </button>
+                <button type="button" class="action-button p1" onclick="updatePlayerScore('player1', -1)">
+                    <i>-1</i>
+                    <span>P1 Score</span>
+                </button>
+                <button type="button" class="action-button refresh" onclick="saveAllChanges()">
+                    <i>💾</i>
+                    <span>Save Changes</span>
+                </button>
+                <button type="button" class="action-button p2" onclick="updatePlayerScore('player2', -1)">
+                    <i>-1</i>
+                    <span>P2 Score</span>
+                </button>
+            </div>
         </div>
         </div>
     </form>
@@ -506,9 +748,16 @@
             savingIndicator.className = 'saving-indicator';
             savingIndicator.textContent = 'Saving...';
             savingIndicator.style.display = 'none';
-            savingIndicator.style.color = '#4CAF50';
+            savingIndicator.style.color = '#fff';
             savingIndicator.style.fontWeight = 'bold';
             savingIndicator.style.marginLeft = '10px';
+            savingIndicator.style.background = '#000';
+            savingIndicator.style.padding = '5px 10px';
+            savingIndicator.style.borderRadius = '4px';
+            savingIndicator.style.border = '2px solid #fff';
+            savingIndicator.style.textTransform = 'uppercase';
+            savingIndicator.style.letterSpacing = '1px';
+            savingIndicator.style.boxShadow = '0 0 10px rgba(255, 255, 255, 0.5)';
             header.appendChild(savingIndicator);
     
             // Handle auto-expanding textareas
@@ -523,16 +772,70 @@
                 });
             });
             
+            // Add a pulsing animation style
+            const style = document.createElement('style');
+            style.id = 'saving-animation';
+            style.textContent = `
+                @keyframes pulse {
+                    0% { transform: scale(1); }
+                    100% { transform: scale(1.1); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Handle individual form element changes
             formElements.forEach(element => {
                 element.addEventListener('change', () => {
-                    savingIndicator.style.display = 'inline';
-                    form.submit();
+                    // Skip if the change was triggered by our quick actions
+                    if (element.hasAttribute('data-programmatic-change')) {
+                        element.removeAttribute('data-programmatic-change');
+                        return;
+                    }
                     
-                    // Auto-hide the indicator after 1 second
-                    setTimeout(() => {
-                        savingIndicator.style.display = 'none';
-                    }, 1000);
+                    savingIndicator.style.display = 'inline';
+                    savingIndicator.style.animation = 'pulse 0.5s infinite alternate';
+                    
+                    // Use fetch API for AJAX form submission
+                    const formData = new FormData(form);
+                    
+                    fetch(form.action || window.location.href, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text();
+                    })
+                    .then(() => {
+                        // Success handling
+                        setTimeout(() => {
+                            savingIndicator.style.display = 'none';
+                            savingIndicator.style.animation = 'none';
+                        }, 1000);
+                    })
+                    .catch(error => {
+                        console.error('Error saving form:', error);
+                        savingIndicator.textContent = 'Error!';
+                        savingIndicator.style.color = '#ff3333';
+                        setTimeout(() => {
+                            savingIndicator.style.display = 'none';
+                            savingIndicator.style.animation = 'none';
+                            savingIndicator.textContent = 'Saving...';
+                            savingIndicator.style.color = '#fff';
+                        }, 2000);
+                    });
                 });
+            });
+            
+            // Prevent normal form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveAllChanges();
             });
 
             // Load all fighters for the character grid
@@ -556,13 +859,18 @@
         function closeCharacterGrid() {
             document.getElementById('character-grid-backdrop').classList.remove('active');
             document.getElementById('character-grid').classList.remove('active');
-        }
-
-        function selectCharacter(fighter) {
+        }        function selectCharacter(fighter) {
             const inputId = currentPlayer + '-fighter-input';
             const previewId = currentPlayer + '-fighter-preview';
+            const input = document.getElementById(inputId);
             
-            document.getElementById(inputId).value = fighter;
+            // Skip if the same character is already selected
+            if (input.value === fighter) {
+                closeCharacterGrid();
+                return;
+            }
+            
+            input.value = fighter;
             
             // Handle special cases for filenames
             let filename = fighter.toLowerCase();
@@ -572,14 +880,45 @@
             if (filename === 'pokemon-trainer') filename = 'pokemon-trainer';
             if (filename === 'rosalina-luma') filename = 'rosalina';
             
-            // Set the image source
-            document.getElementById(previewId).src = '/images/fighter-ui-slice/' + filename + '.png';
-            document.getElementById(previewId).nextElementSibling.textContent = fighter;
+            // Preload the image before setting it
+            const preloadImg = new Image();
+            preloadImg.onload = function() {
+                // Set the image source after preloading
+                const imgElement = document.getElementById(previewId);
+                imgElement.src = this.src;
+                imgElement.nextElementSibling.textContent = fighter;
+                
+                // Create a flash effect
+                const characterDiv = imgElement.parentElement;
+                characterDiv.style.transition = 'all 0.2s';
+                characterDiv.style.backgroundColor = 'white';
+                characterDiv.style.boxShadow = '0 0 20px white';
+                
+                setTimeout(() => {
+                    characterDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                    characterDiv.style.boxShadow = 'none';
+                }, 300);
+                
+                // Trigger form submission
+                input.dispatchEvent(new Event('change'));
+            };
+            
+            preloadImg.onerror = function() {
+                // Handle image load error
+                const imgElement = document.getElementById(previewId);
+                imgElement.src = '/static/Smash_Ball.png';
+                imgElement.style.opacity = '0.7';
+                imgElement.nextElementSibling.textContent = fighter;
+                imgElement.nextElementSibling.style.color = '#ffaa00';
+                
+                // Trigger form submission
+                input.dispatchEvent(new Event('change'));
+            };
+            
+            // Set the src to trigger loading
+            preloadImg.src = '/images/fighter-ui-slice/' + filename + '.png';
             
             closeCharacterGrid();
-            
-            // Trigger form submission
-            document.getElementById(inputId).dispatchEvent(new Event('change'));
         }
 
         function loadFighters() {
@@ -606,6 +945,27 @@
             grid.innerHTML = '';
             grid.appendChild(header);
             
+            // Image cache for preloaded images
+            window.fighterImageCache = {};
+            
+            // Preload all fighter images in the background
+            fighterOrder.forEach(fighter => {
+                let filename = fighter.toLowerCase();
+                if (filename === 'wii-fit-trainer') filename = 'wiifit';
+                if (filename === 'meta-knight') filename = 'metaknight';
+                if (filename === 'sheik') filename = 'shiek';
+                if (filename === 'pokemon-trainer') filename = 'pokemon-trainer';
+                if (filename === 'rosalina-luma') filename = 'rosalina';
+                
+                const imgSrc = '/images/fighter-ui-slice/' + filename + '.png';
+                
+                // Preload and cache the image
+                const preloadImg = new Image();
+                preloadImg.src = imgSrc;
+                window.fighterImageCache[fighter] = imgSrc;
+            });
+            
+            // Create the grid items
             fighterOrder.forEach(fighter => {
                 const item = document.createElement('div');
                 item.className = 'character-item';
@@ -620,8 +980,10 @@
                 if (filename === 'pokemon-trainer') filename = 'pokemon-trainer';
                 if (filename === 'rosalina-luma') filename = 'rosalina';
                 
-                img.src = '/images/fighter-ui-slice/' + filename + '.png';
+                // Use a data attribute to store the image path and lazy load the images
+                img.setAttribute('data-src', '/images/fighter-ui-slice/' + filename + '.png');
                 img.alt = fighter;
+                img.loading = 'lazy'; // Use native lazy loading
                 
                 // Add error handling for missing images
                 img.onerror = function() {
@@ -637,6 +999,194 @@
                 item.appendChild(name);
                 grid.appendChild(item);
             });
+            
+            // Implement intersection observer for lazy loading
+            if ('IntersectionObserver' in window) {
+                const lazyImageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const lazyImage = entry.target;
+                            lazyImage.src = lazyImage.getAttribute('data-src');
+                            observer.unobserve(lazyImage);
+                        }
+                    });
+                });
+                
+                // Observe all lazy images
+                document.querySelectorAll('.character-item img').forEach(img => {
+                    lazyImageObserver.observe(img);
+                });
+            } else {
+                // Fallback for browsers without intersection observer
+                document.querySelectorAll('.character-item img').forEach(img => {
+                    img.src = img.getAttribute('data-src');
+                });
+            }
+        }
+        
+        // Quick Action Functions
+        
+        // Update player score by the given amount
+        function updatePlayerScore(player, amount) {
+            const playerNumber = player === 'player1' ? '1' : '2';
+            const selectElement = document.querySelector(`select[name="Player${playerNumber}-Score.txt"]`);
+            
+            if (selectElement) {
+                // Get current score
+                let currentScore = parseInt(selectElement.value);
+                
+                // Calculate new score ensuring it stays between 0-3
+                let newScore = Math.max(0, Math.min(3, currentScore + amount));
+                
+                // Only trigger change if score actually changed
+                if (currentScore !== newScore) {
+                    // Update the select element
+                    selectElement.value = newScore.toString();
+                    
+                    // Mark this as a programmatic change
+                    selectElement.setAttribute('data-programmatic-change', 'true');
+                    
+                    // Create and dispatch change event
+                    const changeEvent = new Event('change', { bubbles: true });
+                    selectElement.dispatchEvent(changeEvent);
+                    
+                    // Visual feedback for the button
+                    const button = event.currentTarget;
+                    const originalBackground = button.style.backgroundColor;
+                    button.style.backgroundColor = 'white';
+                    button.style.color = '#000';
+                    
+                    setTimeout(() => {
+                        button.style.backgroundColor = originalBackground;
+                        button.style.color = 'white';
+                    }, 200);
+                    
+                    // Save the changes
+                    saveAllChanges();
+                }
+            }
+        }
+        
+        // Swap player information
+        function swapPlayers() {
+            // Save current values
+            const p1Sponsor = document.querySelector('input[name="Player1-Sponsor.txt"]').value;
+            const p1Name = document.querySelector('textarea[name="Enter Player 1 Name.txt"]').value;
+            const p1Score = document.querySelector('select[name="Player1-Score.txt"]').value;
+            const p1Fighter = document.querySelector('#player1-fighter-input').value;
+            const p1FighterImg = document.querySelector('#player1-fighter-preview').src;
+            
+            // Get player 2 values
+            const p2Sponsor = document.querySelector('input[name="Player2-Sponsor.txt"]').value;
+            const p2Name = document.querySelector('textarea[name="Enter Player 2 Name.txt"]').value;
+            const p2Score = document.querySelector('select[name="Player2-Score.txt"]').value;
+            const p2Fighter = document.querySelector('#player2-fighter-input').value;
+            const p2FighterImg = document.querySelector('#player2-fighter-preview').src;
+            
+            // Mark all elements as programmatic changes
+            const elements = [
+                document.querySelector('input[name="Player1-Sponsor.txt"]'),
+                document.querySelector('textarea[name="Enter Player 1 Name.txt"]'),
+                document.querySelector('select[name="Player1-Score.txt"]'),
+                document.querySelector('#player1-fighter-input'),
+                document.querySelector('input[name="Player2-Sponsor.txt"]'),
+                document.querySelector('textarea[name="Enter Player 2 Name.txt"]'),
+                document.querySelector('select[name="Player2-Score.txt"]'),
+                document.querySelector('#player2-fighter-input')
+            ];
+            
+            elements.forEach(el => {
+                el.setAttribute('data-programmatic-change', 'true');
+            });
+            
+            // Set player 1 to player 2 values
+            document.querySelector('input[name="Player1-Sponsor.txt"]').value = p2Sponsor;
+            document.querySelector('textarea[name="Enter Player 1 Name.txt"]').value = p2Name;
+            document.querySelector('select[name="Player1-Score.txt"]').value = p2Score;
+            document.querySelector('#player1-fighter-input').value = p2Fighter;
+            document.querySelector('#player1-fighter-preview').src = p2FighterImg;
+            document.querySelector('#player1-fighter-preview').nextElementSibling.textContent = p2Fighter;
+            
+            // Set player 2 to player 1 values
+            document.querySelector('input[name="Player2-Sponsor.txt"]').value = p1Sponsor;
+            document.querySelector('textarea[name="Enter Player 2 Name.txt"]').value = p1Name;
+            document.querySelector('select[name="Player2-Score.txt"]').value = p1Score;
+            document.querySelector('#player2-fighter-input').value = p1Fighter;
+            document.querySelector('#player2-fighter-preview').src = p1FighterImg;
+            document.querySelector('#player2-fighter-preview').nextElementSibling.textContent = p1Fighter;
+            
+            // Update textarea heights
+            adjustTextareaHeight(document.querySelector('textarea[name="Enter Player 1 Name.txt"]'));
+            adjustTextareaHeight(document.querySelector('textarea[name="Enter Player 2 Name.txt"]'));
+            
+            // Visual feedback for the swap button
+            const button = event.currentTarget;
+            button.style.transform = 'rotate(180deg)';
+            setTimeout(() => {
+                button.style.transform = 'none';
+                
+                // Save changes
+                saveAllChanges();
+            }, 300);
+        }
+        
+        // Save all changes
+        function saveAllChanges() {
+            const savingIndicator = document.querySelector('.saving-indicator');
+            savingIndicator.style.display = 'inline';
+            savingIndicator.style.animation = 'pulse 0.5s infinite alternate';
+            
+            // Use fetch API for AJAX form submission
+            const form = document.getElementById('auto-save-form');
+            const formData = new FormData(form);
+            
+            fetch(form.action || window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(() => {
+                // Success handling
+                setTimeout(() => {
+                    savingIndicator.style.display = 'none';
+                    savingIndicator.style.animation = 'none';
+                    
+                    // Visual feedback for the save button
+                    const button = event.currentTarget;
+                    button.classList.add('pulse-animation');
+                    setTimeout(() => {
+                        button.classList.remove('pulse-animation');
+                    }, 500);
+                }, 1000);
+            })
+            .catch(error => {
+                console.error('Error saving form:', error);
+                savingIndicator.textContent = 'Error!';
+                savingIndicator.style.color = '#ff3333';
+                setTimeout(() => {
+                    savingIndicator.style.display = 'none';
+                    savingIndicator.style.animation = 'none';
+                    savingIndicator.textContent = 'Saving...';
+                    savingIndicator.style.color = '#fff';
+                }, 2000);
+            });
+            
+            // Visual feedback for save button
+            const button = event.currentTarget;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i>✓</i><span>Saving...</span>';
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+            }, 1000);
         }
     </script>
 </body>

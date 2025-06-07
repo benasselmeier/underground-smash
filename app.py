@@ -1,5 +1,7 @@
-from flask import Flask, request, redirect, url_for, render_template, send_from_directory
+from flask import Flask, request, redirect, url_for, render_template, send_from_directory, make_response
 import os
+import time
+from datetime import datetime, timedelta
 
 from pathlib import Path
 app = Flask(__name__)
@@ -9,6 +11,17 @@ base_directory = 'text-files/'
 app.static_folder = os.path.abspath('images')
 app.static_url_path = '/images'
 print(f"Static folder path: {app.static_folder}")  # Debug print
+
+# Helper function to add cache headers to image responses
+def add_cache_headers(response):
+    # Set cache control headers (cache for 1 hour)
+    response.headers['Cache-Control'] = 'public, max-age=3600'
+    # Set expires header
+    expires_time = datetime.utcnow() + timedelta(hours=1)
+    response.headers['Expires'] = expires_time.strftime('%a, %d %b %Y %H:%M:%S GMT')
+    # Set Last-Modified header to current time
+    response.headers['Last-Modified'] = datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
+    return response
 
 # Serve text files
 @app.route('/text-files/<path:filename>')
@@ -20,15 +33,17 @@ def serve_text_file(filename):
 def serve_resource_file(filename):
     return send_from_directory('resources', filename)
 
-# Serve fighter images
+# Serve fighter images with caching
 @app.route('/images/fighter-ui-slice/<path:filename>')
 def serve_fighter_image(filename):
-    return send_from_directory('images/fighter-ui-slice', filename)
+    response = make_response(send_from_directory('images/fighter-ui-slice', filename))
+    return add_cache_headers(response)
 
-# Serve static images like Smash_Ball.png
+# Serve static images like Smash_Ball.png with caching
 @app.route('/static/<path:filename>')
 def serve_static_image(filename):
-    return send_from_directory('images', filename)
+    response = make_response(send_from_directory('images', filename))
+    return add_cache_headers(response)
 
 def read_files_from_directory(directory):
     print(f"Reading files from directory: {directory}")  # Debug statement
@@ -68,8 +83,12 @@ def home():
                 if content is not None:
                     with open(os.path.join(base_directory, directory, file), 'w') as f:
                         f.write(content)
-        return redirect(url_for('home'))
-
+        
+        # Check if it's an AJAX request
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return {'status': 'success', 'message': 'Files updated successfully'}
+        else:
+            return redirect(url_for('home'))
 
     return render_template('home.html', info_files=info_files, player_1_files=player_1_files, player_2_files=player_2_files, casters_files=casters_files, fighters=fighters)
 
