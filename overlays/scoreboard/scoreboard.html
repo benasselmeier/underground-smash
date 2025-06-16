@@ -153,6 +153,10 @@
         .character-slice {
             height: 69%;
         }
+
+        .fade-update {
+            transition: opacity 0.3s ease-in-out;
+        }
     </style>
 </head>
 
@@ -162,65 +166,35 @@
     <div class="scoreboard">
         <div class="scoreboard-top-row">
             <div class="scoreboard-score-container">
-                <p id="p1-score" class="scoreboard-side-score"></p>
+                <p id="p1-score" class="scoreboard-side-score fade-update"></p>
             </div>
             <div class="scoreboard-side-box">
                 <div class="player-info">
-                    <p id="p1-sponsor" class="player-sponsor"></p>
+                    <p id="p1-sponsor" class="player-sponsor fade-update"></p>
                     <p class="gimme_pipe">|</p>
-                    <p id="p1-player" class="scoreboard-side-player"></p>
+                    <p id="p1-player" class="scoreboard-side-player fade-update"></p>
                 </div>
-                <img class="character-slice" id="p1-character">
-                <script>
-                    fetch('../../text-files/player-1/Player1-Fighter.txt')
-                        .then(response => response.text())
-                        .then(data => {
-                            const imgElement = document.getElementById('p1-character');
-                            imgElement.src = "../../images/fighter-ui-slice/" + data.toLowerCase() + ".png";
-                            imgElement.onerror = function() {
-                                this.src = "../../images/fighter-ui-slice/random.png";
-                                this.style.opacity = '0.7';
-                            };
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                </script>
+                <img class="character-slice fade-update" id="p1-character">
             </div>
             <div class="scoreboard-center">
-                <p id="round" class="scoreboard-round"></p>
+            <p id="round" class="scoreboard-round fade-update"></p>
                 <img src="../../images/fighter-ui-slice/random.png">
-                <p id="bracket" class="scoreboard-bracket"></p>
+            <p id="bracket" class="scoreboard-bracket fade-update"></p>
             </div>
             <div class="scoreboard-side-box">
-                <img class="character-slice" id="p2-character">
-                <script>
-                    fetch('../../text-files/player-2/Player2-Fighter.txt')
-                        .then(response => response.text())
-                        .then(data => {
-                            const imgElement = document.getElementById('p2-character');
-                            imgElement.src = "../../images/fighter-ui-slice/" + data.toLowerCase() + ".png";
-                            imgElement.onerror = function() {
-                                this.src = "../../images/fighter-ui-slice/random.png";
-                                this.style.opacity = '0.7';
-                            };
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                </script>
+                <img class="character-slice fade-update" id="p2-character">
                 <div class="player-info">
-                    <p id="p2-sponsor" class="player-sponsor"></p>
+                    <p id="p2-sponsor" class="player-sponsor fade-update"></p>
                     <p class="gimme_pipe">|</p>
-                    <p id="p2-player" class="scoreboard-side-player"></p>
+                    <p id="p2-player" class="scoreboard-side-player fade-update"></p>
                 </div>
             </div>
             <div class="scoreboard-score-container">
-                <p id="p2-score" class="scoreboard-side-score"></p>
+                <p id="p2-score" class="scoreboard-side-score fade-update"></p>
             </div>
         </div>
         <div class="scoreboard-bottom-row">
-            <p id="event-info" class="scoreboard-event-title"></p>
+            <p id="event-info" class="scoreboard-event-title fade-update"></p>
         </div>
 
         <!-- <div class="scoreboard-player-cam-container">
@@ -234,26 +208,58 @@
     </div>
 
     <script>
-        const fetchData = (url, elementId) => {
-            fetch(url)
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById(elementId).textContent = data;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        };
+        const FADE_TIME = 200;
 
-        fetchData('../../text-files/player-1/Player1-Score.txt', 'p1-score');
-        fetchData('../../text-files/player-1/Enter Player 1 Name.txt', 'p1-player');
-        fetchData('../../text-files/player-1/Player1-Sponsor.txt', 'p1-sponsor');
-        fetchData('../../text-files/info/Current-Round.txt', 'round');
-        fetchData('../../text-files/info/Bracket-Name.txt', 'bracket');
-        fetchData('../../text-files/player-2/Player2-Sponsor.txt', 'p2-sponsor');
-        fetchData('../../text-files/player-2/Enter Player 2 Name.txt', 'p2-player');
-        fetchData('../../text-files/player-2/Player2-Score.txt', 'p2-score');
-        fetchData('../../text-files/info/Event-Info.txt', 'event-info');
+        function fadeText(el, text) {
+            if (el.textContent !== text) {
+                el.style.opacity = '0';
+                setTimeout(() => { el.textContent = text; el.style.opacity = '1'; }, FADE_TIME);
+            }
+        }
+
+        function fadeImage(el, src, fallback) {
+            if (el.getAttribute('data-current') !== src) {
+                el.style.opacity = '0';
+                el.onload = () => { el.style.opacity = '1'; };
+                el.onerror = () => { if (fallback) el.src = fallback; el.style.opacity = '1'; };
+                el.src = src;
+                el.setAttribute('data-current', src);
+            }
+        }
+
+        function fetchText(url, id) {
+            fetch(url + '?t=' + Date.now())
+                .then(r => r.text())
+                .then(txt => fadeText(document.getElementById(id), txt))
+                .catch(console.error);
+        }
+
+        function fetchFighter(url, id) {
+            fetch(url + '?t=' + Date.now())
+                .then(r => r.text())
+                .then(name => {
+                    const path = '../../images/fighter-ui-slice/' + name.toLowerCase() + '.png';
+                    fadeImage(document.getElementById(id), path, '../../images/fighter-ui-slice/random.png');
+                })
+                .catch(console.error);
+        }
+
+        function update() {
+            fetchText('../../text-files/player-1/Player1-Score.txt', 'p1-score');
+            fetchText('../../text-files/player-1/Enter Player 1 Name.txt', 'p1-player');
+            fetchText('../../text-files/player-1/Player1-Sponsor.txt', 'p1-sponsor');
+            fetchFighter('../../text-files/player-1/Player1-Fighter.txt', 'p1-character');
+            fetchText('../../text-files/info/Current-Round.txt', 'round');
+            fetchText('../../text-files/info/Bracket-Name.txt', 'bracket');
+            fetchText('../../text-files/player-2/Player2-Sponsor.txt', 'p2-sponsor');
+            fetchText('../../text-files/player-2/Enter Player 2 Name.txt', 'p2-player');
+            fetchFighter('../../text-files/player-2/Player2-Fighter.txt', 'p2-character');
+            fetchText('../../text-files/player-2/Player2-Score.txt', 'p2-score');
+            fetchText('../../text-files/info/Event-Info.txt', 'event-info');
+        }
+
+        update();
+        setInterval(update, 1000);
     </script>
 </body>
 

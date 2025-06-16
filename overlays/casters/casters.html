@@ -26,43 +26,54 @@
             margin: 0;
             padding: 0;
         }
+
+        .fade-update {
+            transition: opacity 0.3s ease-in-out;
+        }
     </style>
 </head>
 
 <body>
     <div class="casters-info">
-        <p id="c1-sponsor" class="caster-sponsor"></p>
-        <p id="c1-name"></p>
-        <p id="c1-profile"></p>
+        <p id="c1-sponsor" class="caster-sponsor fade-update"></p>
+        <p id="c1-name" class="fade-update"></p>
+        <p id="c1-profile" class="fade-update"></p>
     </div>
     <div class="casters-info">
-        <p id="c2-sponsor" class="caster-sponsor"></p>
-        <p id="c2-name"></p>
-        <p id="c2-profile"></p>
+        <p id="c2-sponsor" class="caster-sponsor fade-update"></p>
+        <p id="c2-name" class="fade-update"></p>
+        <p id="c2-profile" class="fade-update"></p>
     </div>
 
     <script>
-        // Helper function to fetch and update text content
-        function fetchText(url, elementId) {
-            fetch(url)
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById(elementId).textContent = data;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+        const FADE_TIME = 200;
+
+        function fadeText(el, text) {
+            if (el.textContent !== text) {
+                el.style.opacity = '0';
+                setTimeout(() => { el.textContent = text; el.style.opacity = '1'; }, FADE_TIME);
+            }
         }
 
-        // Fetch caster 1 information
-        fetchText('../../text-files/casters/Caster1-Sponsor.txt', 'c1-sponsor');
-        fetchText('../../text-files/casters/Caster1-Name.txt', 'c1-name');
-        fetchText('../../text-files/casters/Caster1-Profile.txt', 'c1-profile');
-        
-        // Fetch caster 2 information
-        fetchText('../../text-files/casters/Caster2-Sponsor.txt', 'c2-sponsor');
-        fetchText('../../text-files/casters/Caster2-Name.txt', 'c2-name');
-        fetchText('../../text-files/casters/Caster2-Profile.txt', 'c2-profile');
+        function fetchText(url, id) {
+            fetch(url + '?t=' + Date.now())
+                .then(r => r.text())
+                .then(text => fadeText(document.getElementById(id), text))
+                .catch(console.error);
+        }
+
+        function update() {
+            fetchText('../../text-files/casters/Caster1-Sponsor.txt', 'c1-sponsor');
+            fetchText('../../text-files/casters/Caster1-Name.txt', 'c1-name');
+            fetchText('../../text-files/casters/Caster1-Profile.txt', 'c1-profile');
+
+            fetchText('../../text-files/casters/Caster2-Sponsor.txt', 'c2-sponsor');
+            fetchText('../../text-files/casters/Caster2-Name.txt', 'c2-name');
+            fetchText('../../text-files/casters/Caster2-Profile.txt', 'c2-profile');
+        }
+
+        update();
+        setInterval(update, 1000);
     </script>
 </body>
 
