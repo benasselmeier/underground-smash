@@ -175,7 +175,12 @@
                     fetch('../../text-files/player-1/Player1-Fighter.txt')
                         .then(response => response.text())
                         .then(data => {
-                            document.getElementById('p1-character').src = "../../images/fighter-ui-slice/" + data + ".png";
+                            const imgElement = document.getElementById('p1-character');
+                            imgElement.src = "../../images/fighter-ui-slice/" + data.toLowerCase() + ".png";
+                            imgElement.onerror = function() {
+                                this.src = "../../images/fighter-ui-slice/random.png";
+                                this.style.opacity = '0.7';
+                            };
                         })
                         .catch(error => {
                             console.error('Error:', error);
@@ -184,7 +189,7 @@
             </div>
             <div class="scoreboard-center">
                 <p id="round" class="scoreboard-round"></p>
-                <img src="../../images/Smash_Ball.png">
+                <img src="../../images/fighter-ui-slice/random.png">
                 <p id="bracket" class="scoreboard-bracket"></p>
             </div>
             <div class="scoreboard-side-box">
@@ -193,7 +198,12 @@
                     fetch('../../text-files/player-2/Player2-Fighter.txt')
                         .then(response => response.text())
                         .then(data => {
-                            document.getElementById('p2-character').src = "../../images/fighter-ui-slice/" + data + ".png";
+                            const imgElement = document.getElementById('p2-character');
+                            imgElement.src = "../../images/fighter-ui-slice/" + data.toLowerCase() + ".png";
+                            imgElement.onerror = function() {
+                                this.src = "../../images/fighter-ui-slice/random.png";
+                                this.style.opacity = '0.7';
+                            };
                         })
                         .catch(error => {
                             console.error('Error:', error);

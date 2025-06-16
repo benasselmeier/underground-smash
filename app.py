@@ -1,11 +1,18 @@
-from flask import Flask, request, redirect, url_for, render_template, send_from_directory, make_response
+from flask import Flask, request, redirect, url_for, render_template, send_from_directory, make_response, jsonify
 import os
 import time
+import json
 from datetime import datetime, timedelta
 
 from pathlib import Path
 app = Flask(__name__)
 base_directory = 'text-files/'
+themes_directory = 'themes/'
+current_theme = {
+    'scoreboard': 'greenhill',
+    'casters': 'default',
+    'vs-screen': 'default'
+}
 
 # Set up static folder for images
 app.static_folder = os.path.abspath('images')

@@ -208,7 +208,7 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             width: 100%;
-            max-width: 600px;
+            max-width: 500px;
         }
         
         .action-button {
@@ -372,7 +372,7 @@
         .character-grid.active {
             display: grid;
             grid-template-columns: repeat(13, 1fr);
-            gap: 10px;
+            gap: 8px;
             width: 95%;
             max-width: 1300px;
         }
@@ -434,7 +434,7 @@
             flex-direction: column;
             align-items: center;
             cursor: pointer;
-            padding: 5px;
+            padding: 3px 5px;
             border-radius: 4px;
             transition: all 0.2s ease;
             border: 2px solid transparent;
@@ -453,21 +453,21 @@
         }
 
         .character-item img {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 40px;
             object-fit: contain;
             filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.7));
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             background: rgba(0, 0, 0, 0.3);
-            border-radius: 25px;
-            padding: 3px;
+            border-radius: 6px;
+            padding: 2px;
         }
 
         .character-item span {
-            font-size: 0.7em;
+            font-size: 0.65em;
             color: white;
             text-align: center;
-            margin-top: 2px;
+            margin-top: 1px;
             text-transform: uppercase;
             font-weight: bold;
             text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
@@ -588,7 +588,7 @@
                                 <input type="hidden" name="Player1-Fighter.txt" id="player1-fighter-input" value="{{ player_1_files['Player1-Fighter.txt'] }}">
                                 <button type="button" class="character-selector-button" onclick="openCharacterGrid('player1')">Select Character</button>
                                 <div class="selected-character">
-                                    <img src="/images/fighter-ui-slice/{{ player_1_files['Player1-Fighter.txt']|lower }}.png" id="player1-fighter-preview" onerror="this.src='/static/Smash_Ball.png'; this.style.opacity='0.7';">
+                                    <img src="/images/fighter-ui-slice/{{ player_1_files['Player1-Fighter.txt']|lower }}.png" id="player1-fighter-preview" onerror="this.src='/images/fighter-ui-slice/random.png'; this.style.opacity='0.7';">
                                     <span>{{ player_1_files['Player1-Fighter.txt'] }}</span>
                                 </div>
                             </div>
@@ -624,7 +624,7 @@
                                 <input type="hidden" name="Player2-Fighter.txt" id="player2-fighter-input" value="{{ player_2_files['Player2-Fighter.txt'] }}">
                                 <button type="button" class="character-selector-button" onclick="openCharacterGrid('player2')">Select Character</button>
                                 <div class="selected-character">
-                                    <img src="/images/fighter-ui-slice/{{ player_2_files['Player2-Fighter.txt']|lower }}.png" id="player2-fighter-preview" onerror="this.src='/static/Smash_Ball.png'; this.style.opacity='0.7';">
+                                    <img src="/images/fighter-ui-slice/{{ player_2_files['Player2-Fighter.txt']|lower }}.png" id="player2-fighter-preview" onerror="this.src='/images/fighter-ui-slice/random.png'; this.style.opacity='0.7';">
                                     <span>{{ player_2_files['Player2-Fighter.txt'] }}</span>
                                 </div>
                             </div>
@@ -714,9 +714,9 @@
                     <i>-1</i>
                     <span>P1 Score</span>
                 </button>
-                <button type="button" class="action-button refresh" onclick="saveAllChanges()">
-                    <i>💾</i>
-                    <span>Save Changes</span>
+                <button type="button" class="action-button reset" onclick="resetScoreboard()">
+                    <i>↺</i>
+                    <span>Reset All</span>
                 </button>
                 <button type="button" class="action-button p2" onclick="updatePlayerScore('player2', -1)">
                     <i>-1</i>
@@ -874,11 +874,35 @@
             
             // Handle special cases for filenames
             let filename = fighter.toLowerCase();
-            if (filename === 'wii-fit-trainer') filename = 'wiifit';
-            if (filename === 'meta-knight') filename = 'metaknight';
-            if (filename === 'sheik') filename = 'shiek';  // Common misspelling in filenames
-            if (filename === 'pokemon-trainer') filename = 'pokemon-trainer';
-            if (filename === 'rosalina-luma') filename = 'rosalina';
+            if (filename === 'random') {
+                // Special handling for Random character
+                const imgElement = document.getElementById(previewId);
+                imgElement.src = '/images/fighter-ui-slice/random.png';
+                imgElement.nextElementSibling.textContent = fighter;
+                
+                // Create a flash effect
+                const characterDiv = imgElement.parentElement;
+                characterDiv.style.transition = 'all 0.2s';
+                characterDiv.style.backgroundColor = 'white';
+                characterDiv.style.boxShadow = '0 0 20px white';
+                
+                setTimeout(() => {
+                    characterDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                    characterDiv.style.boxShadow = 'none';
+                }, 300);
+                
+                // Trigger form submission
+                input.dispatchEvent(new Event('change'));
+                
+                closeCharacterGrid();
+                return;
+            }
+            
+            // if (filename === 'wii-fit-trainer') filename = 'wiifit';
+            // if (filename === 'meta-knight') filename = 'metaknight';
+            // if (filename === 'sheik') filename = 'shiek';  // Common misspelling in filenames
+            // if (filename === 'pokemon-trainer') filename = 'pokemon-trainer';
+            // if (filename === 'rosalina-luma') filename = 'rosalina';
             
             // Preload the image before setting it
             const preloadImg = new Image();
@@ -906,7 +930,7 @@
             preloadImg.onerror = function() {
                 // Handle image load error
                 const imgElement = document.getElementById(previewId);
-                imgElement.src = '/static/Smash_Ball.png';
+                imgElement.src = '/images/fighter-ui-slice/random.png';
                 imgElement.style.opacity = '0.7';
                 imgElement.nextElementSibling.textContent = fighter;
                 imgElement.nextElementSibling.style.color = '#ffaa00';
@@ -924,6 +948,7 @@
         function loadFighters() {
             // Define the order of fighters as they appear in SSBU
             const fighterOrder = [
+                'Random', // Add Random as the first option
                 'Mario', 'Donkey-Kong', 'Link', 'Samus', 'Dark-Samus', 'Yoshi', 'Kirby', 'Fox', 
                 'Pikachu', 'Luigi', 'Ness', 'Captain-Falcon', 'Jigglypuff', 'Peach', 'Daisy', 'Bowser',
                 'Ice-Climbers', 'Sheik', 'Zelda', 'Dr-Mario', 'Pichu', 'Falco', 'Marth', 'Lucina',
@@ -953,7 +978,6 @@
                 let filename = fighter.toLowerCase();
                 if (filename === 'wii-fit-trainer') filename = 'wiifit';
                 if (filename === 'meta-knight') filename = 'metaknight';
-                if (filename === 'sheik') filename = 'shiek';
                 if (filename === 'pokemon-trainer') filename = 'pokemon-trainer';
                 if (filename === 'rosalina-luma') filename = 'rosalina';
                 
@@ -975,10 +999,7 @@
                 // Handle special cases for filenames
                 let filename = fighter.toLowerCase();
                 if (filename === 'wii-fit-trainer') filename = 'wiifit';
-                if (filename === 'meta-knight') filename = 'metaknight';
-                if (filename === 'sheik') filename = 'shiek';  // Common misspelling in filenames
                 if (filename === 'pokemon-trainer') filename = 'pokemon-trainer';
-                if (filename === 'rosalina-luma') filename = 'rosalina';
                 
                 // Use a data attribute to store the image path and lazy load the images
                 img.setAttribute('data-src', '/images/fighter-ui-slice/' + filename + '.png');
@@ -987,7 +1008,7 @@
                 
                 // Add error handling for missing images
                 img.onerror = function() {
-                    this.src = '/static/Smash_Ball.png';
+                    this.src = '/images/fighter-ui-slice/random.png';
                     this.style.opacity = '0.7';
                     name.style.color = '#ffaa00';
                 };
@@ -1126,6 +1147,58 @@
                 button.style.transform = 'none';
                 
                 // Save changes
+                saveAllChanges();
+            }, 300);
+        }
+        
+        // Reset scoreboard - Sets both player scores to 0 and characters to Random
+        function resetScoreboard() {
+            // Reset player 1 score
+            const p1ScoreSelect = document.querySelector('select[name="Player1-Score.txt"]');
+            p1ScoreSelect.value = '0';
+            p1ScoreSelect.setAttribute('data-programmatic-change', 'true');
+            p1ScoreSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            
+            // Reset player 2 score
+            const p2ScoreSelect = document.querySelector('select[name="Player2-Score.txt"]');
+            p2ScoreSelect.value = '0';
+            p2ScoreSelect.setAttribute('data-programmatic-change', 'true');
+            p2ScoreSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            
+            // Set both characters to Random
+            const p1FighterInput = document.getElementById('player1-fighter-input');
+            const p2FighterInput = document.getElementById('player2-fighter-input');
+            const p1FighterPreview = document.getElementById('player1-fighter-preview');
+            const p2FighterPreview = document.getElementById('player2-fighter-preview');
+            
+            // Set fighter inputs
+            p1FighterInput.value = 'Random';
+            p2FighterInput.value = 'Random';
+            
+            // Set fighter preview images to the dedicated Random icon
+            p1FighterPreview.src = '/images/fighter-ui-slice/random.png';
+            p2FighterPreview.src = '/images/fighter-ui-slice/random.png';
+            
+            // Set fighter name texts
+            p1FighterPreview.nextElementSibling.textContent = 'Random';
+            p2FighterPreview.nextElementSibling.textContent = 'Random';
+            
+            // Trigger change events
+            p1FighterInput.setAttribute('data-programmatic-change', 'true');
+            p2FighterInput.setAttribute('data-programmatic-change', 'true');
+            p1FighterInput.dispatchEvent(new Event('change', { bubbles: true }));
+            p2FighterInput.dispatchEvent(new Event('change', { bubbles: true }));
+            
+            // Visual feedback for reset
+            const button = event.currentTarget;
+            button.style.backgroundColor = 'white';
+            button.style.color = '#000';
+            
+            setTimeout(() => {
+                button.style.backgroundColor = '';
+                button.style.color = 'white';
+                
+                // Save all changes
                 saveAllChanges();
             }, 300);
         }

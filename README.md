@@ -44,6 +44,16 @@ The application now features a visual character selection interface:
 2. A grid of all available fighters will appear with images.
 3. Click on the desired character to select them.
 4. The selected character's image and name will appear below the selection button.
+5. You can also select "Random" as a character option, which appears as the first choice in the character grid.
+
+## Quick Actions
+
+The application features a Quick Actions section for common operations:
+
+1. **Score Adjustment**: Use the +1/-1 buttons to quickly adjust player scores.
+2. **Swap Players**: The swap button (⇄) exchanges player information between Player 1 and Player 2.
+3. **Reset Scoreboard**: The reset button (↺) sets both player scores to 0 and characters to "Random".
+4. **Save Changes**: The save button (💾) manually saves all current form values.
 
 ## Future Plans:
 
