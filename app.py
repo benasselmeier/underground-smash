@@ -46,6 +46,12 @@ def serve_fighter_image(filename):
     response = make_response(send_from_directory('images/fighter-ui-slice', filename))
     return add_cache_headers(response)
 
+# Serve stylized fighter portraits with caching
+@app.route('/images/fighter-portraits-stylized/cropped/<path:filename>')
+def serve_stylized_portrait(filename):
+    response = make_response(send_from_directory('images/fighter-portraits-stylized/cropped', filename))
+    return add_cache_headers(response)
+
 # Serve static images like Smash_Ball.png with caching
 @app.route('/static/<path:filename>')
 def serve_static_image(filename):
