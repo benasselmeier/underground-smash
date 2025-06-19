@@ -731,7 +731,7 @@
                 <div class="content-section">
                     <!-- Player 1 Column -->
                     <div class="player-stack player1">
-                        <div class="player-indicator">1P</div>
+                        <div class="player-indicator">P1</div>
                         <div class="form-item">
                             <input type="text" class="form-text" name="Player1-Sponsor.txt" value="{{ player_1_files['Player1-Sponsor.txt'] }}" placeholder="P1 Sponsor (optional)" aria-label="Player 1 Sponsor">
                         </div>
@@ -767,7 +767,7 @@
                     
                     <!-- Player 2 Column -->
                     <div class="player-stack player2">
-                        <div class="player-indicator">2P</div>
+                        <div class="player-indicator">P2</div>
                         <div class="form-item">
                             <input type="text" class="form-text" name="Player2-Sponsor.txt" value="{{ player_2_files['Player2-Sponsor.txt'] }}" placeholder="P2 Sponsor (optional)" aria-label="Player 2 Sponsor">
                         </div>
@@ -801,6 +801,40 @@
                         </div>
                     </div>
                 </div>
+                <!-- Caster Info Section Content -->
+                <div class="content-section">
+                    <!-- Caster 1 Column -->
+                    <div class="player-stack caster-info">
+                        <div class="player-indicator caster-indicator">CASTER</div>
+                        <div class="form-item">
+                            <input type="text" class="form-text" name="Caster1-Sponsor.txt" value="{{ casters_files['Caster1-Sponsor.txt'] }}" placeholder="C1 Sponsor (optional)" aria-label="Caster 1 Sponsor">
+                        </div>
+                        
+                        <div class="form-item">
+                            <textarea class="form-text" name="Caster1-Name.txt" placeholder="Caster 1 Name" aria-label="Caster 1 Name">{{ casters_files['Caster1-Name.txt'] }}</textarea>
+                        </div>
+                        
+                        <div class="form-item">
+                            <textarea class="form-text" name="Caster1-Profile.txt" placeholder="Caster 1 Social/Handle" aria-label="Caster 1 Profile">{{ casters_files['Caster1-Profile.txt'] }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Caster 2 Column -->
+                    <div class="player-stack caster-info">
+                        <div class="player-indicator caster-indicator">CASTER</div>
+                        <div class="form-item">
+                            <input type="text" class="form-text" name="Caster2-Sponsor.txt" value="{{ casters_files['Caster2-Sponsor.txt'] }}" placeholder="C2 Sponsor (optional)" aria-label="Caster 2 Sponsor">
+                        </div>
+                        
+                        <div class="form-item">
+                            <textarea class="form-text" name="Caster2-Name.txt" placeholder="Caster 2 Name" aria-label="Caster 2 Name">{{ casters_files['Caster2-Name.txt'] }}</textarea>
+                        </div>
+                        
+                        <div class="form-item">
+                            <textarea class="form-text" name="Caster2-Profile.txt" placeholder="Caster 2 Social/Handle" aria-label="Caster 2 Profile">{{ casters_files['Caster2-Profile.txt'] }}</textarea>
+                        </div>
+                    </div>
+                </div>
                 
                 <!-- Tournament Info Section Content -->
                 <div class="content-section">
@@ -819,43 +853,19 @@
                         <div class="form-item">
                             <textarea class="form-text" name="event-info.txt" placeholder="Event Info (e.g. Tournament Name)" aria-label="Event Info">{{ info_files['event-info.txt'] }}</textarea>
                         </div>
+
+                        <!--Best Of-->
+                        <div class="form-item">
+                            <textarea class="form-text" name="Best-Of.txt" placeholder="Best Of (e.g. 5)" aria-label="Best Of">{{ info_files['Best-Of.txt'] }}</textarea>
+                        </div>
+
+                        <!--Start.gg slug-->
+                        <div class="form-item">
+                            <textarea class="form-text" name="Startgg-Slug.txt" placeholder="Start.gg Slug" aria-label="Start.gg Slug">{{ info_files['Startgg-Slug.txt'] }}</textarea>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Caster Info Section Content -->
-                <div class="content-section">
-                    <!-- Caster 1 Column -->
-                    <div class="player-stack caster-info">
-                        <div class="player-indicator caster-indicator">C1</div>
-                        <div class="form-item">
-                            <input type="text" class="form-text" name="Caster1-Sponsor.txt" value="{{ casters_files['Caster1-Sponsor.txt'] }}" placeholder="C1 Sponsor (optional)" aria-label="Caster 1 Sponsor">
-                        </div>
-                        
-                        <div class="form-item">
-                            <textarea class="form-text" name="Caster1-Name.txt" placeholder="Caster 1 Name" aria-label="Caster 1 Name">{{ casters_files['Caster1-Name.txt'] }}</textarea>
-                        </div>
-                        
-                        <div class="form-item">
-                            <textarea class="form-text" name="Caster1-Profile.txt" placeholder="Caster 1 Social/Handle" aria-label="Caster 1 Profile">{{ casters_files['Caster1-Profile.txt'] }}</textarea>
-                        </div>
-                    </div>
-                    
-                    <!-- Caster 2 Column -->
-                    <div class="player-stack caster-info">
-                        <div class="player-indicator caster-indicator">C2</div>
-                        <div class="form-item">
-                            <input type="text" class="form-text" name="Caster2-Sponsor.txt" value="{{ casters_files['Caster2-Sponsor.txt'] }}" placeholder="C2 Sponsor (optional)" aria-label="Caster 2 Sponsor">
-                        </div>
-                        
-                        <div class="form-item">
-                            <textarea class="form-text" name="Caster2-Name.txt" placeholder="Caster 2 Name" aria-label="Caster 2 Name">{{ casters_files['Caster2-Name.txt'] }}</textarea>
-                        </div>
-                        
-                        <div class="form-item">
-                            <textarea class="form-text" name="Caster2-Profile.txt" placeholder="Caster 2 Social/Handle" aria-label="Caster 2 Profile">{{ casters_files['Caster2-Profile.txt'] }}</textarea>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
         
