@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Control Panel</title>
+</head>
+<body>
+    <button id="start-overlay-btn">Start Smash Overlay</button>
+    <script>
+        document.getElementById('start-overlay-btn').addEventListener('click', async () => {
+            await fetch('/start-smash-overlay', { method: 'POST' });
+        });
+    </script>
+    <button id="stop-overlay-btn">Stop Smash Overlay</button>
+    <script>
+        document.getElementById('stop-overlay-btn').addEventListener('click', async () => {
+            await fetch('/stop-smash-overlay', { method: 'POST' });
+        });
+    </script>
+</body>
+</html>

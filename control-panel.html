@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Underground Smash Overlay Control</title>
+    <style>
+        body {
+            background-color: #303040;
+            background-image: radial-gradient(circle at center, #404060 0%, #202030 100%);
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+            padding: 15px;
+            background-color: #000;
+            border: 3px solid #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .button {
+            padding: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: 3px solid #fff;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.5);
+            transition: all 0.2s ease;
+            min-height: 60px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .start {
+            background-color: rgba(50, 180, 50, 0.7);
+            color: white;
+        }
+
+        .stop {
+            background-color: rgba(180, 50, 50, 0.7);
+            color: white;
+        }
+
+        .manage {
+            background-color: rgba(50, 50, 180, 0.7);
+            color: white;
+        }
+
+        .icon {
+            margin-right: 15px;
+            font-size: 1.5em;
+        }
+
+        .status {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            min-height: 150px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            color: #88ff88;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Underground Smash Overlay</h1>
+    </div>
+
+    <div class="controls">
+        <button class="button start" onclick="runScript('start')">
+            <span class="icon">▶</span> Start Overlay
+        </button>
+        <button class="button stop" onclick="runScript('stop')">
+            <span class="icon">■</span> Stop Overlay
+        </button>
+        <button class="button manage" onclick="openManagePanel()">
+            <span class="icon">⚙</span> Manage Broadcast
+        </button>
+    </div>
+
+    <div class="status" id="status">
+        Status: Ready
+    </div>
+
+    <div id="output">
+        Output will appear here...
+    </div>
+
+    <script>
+        // Store the full paths to your scripts
+        const scriptPaths = {
+            start: '/Users/benasselmeier/Workspace/underground-smash-overlay/start-smash-overlay.sh',
+            stop: '/Users/benasselmeier/Workspace/underground-smash-overlay/stop-smash-overlay.sh'
+        };
+
+        // Function to run a script
+        function runScript(action) {
+            const statusElement = document.getElementById('status');
+            const outputElement = document.getElementById('output');
+            
+            // Update status
+            statusElement.textContent = action === 'start' ? 'Status: Starting overlay...' : 'Status: Stopping overlay...';
+            
+            // Use AppleScript to run the bash script
+            const script = document.createElement('script');
+            script.innerHTML = `
+                function runAppleScript() {
+                    const as = new ActiveXObject('ScriptControl');
+                    as.Language = 'AppleScript';
+                    const result = as.Eval('do shell script "bash ${scriptPaths[action]}"');
+                    document.getElementById('output').textContent = result;
+                    document.getElementById('status').textContent = 'Status: ${action === 'start' ? 'Overlay is running' : 'Overlay is stopped'}';
+                }
+                runAppleScript();
+            `;
+            
+            try {
+                // For modern browsers - AppleScript can't run directly in the browser for security reasons
+                // This will actually fail, but we'll handle that gracefully
+                document.body.appendChild(script);
+                document.body.removeChild(script);
+            } catch (e) {
+                console.error(e);
+            }
+            
+            // Show instructions since we can't actually execute the script directly from browser
+            outputElement.textContent = `Command to run: bash ${scriptPaths[action]}\n\n`;
+            outputElement.textContent += "Note: Due to browser security restrictions, you'll need to:\n";
+            outputElement.textContent += "1. Open Terminal\n";
+            outputElement.textContent += `2. Copy and paste: bash ${scriptPaths[action]}\n`;
+            outputElement.textContent += "3. Press Enter\n\n";
+            outputElement.textContent += "To make this easier, consider using the desktop launcher app created earlier.";
+            
+            statusElement.textContent = `Status: Please run the ${action} command manually`;
+        }
+        
+        // Function to open the manage broadcast panel
+        function openManagePanel() {
+            window.open('http://localhost:5000', '_blank');
+        }
+    </script>
+</body>
+</html>

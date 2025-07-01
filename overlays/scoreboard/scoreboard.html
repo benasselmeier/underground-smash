@@ -157,6 +157,22 @@
         .fade-update {
             transition: opacity 0.3s ease-in-out;
         }
+
+        .startgg-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            font-size: 1.25em;
+            font-weight: bolder;
+            color: white;
+            text-align: right;
+            margin: 4px 8px 4px auto;
+            padding: 0px 4px;
+            border-radius: 10px;
+            border: 2px solid #000;
+            background-color: #000000c5
+        }
+
     </style>
 </head>
 
@@ -193,8 +209,13 @@
                 <p id="p2-score" class="scoreboard-side-score fade-update"></p>
             </div>
         </div>
+        
         <div class="scoreboard-bottom-row">
             <p id="event-info" class="scoreboard-event-title fade-update"></p>
+        </div>
+        <div class="startgg-container">
+            <p class="fade-update">start.gg/</p>
+            <p id="startgg-url" class="fade-update"></p>
         </div>
 
         <!-- <div class="scoreboard-player-cam-container">
@@ -256,6 +277,8 @@
             fetchFighter('../../text-files/player-2/Player2-Fighter.txt', 'p2-character');
             fetchText('../../text-files/player-2/Player2-Score.txt', 'p2-score');
             fetchText('../../text-files/info/Event-Info.txt', 'event-info');
+            fetchText('../../text-files/info/StartGG-Slug.txt', 'startgg-url');
+
         }
 
         update();

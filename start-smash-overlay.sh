@@ -41,15 +41,10 @@ else
     # Store the process ID
     echo $! > .flask.pid
     
-    # Open the browser
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS - open with 127.0.0.1 instead of localhost to avoid potential DNS issues
-        open "http://127.0.0.1:5000"
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        # Linux
-        xdg-open "http://127.0.0.1:5000"
-    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
-        # Windows
-        start "http://127.0.0.1:5000"
-    fi
+    # Print message about accessing the application
+    echo ""
+    echo "You can access the application by manually opening one of these URLs in your browser:"
+    echo "- http://127.0.0.1:5000"
+    echo "- http://$IP:5000"
+    echo ""
 fi
