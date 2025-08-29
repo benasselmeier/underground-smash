@@ -3,8 +3,17 @@ import os
 import time
 import json
 import subprocess
+import socket
 from datetime import datetime, timedelta
 from pathlib import Path
+
+# Import for mDNS registration
+try:
+    from zeroconf import ServiceInfo, Zeroconf
+    ZEROCONF_AVAILABLE = True
+except ImportError:
+    ZEROCONF_AVAILABLE = False
+    print("Zeroconf not available. Install with: pip install zeroconf")
 app = Flask(__name__)
 base_directory = 'text-files/'
 themes_directory = 'themes/'
@@ -13,6 +22,79 @@ current_theme = {
     'casters': 'default',
     'vs-screen': 'default'
 }
+
+# Global variable for mDNS service
+zeroconf_service = None
+
+def get_local_ip():
+    """Get the local IP address of this machine"""
+    try:
+        # Connect to a remote address to determine the local IP
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+    except Exception:
+        return "127.0.0.1"
+
+def register_mdns_service(port=5000):
+    """Register the Flask app as an mDNS service"""
+    global zeroconf_service
+    
+    if not ZEROCONF_AVAILABLE:
+        print("⚠️  mDNS registration not available. Install zeroconf for mbsmash.local support")
+        return None
+    
+    try:
+        local_ip = get_local_ip()
+        
+        # Create service info
+        service_info = ServiceInfo(
+            "_http._tcp.local.",
+            "mbsmash._http._tcp.local.",
+            addresses=[socket.inet_aton(local_ip)],
+            port=port,
+            properties={
+                'path': '/',
+                'mobile_path': '/mobile',
+                'description': 'MB Smash Stream Control Panel'
+            },
+            server="mbsmash.local."
+        )
+        
+        # Register the service
+        zeroconf = Zeroconf()
+        
+        # Check if service is already registered and unregister first
+        try:
+            zeroconf.register_service(service_info)
+            print(f"🌐 mDNS service registered!")
+            if port == 80:
+                print(f"📍 Desktop: http://mbsmash.local")
+                print(f"📱 Mobile: http://mbsmash.local/mobile")
+            else:
+                print(f"📍 Desktop: http://mbsmash.local:{port}")
+                print(f"📱 Mobile: http://mbsmash.local:{port}/mobile")
+        except Exception as reg_error:
+            print(f"⚠️  mDNS registration warning: {reg_error}")
+            # Continue anyway - the service might still work
+        
+        return zeroconf
+        
+    except Exception as e:
+        print(f"⚠️  Failed to register mDNS service: {e}")
+        return None
+
+def unregister_mdns_service():
+    """Unregister the mDNS service"""
+    global zeroconf_service
+    if zeroconf_service:
+        try:
+            zeroconf_service.close()
+            print("🌐 mDNS service unregistered")
+        except Exception as e:
+            print(f"⚠️  Error unregistering mDNS service: {e}")
+        finally:
+            zeroconf_service = None
 
 # Set up static folder for images
 app.static_folder = os.path.abspath('images')
@@ -142,6 +224,32 @@ def save_theme():
         else:
             return redirect(url_for('home'))
 
+@app.route('/mobile', methods=['GET', 'POST'])
+def mobile():
+    # Read the contents of the Fighters.txt file
+    with open(os.path.join('resources', 'Fighters.txt'), 'r') as file:
+        fighters = file.read().splitlines()
+    info_files = read_files_from_directory(os.path.join(base_directory, 'info'))
+    player_1_files = read_files_from_directory(os.path.join(base_directory, 'player-1'))
+    player_2_files = read_files_from_directory(os.path.join(base_directory, 'player-2'))
+    casters_files = read_files_from_directory(os.path.join(base_directory, 'casters'))
+
+    if request.method == 'POST':
+        for directory, files in [('info', info_files), ('player-1', player_1_files), ('player-2', player_2_files), ('casters', casters_files)]:
+            for file in files:
+                content = request.form.get(file)
+                if content is not None:
+                    with open(os.path.join(base_directory, directory, file), 'w') as f:
+                        f.write(content)
+        
+        # Check if it's an AJAX request
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return {'status': 'success', 'message': 'Files updated successfully'}
+        else:
+            return redirect(url_for('mobile'))
+
+    return render_template('mobile.html', info_files=info_files, player_1_files=player_1_files, player_2_files=player_2_files, casters_files=casters_files, fighters=fighters)
+
 @app.route('/debug-static')
 def debug_static():
     static_folder = os.path.abspath(app.static_folder)
@@ -153,4 +261,23 @@ def debug_static():
     }
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    import atexit
+    import sys
+    
+    # Register cleanup function
+    atexit.register(unregister_mdns_service)
+    
+    # Check if we should use port 80 (from environment variable)
+    port = int(os.environ.get('FLASK_RUN_PORT', 5000))
+    
+    # Register mDNS service
+    zeroconf_service = register_mdns_service(port=port)
+    
+    try:
+        # Disable reloader when using mDNS to avoid conflicts
+        use_reloader = port != 80
+        app.run(debug=True, host='0.0.0.0', port=port, use_reloader=use_reloader)
+    except KeyboardInterrupt:
+        print("\n🛑 Shutting down...")
+    finally:
+        unregister_mdns_service()

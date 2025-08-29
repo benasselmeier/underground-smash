@@ -23,28 +23,49 @@ fi
 # Check if the app is already running
 if pgrep -f "flask run" > /dev/null; then
     echo "Smash Overlay is already running!"
-    echo "You can access it at:"
+    echo ""
+    echo "Desktop Control Panel:"
     echo "- http://127.0.0.1:5000"
     IP=$(ipconfig getifaddr en0)
     echo "- http://$IP:5000"
+    echo "- http://mbsmash.local:5000"
+    echo ""
+    echo "📱 Mobile Control Panel:"
+    echo "- http://$IP:5000/mobile"
+    echo "- http://mbsmash.local:5000/mobile"
+    echo ""
 else
     # Start the Flask application
     echo "Starting Smash Overlay..."
     echo "The application can be accessed at:"
-    echo "- http://127.0.0.1:5000"
+    echo "- Desktop Control Panel: http://127.0.0.1:5000"
     IP=$(ipconfig getifaddr en0)
-    echo "- http://$IP:5000"
+    echo "- Desktop Control Panel: http://$IP:5000"
+    echo "- Desktop Control Panel: http://mbsmash.local:5000"
+    echo ""
+    echo "📱 MOBILE CONTROL PANEL:"
+    echo "- On your phone/tablet: http://$IP:5000/mobile"
+    echo "- On your phone/tablet: http://mbsmash.local:5000/mobile"
+    echo "- Make sure your mobile device is on the same WiFi network"
+    echo ""
     
     # Run Flask in the background with host set to 0.0.0.0 to allow external access
-    FLASK_RUN_HOST=0.0.0.0 python -m flask run &
+    FLASK_RUN_HOST=0.0.0.0 FLASK_RUN_PORT=5000 python -m flask run &
     
     # Store the process ID
     echo $! > .flask.pid
     
     # Print message about accessing the application
+    echo "🎮 Smash Overlay is now running!"
     echo ""
-    echo "You can access the application by manually opening one of these URLs in your browser:"
+    echo "Desktop Control Panel:"
     echo "- http://127.0.0.1:5000"
     echo "- http://$IP:5000"
+    echo "- http://mbsmash.local:5000"
+    echo ""
+    echo "📱 Mobile Control Panel:"
+    echo "- http://$IP:5000/mobile"
+    echo "- http://mbsmash.local:5000/mobile"
+    echo "  (Access these URLs from your phone/tablet browser)"
     echo ""
 fi
