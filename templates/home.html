@@ -9,7 +9,7 @@
             background-image: radial-gradient(circle at center, #404060 0%, #202030 100%);
             font-family: 'Arial', sans-serif;
             margin: 0;
-            padding: 8px;
+            padding: 4px;
             position: relative;
         }
 
@@ -18,14 +18,14 @@
             flex-direction: row;
             justify-content: space-around;
             align-items: center;
-            margin: 0 auto 15px;
+            margin: 0 auto 8px;
             width: 100%;
             color: white;
             background-color: #000;
-            border: 3px solid #fff;
-            border-radius: 10px;
-            padding: 8px 0;
-            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.5);
+            border: 2px solid #fff;
+            border-radius: 6px;
+            padding: 4px 0;
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
         }
 
         /* Character stylized portrait styling */
@@ -33,14 +33,14 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 10px 0;
+            margin: 6px 0;
             width: 100%;
-            height: 180px;
+            height: 110px;
             position: relative;
             overflow: hidden;
-            border-radius: 8px;
+            border-radius: 4px;
             background: rgba(0, 0, 0, 0.3);
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
             cursor: pointer;
             transition: all 0.2s ease;
         }
@@ -56,9 +56,9 @@
 
         .character-stylized-portrait {
             max-width: 100%;
-            max-height: 180px;
+            max-height: 110px;
             object-fit: contain;
-            border-radius: 8px;
+            border-radius: 4px;
             filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.7));
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
@@ -67,14 +67,14 @@
             content: '\25BC';
             /* Unicode for ▼ (black down-pointing triangle) */
             position: absolute;
-            top: 5px;
-            right: 5px;
+            top: 4px;
+            right: 4px;
             color: rgba(255, 255, 255, 0.9);
-            font-size: 12px;
+            font-size: 10px;
             background-color: rgba(0, 0, 0, 0.7);
-            border-radius: 4px;
-            width: 24px;
-            height: 24px;
+            border-radius: 3px;
+            width: 20px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -99,23 +99,23 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 40px;
+            height: 25px;
             background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
             pointer-events: none;
         }
 
         .character-name-display {
             position: absolute;
-            bottom: 5px;
+            bottom: 3px;
             left: 0;
             right: 0;
             text-align: center;
             color: white;
             font-weight: bold;
             text-transform: uppercase;
-            font-size: 16px;
+            font-size: 12px;
             text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
-            letter-spacing: 1px;
+            letter-spacing: 0.3px;
             pointer-events: none;
             z-index: 1;
         }
@@ -124,9 +124,9 @@
         .main-layout {
             display: flex;
             flex-direction: row;
-            width: 69%;
-            gap: 30px;
-            margin-bottom: 20px;
+            width: 75%;
+            gap: 15px;
+            margin-bottom: 8px;
         }
 
         .layout-content {
@@ -161,14 +161,14 @@
         .form-stack {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            min-width: 200px;
-            max-width: 250px;
+            gap: 5px;
+            min-width: 160px;
+            max-width: 200px;
             position: relative;
-            border: 3px solid #000;
-            padding: 20px 10px 12px;
-            /* Increased top padding to accommodate indicator */
-            border-radius: 6px;
+            border: 2px solid #000;
+            padding: 10px 6px 6px;
+            /* Further reduced padding for more compact layout */
+            border-radius: 4px;
             background-image: repeating-linear-gradient(0deg,
                     rgba(0, 0, 0, 0.1),
                     rgba(0, 0, 0, 0.1) 2px,
@@ -226,26 +226,26 @@
         .caster-column {
             display: flex;
             flex-direction: column;
-            gap: 18px;
-            /* Spacing between caster stacks */
+            gap: 8px;
+            /* Further reduced spacing between caster stacks */
             height: 100%;
         }
 
         /* Player indicator badge */
         .player-indicator {
             position: absolute;
-            top: -12px;
-            left: 10px;
+            top: -8px;
+            left: 8px;
             background: #000;
             color: #fff;
             font-weight: bold;
-            font-size: 14px;
-            padding: 3px 10px;
-            border-radius: 12px;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
             border: 2px solid #fff;
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             z-index: 10;
             /* Ensure badges stay on top */
         }
@@ -271,24 +271,24 @@
             display: flex;
             flex-direction: column;
             width: 100%;
-            min-width: 120px;
-            max-width: 200px;
-            margin-bottom: 6px;
-            /* Slightly increased for better spacing */
+            min-width: 90px;
+            max-width: 160px;
+            margin-bottom: 3px;
+            /* Further reduced margin for tighter spacing */
         }
 
         /* Special styling for player name field to resemble SSB64 character names */
         .player-name-field .form-text {
             font-family: 'Arial', sans-serif;
             font-weight: bold;
-            font-size: 16px;
-            text-transform: uppercase;
+            font-size: 13px;
             text-align: center;
             background-color: rgba(0, 0, 0, 0.6);
             border: 2px solid #fff;
             color: white;
             border-radius: 0;
-            padding: 6px 8px;
+            padding: 3px 5px;
+            height: 18px;
         }
 
         /* Player 1 name styling */
@@ -340,65 +340,67 @@
 
         /* Quick Actions Area with SSB64 theme */
         .quick-actions {
-            margin-top: 15px;
+            margin-top: 0;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
+            min-width: 240px;
+            max-width: 280px;
         }
 
         .quick-actions-title {
             color: white;
             text-transform: uppercase;
-            font-size: 1.2em;
-            letter-spacing: 1px;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
             text-shadow: 2px 2px 0 #000;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
 
         .quick-actions-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 5px;
             width: 100%;
-            max-width: 600px;
+            max-width: 280px;
         }
 
         .action-button {
             background-color: #000;
             color: white;
-            border: 3px solid #fff;
-            padding: 8px 12px;
-            border-radius: 6px;
+            border: 2px solid #fff;
+            padding: 5px 6px;
+            border-radius: 3px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 0.9em;
+            font-size: 0.75em;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.5);
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
             transition: all 0.2s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 70px;
+            min-height: 45px;
         }
 
         .action-button:hover {
             background-color: #333;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.5);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5);
         }
 
         .action-button:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
+            transform: translateY(1px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
         }
 
         .action-button i {
-            font-size: 1.5em;
-            margin-bottom: 5px;
+            font-size: 1.1em;
+            margin-bottom: 2px;
         }
 
         .action-button.p1 {
@@ -417,15 +419,75 @@
             background-color: rgba(180, 180, 50, 0.7);
         }
 
+        .action-button.new-round {
+            background-color: rgba(100, 150, 200, 0.7);
+        }
+
+        .action-button.save {
+            background-color: rgba(255, 165, 0, 0.7);
+        }
+
+        /* Theme selector styling */
+        .theme-selector-container {
+            grid-column: span 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 5px;
+            background-color: rgba(120, 120, 120, 0.7);
+            border: 2px solid #fff;
+            border-radius: 3px;
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .theme-selector-label {
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+            margin: 0;
+            font-size: 0.7em;
+        }
+
+        .theme-selector {
+            background: rgba(0, 0, 0, 0.6);
+            font-family: 'Arial', sans-serif;
+            color: white;
+            font-weight: bold;
+            border-radius: 3px;
+            border: 2px solid #fff;
+            padding: 3px 6px;
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            width: 160px;
+            font-size: 0.7em;
+        }
+
+        .theme-selector:hover {
+            background: rgba(20, 20, 20, 0.8);
+            transform: translateY(-1px);
+        }
+
+        .theme-selector:focus {
+            outline: none;
+            border-color: #ffcc00;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+        }
+
         /* Form text elements with SSB64 styling */
         .form-text {
             background: rgba(0, 0, 0, 0.6);
             font-family: 'Arial', sans-serif;
             color: white;
             font-weight: bold;
-            padding: 10px 12px;
-            height: 24px;
-            border-radius: 4px;
+            padding: 4px 6px;
+            height: 18px;
+            border-radius: 3px;
             border: 2px solid #fff;
             box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
             transition: all 0.2s ease;
@@ -452,7 +514,7 @@
         }
 
         textarea.form-text {
-            height: 24px;
+            height: 18px;
             resize: none;
             overflow: hidden;
         }
@@ -462,12 +524,12 @@
             font-family: 'Arial', sans-serif;
             color: white;
             font-weight: bold;
-            height: 40px;
-            border-radius: 4px;
+            height: 28px;
+            border-radius: 3px;
             border: 2px solid #fff;
-            padding: 0 12px;
+            padding: 0 6px;
             box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
-            margin-top: 6px;
+            margin-top: 3px;
             width: 100%;
             box-sizing: border-box;
             cursor: pointer;
@@ -700,10 +762,10 @@
         }
 
         h1.page-title {
-            font-size: 1.5em;
+            font-size: 1.3em;
             color: #fff;
             text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         h2.page-title {
@@ -750,6 +812,12 @@
             animation: pulse-animation 0.5s ease;
         }
 
+        /* Saving indicator clickable state */
+        .saving-indicator[title]:hover {
+            background-color: #333 !important;
+            transform: scale(1.05);
+        }
+
         /* Utility classes */
         .hidden {
             display: none;
@@ -762,22 +830,22 @@
         }
 
         .info-row-label {
-            font-size: .9em;
+            font-size: .8em;
             color: white;
             font-weight: bold;
-            margin-right: 4px;
+            margin-right: 3px;
             flex-shrink: 0;
         }
         
         .stream-service-select {
-            width: 50%;
-            margin-right: 8px;
+            width: 45%;
+            margin-right: 6px;
             flex-shrink: 0;
         }
         
         .social-network-select {
-            width: 40%;
-            margin-right: 8px;
+            width: 35%;
+            margin-right: 6px;
             flex-shrink: 0;
         }
 
@@ -798,6 +866,8 @@
         .page-content {
             display: flex;
             flex-direction: row;
+            gap: 15px;
+            align-items: flex-start;
         }
     </style>
 </head>
@@ -875,7 +945,6 @@
                         <textarea class="form-text" name="Enter Player 2 Name.txt" placeholder="Player 2 Name"
                             aria-label="Player 2 Name">{{ player_2_files['Enter Player 2 Name.txt'] }}</textarea>
                     </div>
-    
                     <div class="form-item character-stylized-portrait-container"
                         onclick="openCharacterGrid('player2')" role="button" tabindex="0"
                         aria-label="Select character for Player 2"
@@ -1048,6 +1117,22 @@
                         <i>-1</i>
                         <span>P2 Score</span>
                     </button>
+                    <button type="button" class="action-button new-round" onclick="newRound()">
+                        <i>🏁</i>
+                        <span>New Round</span>
+                    </button>
+                    <button type="button" class="action-button save" onclick="saveAllChanges()">
+                        <i>💾</i>
+                        <span>Save</span>
+                    </button>
+                    <div class="theme-selector-container">
+                        <label for="theme-selector" class="theme-selector-label">Scoreboard Theme:</label>
+                        <select id="theme-selector" class="theme-selector" onchange="changeTheme()">
+                            <option value="sonic">Sonic (Green Hill Zone)</option>
+                            <option value="default">Default (Blue Modern)</option>
+                            <option value="pubstomp">Pubstomp (Persona Theme)</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1072,6 +1157,9 @@
             
             // Initialize social network dropdowns with stored values
             initializeSocialNetworks();
+            
+            // Initialize theme selector
+            initializeThemeSelector();
 
             // Create and style saving indicator
             savingIndicator.className = 'saving-indicator';
@@ -1264,6 +1352,75 @@
         function adjustTextareaHeight(textarea) {
             textarea.style.height = 'auto';
             textarea.style.height = (textarea.scrollHeight) + 'px';
+        }
+
+        // Theme management functions
+        function initializeThemeSelector() {
+            const themeSelector = document.getElementById('theme-selector');
+            
+            // Load current theme from Theme.txt file
+            fetch('/text-files/info/Theme.txt?t=' + Date.now())
+                .then(response => response.text())
+                .then(currentTheme => {
+                    const theme = currentTheme.trim().toLowerCase();
+                    if (theme && themeSelector.querySelector(`option[value="${theme}"]`)) {
+                        themeSelector.value = theme;
+                    } else {
+                        // Default to sonic if no valid theme found
+                        themeSelector.value = 'sonic';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading current theme:', error);
+                    themeSelector.value = 'sonic'; // Default fallback
+                });
+        }
+        
+        function changeTheme() {
+            const themeSelector = document.getElementById('theme-selector');
+            const selectedTheme = themeSelector.value;
+            
+            // Create form data to save the theme
+            const formData = new FormData();
+            formData.append('Theme.txt', selectedTheme);
+            
+            // Visual feedback
+            const originalStyle = themeSelector.style.cssText;
+            themeSelector.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+            themeSelector.style.color = '#000';
+            themeSelector.style.transform = 'scale(1.05)';
+            
+            // Save theme to server
+            fetch('/save-theme', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to save theme');
+                }
+                return response.text();
+            })
+            .then(() => {
+                // Success feedback
+                setTimeout(() => {
+                    themeSelector.style.cssText = originalStyle;
+                }, 300);
+                
+                console.log('Theme changed to:', selectedTheme);
+            })
+            .catch(error => {
+                console.error('Error saving theme:', error);
+                // Reset selector on error
+                themeSelector.style.cssText = originalStyle;
+                themeSelector.style.backgroundColor = 'rgba(255, 50, 50, 0.8)';
+                setTimeout(() => {
+                    themeSelector.style.cssText = originalStyle;
+                }, 1000);
+            });
         }
 
         let currentPlayer = '';
@@ -1538,7 +1695,7 @@
                     }, 200);
 
                     // Save the changes
-                    saveAllChanges();
+                    saveAllChangesNow();
                 }
             }
         }
@@ -1614,7 +1771,7 @@
                 button.style.transform = 'none';
 
                 // Save changes
-                saveAllChanges();
+                saveAllChangesNow();
             }, 300);
         }
 
@@ -1673,15 +1830,131 @@
                 button.classList.remove('pulse-animation');
 
                 // Save changes
-                saveAllChanges();
+                saveAllChangesNow();
             }, 300);
         }
 
-        // Save all changes
-        function saveAllChanges() {
+        // New Round function - resets all player data to blank state
+        function newRound() {
+            // Mark elements as programmatic changes
+            const elements = [
+                document.querySelector('input[name="Player1-Sponsor.txt"]'),
+                document.querySelector('textarea[name="Enter Player 1 Name.txt"]'),
+                document.querySelector('select[name="Player1-Score.txt"]'),
+                document.querySelector('#player1-fighter-input'),
+                document.querySelector('input[name="Player2-Sponsor.txt"]'),
+                document.querySelector('textarea[name="Enter Player 2 Name.txt"]'),
+                document.querySelector('select[name="Player2-Score.txt"]'),
+                document.querySelector('#player2-fighter-input')
+            ];
+
+            elements.forEach(el => {
+                el.setAttribute('data-programmatic-change', 'true');
+            });
+
+            // Reset all player data to blank/default state
+            document.querySelector('input[name="Player1-Sponsor.txt"]').value = '';
+            document.querySelector('textarea[name="Enter Player 1 Name.txt"]').value = '';
+            document.querySelector('select[name="Player1-Score.txt"]').value = '0';
+            document.querySelector('#player1-fighter-input').value = 'Random';
+            document.querySelector('#player1-fighter-preview').src = '/images/fighter-ui-slice/random.png';
+            document.querySelector('#player1-fighter-preview').nextElementSibling.textContent = 'Random';
+
+            document.querySelector('input[name="Player2-Sponsor.txt"]').value = '';
+            document.querySelector('textarea[name="Enter Player 2 Name.txt"]').value = '';
+            document.querySelector('select[name="Player2-Score.txt"]').value = '0';
+            document.querySelector('#player2-fighter-input').value = 'Random';
+            document.querySelector('#player2-fighter-preview').src = '/images/fighter-ui-slice/random.png';
+            document.querySelector('#player2-fighter-preview').nextElementSibling.textContent = 'Random';
+
+            // Reset stylized portraits to Random
+            const p1Portrait = document.querySelector('#player1-character-portrait');
+            const p1NameDisplay = document.querySelector('#player1-character-name');
+            if (p1Portrait) {
+                p1Portrait.src = '/images/fighter-portraits-stylized/cropped/random.png';
+                p1Portrait.style.opacity = '0.7';
+            }
+            if (p1NameDisplay) {
+                p1NameDisplay.textContent = 'Random';
+            }
+
+            const p2Portrait = document.querySelector('#player2-character-portrait');
+            const p2NameDisplay = document.querySelector('#player2-character-name');
+            if (p2Portrait) {
+                p2Portrait.src = '/images/fighter-portraits-stylized/cropped/random.png';
+                p2Portrait.style.opacity = '0.7';
+            }
+            if (p2NameDisplay) {
+                p2NameDisplay.textContent = 'Random';
+            }
+
+            // Adjust textarea heights for empty content
+            adjustTextareaHeight(document.querySelector('textarea[name="Enter Player 1 Name.txt"]'));
+            adjustTextareaHeight(document.querySelector('textarea[name="Enter Player 2 Name.txt"]'));
+
+            // Visual feedback for the new round button
+            const button = event.currentTarget;
+            button.classList.add('pulse-animation');
+            setTimeout(() => {
+                button.classList.remove('pulse-animation');
+
+                // Save changes with delay
+                saveAllChangesWithDelay();
+            }, 300);
+        }
+
+        // Save all changes with 5-second delay and countdown
+        function saveAllChangesWithDelay() {
             const savingIndicator = document.querySelector('.saving-indicator');
+            
+            // Create countdown display
+            savingIndicator.textContent = 'Saving in 5...';
             savingIndicator.style.display = 'inline';
             savingIndicator.style.animation = 'pulse 0.5s infinite alternate';
+            savingIndicator.style.cursor = 'pointer';
+            
+            // Add click handler for instant save
+            let countdownInterval;
+            let countdown = 5;
+            
+            const instantSaveHandler = () => {
+                clearInterval(countdownInterval);
+                savingIndicator.removeEventListener('click', instantSaveHandler);
+                savingIndicator.style.cursor = 'default';
+                saveAllChangesNow();
+            };
+            
+            savingIndicator.addEventListener('click', instantSaveHandler);
+            savingIndicator.title = 'Click to save instantly';
+            
+            // Start countdown
+            countdownInterval = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    savingIndicator.textContent = `Saving in ${countdown}...`;
+                } else {
+                    clearInterval(countdownInterval);
+                    savingIndicator.removeEventListener('click', instantSaveHandler);
+                    savingIndicator.style.cursor = 'default';
+                    savingIndicator.title = '';
+                    saveAllChangesNow();
+                }
+            }, 1000);
+        }
+        
+        // Save all changes immediately (original function)
+        function saveAllChanges() {
+            saveAllChangesNow();
+        }
+        
+        // Internal function to actually perform the save
+        function saveAllChangesNow() {
+            const savingIndicator = document.querySelector('.saving-indicator');
+            savingIndicator.textContent = 'Saving...';
+            savingIndicator.style.display = 'inline';
+            savingIndicator.style.animation = 'pulse 0.5s infinite alternate';
+            savingIndicator.style.cursor = 'default';
+            savingIndicator.title = '';
 
             // Use fetch API for AJAX form submission
             const form = document.getElementById('auto-save-form');
@@ -1708,10 +1981,12 @@
 
                         // Visual feedback for the save button
                         const button = event.currentTarget;
-                        button.classList.add('pulse-animation');
-                        setTimeout(() => {
-                            button.classList.remove('pulse-animation');
-                        }, 500);
+                        if (button && button.classList) {
+                            button.classList.add('pulse-animation');
+                            setTimeout(() => {
+                                button.classList.remove('pulse-animation');
+                            }, 500);
+                        }
                     }, 1000);
                 })
                 .catch(error => {
@@ -1728,12 +2003,14 @@
 
             // Visual feedback for save button
             const button = event.currentTarget;
-            const originalText = button.innerHTML;
-            button.innerHTML = '<i>✓</i><span>Saving...</span>';
+            if (button && button.innerHTML) {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i>✓</i><span>Saving...</span>';
 
-            setTimeout(() => {
-                button.innerHTML = originalText;
-            }, 1000);
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 1000);
+            }
         }
     </script>
 </body>

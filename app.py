@@ -118,6 +118,30 @@ def update(filename):
         f.write(content)
     return redirect(url_for('view', filename=filename))
 
+@app.route('/save-theme', methods=['POST'])
+def save_theme():
+    try:
+        theme_content = request.form.get('Theme.txt')
+        if theme_content:
+            theme_file_path = os.path.join(base_directory, 'info', 'Theme.txt')
+            with open(theme_file_path, 'w') as f:
+                f.write(theme_content)
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return {'status': 'success', 'message': 'Theme updated successfully'}
+            else:
+                return redirect(url_for('home'))
+        else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return {'status': 'error', 'message': 'No theme data provided'}, 400
+            else:
+                return redirect(url_for('home'))
+    except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return {'status': 'error', 'message': str(e)}, 500
+        else:
+            return redirect(url_for('home'))
+
 @app.route('/debug-static')
 def debug_static():
     static_folder = os.path.abspath(app.static_folder)

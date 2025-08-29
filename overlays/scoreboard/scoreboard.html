@@ -7,10 +7,10 @@
     <title>Scoreboard</title>
     <style>
         :root {
-            --greenhill-brown: #915A26;
-            --greenhill-dark-brown: #6A3A1D;
-            --greenhill-grass: #1ED400;
-            --greenhill-outline: #000;
+            --theme-primary: #915A26;
+            --theme-secondary: #6A3A1D;
+            --theme-accent: #1ED400;
+            --theme-outline: #000;
         }
 
         body {
@@ -40,20 +40,20 @@
         .scoreboard-side-box,
         .scoreboard-score-container,
         .scoreboard-bottom-row {
-            background-color: var(--greenhill-brown);
+            background-color: var(--theme-primary);
             background-image:
-                linear-gradient(45deg, var(--greenhill-dark-brown) 25%, transparent 25%),
-                linear-gradient(-45deg, var(--greenhill-dark-brown) 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, var(--greenhill-dark-brown) 75%),
-                linear-gradient(-45deg, transparent 75%, var(--greenhill-dark-brown) 75%);
+                linear-gradient(45deg, var(--theme-secondary) 25%, transparent 25%),
+                linear-gradient(-45deg, var(--theme-secondary) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, var(--theme-secondary) 75%),
+                linear-gradient(-45deg, transparent 75%, var(--theme-secondary) 75%);
             background-size: 20px 20px;
             background-position:
                 0 0,
                 0 10px,
                 10px -10px,
                 -10px 0px;
-            border: 4px solid var(--greenhill-outline);
-            box-shadow: inset 0 8px var(--greenhill-grass);
+            border: 4px solid var(--theme-outline);
+            box-shadow: inset 0 8px var(--theme-accent);
         }
 
         .scoreboard-center {
@@ -71,15 +71,17 @@
 
         .scoreboard-side-box {
             height: 5vh;
-            width: 15vw;
+            width: 20vw;
             margin: 16px 4px 0;
             text-align: center;
             font-size: 1.5em;
-            padding: 4px;
+            padding: 0;
             display: flex;
             flex-direction: row;
-            justify-content: space-around;
-            align-items: center;
+            justify-content: space-between;
+            align-items: stretch;
+            position: relative;
+            overflow: hidden;
         }
 
         .scoreboard-score-container {
@@ -87,8 +89,11 @@
             width: 3vw;
             margin: 16px 4px 0;
             text-align: center;
-            padding: 4px;
+            padding: 0;
             align-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .scoreboard-side-player,
@@ -103,12 +108,6 @@
             margin: auto;
             justify-content: center;
             align-content: center;
-        }
-
-        .player-info {
-            display: flex;
-            gap: 2px;
-            align-items: center;
         }
 
         .player-sponsor {
@@ -133,7 +132,7 @@
             color: white;
             align-content: center;
             margin-top: 4px;
-            box-shadow: inset 0 6px var(--greenhill-grass);
+            box-shadow: inset 0 6px var(--theme-accent);
         }
 
         .scoreboard-bracket,
@@ -151,7 +150,53 @@
         }
 
         .character-slice {
-            height: 69%;
+            height: 100%;
+            width: auto;
+            object-fit: cover;
+            object-position: center;
+            align-self: stretch;
+        }
+
+        /* Position character portraits against inner edges */
+        .scoreboard-side-box:nth-child(2) .character-slice {
+            order: 2;
+            margin-left: auto;
+            margin-right: -4px;
+        }
+
+        .scoreboard-side-box:nth-child(4) .character-slice {
+            order: -1;
+            margin-right: auto;
+            margin-left: -4px;
+        }
+
+        /* Add subtle gradient overlay to blend character portraits with player boxes */
+        .scoreboard-side-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                to right,
+                rgba(0, 0, 0, 0.3) 0%,
+                rgba(0, 0, 0, 0.1) 30%,
+                rgba(0, 0, 0, 0.1) 70%,
+                rgba(0, 0, 0, 0.3) 100%
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Ensure character portraits are positioned correctly relative to gradient */
+        .player-info {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            gap: 2px;
+            align-items: center;
+            padding: 4px;
         }
 
         .fade-update {
@@ -173,9 +218,215 @@
             background-color: #000000c5
         }
 
-    </style>
-</head>
+        .losers-indicator {
+            display: none;
+            margin-left: 0.5em;
+            color: #FFD700;
+            font-size: 1.2em;
+        }
 
+        /* Pubstomp theme enhancements */
+        .pubstomp-active .scoreboard-center,
+        .pubstomp-active .scoreboard-side-box,
+        .pubstomp-active .scoreboard-score-container,
+        .pubstomp-active .scoreboard-bottom-row {
+            background-image: url('../../images/background/persona-background-red.png') !important;
+            background-size: 1000px auto !important;
+            background-repeat: no-repeat !important;
+            background-position: center 20% !important;
+            background-color: #5e0808 !important;
+            border-width: 5px;
+            border-radius: 10px;
+            box-shadow: 
+                0 0 15px rgba(227, 30, 36, 0.4),
+                0 4px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Ensure player name boxes specifically get the background */
+        .pubstomp-active .scoreboard-side-box {
+            background-image: url('../../images/background/persona-background-red.png') !important;
+            background-size: 1000px auto !important;
+            background-repeat: no-repeat !important;
+            background-position: center 20% !important;
+            background-color: #5e0808 !important;
+        }
+
+        /* Add horizontal variation to show different sections of the cityscape */
+        .pubstomp-active .scoreboard-score-container:nth-child(1) {
+            background-position: left 20% !important;
+        }
+
+        .pubstomp-active .scoreboard-side-box:nth-child(2) {
+            background-position: 25% 20% !important;
+        }
+
+        .pubstomp-active .scoreboard-center {
+            background-position: center 20% !important;
+        }
+
+        .pubstomp-active .scoreboard-side-box:nth-child(4) {
+            background-position: 75% 20% !important;
+        }
+
+        .pubstomp-active .scoreboard-score-container:nth-child(5) {
+            background-position: right 20% !important;
+        }
+
+        .pubstomp-active .scoreboard-bottom-row {
+            background-position: 50% 25% !important;
+        }
+
+
+
+        .pubstomp-active .scoreboard-side-player,
+        .pubstomp-active .scoreboard-side-score {
+            font-family: 'p5hatty', 'Persona5MenuFontPrototype-Rg', 'Arial Black', sans-serif;
+            font-weight: 900;
+            font-size: 1.5em;
+            text-shadow: 
+                3px 3px 0 #000,
+                -3px -3px 0 #000,
+                3px -3px 0 #000,
+                -3px 3px 0 #000,
+                0 0 10px rgba(255, 255, 255, 0.4);
+            letter-spacing: 2px;
+        }
+
+        .pubstomp-active .scoreboard-side-score {
+            font-size: 3.5em;
+            text-transform: uppercase;
+        }
+
+        .pubstomp-active .scoreboard-round,
+        .pubstomp-active .scoreboard-bracket {
+            font-family: 'p5hatty', 'Arial Black', sans-serif;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            text-shadow: 
+                2px 2px 0 #000,
+                -2px -2px 0 #000,
+                2px -2px 0 #000,
+                -2px 2px 0 #000,
+                0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        .pubstomp-active .scoreboard-event-title {
+            font-family: 'p5hatty', 'Persona5MenuFontPrototype-Rg', 'Arial Black', sans-serif;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-shadow: 
+                2px 2px 0 #000,
+                -2px -2px 0 #000,
+                2px -2px 0 #000,
+                -2px 2px 0 #000,
+                0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        .pubstomp-active .startgg-container {
+            background-image: url('../../images/background/persona-background-red.png') !important;
+            background-size: 1000px auto !important;
+            background-repeat: no-repeat !important;
+            background-position: 85% 20% !important;
+            background-color: #5e0808 !important;
+            border-color: #000;
+            border-width: 5px;
+            box-shadow: 
+                0 0 15px rgba(227, 30, 36, 0.4),
+                0 4px 8px rgba(0, 0, 0, 0.6);
+            font-family: 'Persona5MenuFontPrototype-Rg', 'Arial Black', sans-serif;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .pubstomp-active .player-sponsor {
+            font-family: 'p5hatty', 'Arial', sans-serif;
+            font-size: 1em;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-shadow: 
+                1px 1px 0 #000,
+                -1px -1px 0 #000,
+                1px -1px 0 #000,
+                -1px 1px 0 #000;
+        }
+
+        .pubstomp-active .startgg-container p {
+            font-family: 'Persona5MenuFontPrototype-Rg', 'Arial Black', sans-serif;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* Replace center icon with white Smash Ball for Pubstomp theme */
+        .pubstomp-active .center-icon {
+            content: url('../../images/Smash_Ball_White.png') !important;
+        }
+
+        /* Center player info and add marquee scrolling */
+        .player-info {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            gap: 2px;
+            align-items: center;
+            padding: 4px;
+            flex: 1;
+            justify-content: center;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        /* Left player: align to center-right */
+        .scoreboard-side-box:nth-child(2) .player-info {
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* Right player: align to center-left */
+        .scoreboard-side-box:nth-child(4) .player-info {
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* Marquee container for scrolling text */
+        .marquee-container {
+            overflow: hidden;
+            width: 100%;
+            position: relative;
+        }
+
+        .marquee-text {
+            display: inline-block;
+            animation: marquee 8s linear infinite;
+            animation-play-state: paused;
+        }
+
+        /* Activate marquee when text overflows */
+        .marquee-container.overflow .marquee-text {
+            animation-play-state: running;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Player name and sponsor styling for better centering */
+        .scoreboard-side-player {
+            margin: 0;
+            padding: 0;
+        }
+
+        .player-sponsor {
+            margin: 0;
+            padding: 0;
+        }
+
+        .gimme_pipe {
+            margin: 0 2px;
+            padding: 0;
+        }
+
+    </style>
 </head>
 
 <body>
@@ -186,23 +437,33 @@
             </div>
             <div class="scoreboard-side-box">
                 <div class="player-info">
-                    <p id="p1-sponsor" class="player-sponsor fade-update"></p>
-                    <p class="gimme_pipe">|</p>
-                    <p id="p1-player" class="scoreboard-side-player fade-update"></p>
+                    <div class="marquee-container" id="p1-marquee">
+                        <div class="marquee-text">
+                            <span id="p1-sponsor" class="player-sponsor fade-update"></span>
+                            <span id="p1-pipe" class="gimme_pipe">|</span>
+                            <span id="p1-player" class="scoreboard-side-player fade-update"></span>
+                            <span id="p1-losers" class="losers-indicator fade-update"></span>
+                        </div>
+                    </div>
                 </div>
                 <img class="character-slice fade-update" id="p1-character">
             </div>
             <div class="scoreboard-center">
             <p id="round" class="scoreboard-round fade-update"></p>
-                <img src="../../images/fighter-ui-slice/random.png">
+                <img class="center-icon" src="../../images/fighter-ui-slice/random.png">
             <p id="bracket" class="scoreboard-bracket fade-update"></p>
             </div>
             <div class="scoreboard-side-box">
                 <img class="character-slice fade-update" id="p2-character">
                 <div class="player-info">
-                    <p id="p2-sponsor" class="player-sponsor fade-update"></p>
-                    <p class="gimme_pipe">|</p>
-                    <p id="p2-player" class="scoreboard-side-player fade-update"></p>
+                    <div class="marquee-container" id="p2-marquee">
+                        <div class="marquee-text">
+                            <span id="p2-sponsor" class="player-sponsor fade-update"></span>
+                            <span id="p2-pipe" class="gimme_pipe">|</span>
+                            <span id="p2-player" class="scoreboard-side-player fade-update"></span>
+                            <span id="p2-losers" class="losers-indicator fade-update"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="scoreboard-score-container">
@@ -231,10 +492,153 @@
     <script>
         const FADE_TIME = 200;
 
+        // Theme definitions
+        const themes = {
+            sonic: {
+                primary: '#915A26',
+                secondary: '#6A3A1D', 
+                accent: '#1ED400',
+                outline: '#000',
+                backgroundPattern: 'diagonal-stripes',
+                fontFamily: "'Bebitron', sans-serif"
+            },
+            default: {
+                primary: '#2C3E50',
+                secondary: '#34495E',
+                accent: '#3498DB',
+                outline: '#000',
+                backgroundPattern: 'diagonal-stripes',
+                fontFamily: "'Bebitron', sans-serif"
+            },
+            pubstomp: {
+                primary: '#E31E24',
+                secondary: '#B71C1C',
+                accent: '#FFFFFF',
+                outline: '#000',
+                backgroundPattern: 'geometric-red',
+                fontFamily: "'p5hatty', 'Persona5MenuFontPrototype', 'Arial Black', sans-serif"
+            }
+        };
+
+        let currentTheme = '';
+
+        function applyTheme(themeName) {
+            if (!themes[themeName] || currentTheme === themeName) return;
+            
+            const theme = themes[themeName];
+            const root = document.documentElement;
+            
+            // Fade out all elements
+            document.querySelectorAll('.fade-update').forEach(el => {
+                el.style.opacity = '0';
+            });
+            
+            setTimeout(() => {
+                // Apply theme colors
+                root.style.setProperty('--theme-primary', theme.primary);
+                root.style.setProperty('--theme-secondary', theme.secondary);
+                root.style.setProperty('--theme-accent', theme.accent);
+                root.style.setProperty('--theme-outline', theme.outline);
+                
+                // Apply font family
+                if (theme.fontFamily) {
+                    document.body.style.fontFamily = theme.fontFamily;
+                }
+                
+                // Add/remove theme-specific classes
+                const body = document.body;
+                body.classList.remove('pubstomp-active', 'sonic-active', 'default-active');
+                body.classList.add(themeName + '-active');
+                
+                // Apply special background patterns for specific themes
+                const scoreboardElements = document.querySelectorAll('.scoreboard-center, .scoreboard-side-box, .scoreboard-score-container, .scoreboard-bottom-row');
+                scoreboardElements.forEach(el => {
+                    if (theme.backgroundPattern === 'geometric-red') {
+                        // Pubstomp theme: bold geometric pattern
+                        el.style.backgroundImage = `
+                            linear-gradient(45deg, ${theme.secondary} 25%, transparent 25%),
+                            linear-gradient(-45deg, ${theme.secondary} 25%, transparent 25%),
+                            linear-gradient(45deg, transparent 75%, ${theme.secondary} 75%),
+                            linear-gradient(-45deg, transparent 75%, ${theme.secondary} 75%),
+                            linear-gradient(0deg, rgba(0,0,0,0.3) 50%, transparent 50%)
+                        `;
+                        el.style.backgroundSize = '20px 20px, 20px 20px, 20px 20px, 20px 20px, 8px 8px';
+                    } else {
+                        // Default diagonal stripes pattern
+                        el.style.backgroundImage = `
+                            linear-gradient(45deg, ${theme.secondary} 25%, transparent 25%),
+                            linear-gradient(-45deg, ${theme.secondary} 25%, transparent 25%),
+                            linear-gradient(45deg, transparent 75%, ${theme.secondary} 75%),
+                            linear-gradient(-45deg, transparent 75%, ${theme.secondary} 75%)
+                        `;
+                        el.style.backgroundSize = '20px 20px';
+                    }
+                });
+                
+                currentTheme = themeName;
+                
+                // Fade elements back in
+                setTimeout(() => {
+                    document.querySelectorAll('.fade-update').forEach(el => {
+                        el.style.opacity = '1';
+                    });
+                }, 100);
+            }, FADE_TIME);
+        }
+
+        function fetchTheme() {
+            fetch('../../text-files/info/Theme.txt?t=' + Date.now())
+                .then(r => r.text())
+                .then(themeName => {
+                    const cleanTheme = themeName.trim().toLowerCase();
+                    if (themes[cleanTheme]) {
+                        applyTheme(cleanTheme);
+                    }
+                })
+                .catch(console.error);
+        }
+
+        function checkTextOverflow(containerId) {
+            const container = document.getElementById(containerId);
+            const marqueeText = container.querySelector('.marquee-text');
+            
+            if (container && marqueeText) {
+                // Reset animation
+                container.classList.remove('overflow');
+                marqueeText.style.animation = 'none';
+                
+                // Check if text overflows
+                setTimeout(() => {
+                    if (marqueeText.scrollWidth > container.clientWidth) {
+                        container.classList.add('overflow');
+                    }
+                }, 50);
+            }
+        }
+
         function fadeText(el, text) {
             if (el.textContent !== text) {
                 el.style.opacity = '0';
-                setTimeout(() => { el.textContent = text; el.style.opacity = '1'; }, FADE_TIME);
+                setTimeout(() => { 
+                    el.textContent = text; 
+                    el.style.opacity = '1';
+                    
+                    // Check overflow after text update
+                    const playerId = el.id.includes('p1') ? 'p1' : 'p2';
+                    checkTextOverflow(playerId + '-marquee');
+                }, FADE_TIME);
+            }
+        }
+
+        function fadeSponsor(el, text, pipeId) {
+            fadeText(el, text);
+            const pipe = document.getElementById(pipeId);
+            if (pipe) {
+                if (!text.trim()) {
+                    pipe.style.visibility = 'hidden';
+                } else {
+                    pipe.style.visibility = 'visible';
+                }
             }
         }
 
@@ -255,6 +659,13 @@
                 .catch(console.error);
         }
 
+        function fetchSponsor(url, id, pipeId) {
+            fetch(url + '?t=' + Date.now())
+                .then(r => r.text())
+                .then(txt => fadeSponsor(document.getElementById(id), txt, pipeId))
+                .catch(console.error);
+        }
+
         function fetchFighter(url, id) {
             fetch(url + '?t=' + Date.now())
                 .then(r => r.text())
@@ -265,22 +676,41 @@
                 .catch(console.error);
         }
 
+        function fetchLosers(url, id) {
+            fetch(url + '?t=' + Date.now())
+                .then(r => r.text())
+                .then(txt => {
+                    const el = document.getElementById(id);
+                    if (txt.trim() === '1') {
+                        el.style.display = '';
+                    } else {
+                        el.style.display = 'none';
+                    }
+                })
+                .catch(console.error);
+        }
+
         function update() {
+            fetchTheme();
             fetchText('../../text-files/player-1/Player1-Score.txt', 'p1-score');
             fetchText('../../text-files/player-1/Enter Player 1 Name.txt', 'p1-player');
-            fetchText('../../text-files/player-1/Player1-Sponsor.txt', 'p1-sponsor');
+            fetchSponsor('../../text-files/player-1/Player1-Sponsor.txt', 'p1-sponsor', 'p1-pipe');
             fetchFighter('../../text-files/player-1/Player1-Fighter.txt', 'p1-character');
             fetchText('../../text-files/info/Current-Round.txt', 'round');
             fetchText('../../text-files/info/Bracket-Name.txt', 'bracket');
-            fetchText('../../text-files/player-2/Player2-Sponsor.txt', 'p2-sponsor');
+            fetchSponsor('../../text-files/player-2/Player2-Sponsor.txt', 'p2-sponsor', 'p2-pipe');
             fetchText('../../text-files/player-2/Enter Player 2 Name.txt', 'p2-player');
             fetchFighter('../../text-files/player-2/Player2-Fighter.txt', 'p2-character');
             fetchText('../../text-files/player-2/Player2-Score.txt', 'p2-score');
             fetchText('../../text-files/info/Event-Info.txt', 'event-info');
             fetchText('../../text-files/info/StartGG-Slug.txt', 'startgg-url');
+            fetchLosers('../../text-files/player-1/Player1-Losers.txt', 'p1-losers');
+            fetchLosers('../../text-files/player-2/Player2-Losers.txt', 'p2-losers');
 
         }
 
+        // Initialize theme and start updates
+        fetchTheme();
         update();
         setInterval(update, 1000);
     </script>
