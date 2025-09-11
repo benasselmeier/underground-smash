@@ -295,6 +295,39 @@
             background-color: rgba(50, 150, 150, 0.8);
         }
 
+        /* Losers bracket toggle styling */
+        .losers-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .losers-toggle:hover {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: rgba(255, 215, 0, 0.6);
+        }
+
+        .losers-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #FFD700;
+            cursor: pointer;
+        }
+
+        .losers-toggle .losers-text {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+        }
+
         /* Theme selector */
         .theme-selector-container {
             grid-column: 1 / -1;
@@ -608,6 +641,15 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="form-row">
+                    <label class="form-label">Losers Bracket</label>
+                    <label class="losers-toggle">
+                        <input type="checkbox" class="losers-checkbox" name="Player1-Losers.txt" 
+                               {% if player_1_files['Player1-Losers.txt'] == '1' %}checked{% endif %}>
+                        <span class="losers-text">From Losers</span>
+                    </label>
+                </div>
             </div>
 
             <!-- Player 2 Section -->
@@ -657,6 +699,15 @@
                             <button type="button" class="score-btn plus" onclick="updatePlayerScore('player2', 1)">+</button>
                         </div>
                     </div>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">Losers Bracket</label>
+                    <label class="losers-toggle">
+                        <input type="checkbox" class="losers-checkbox" name="Player2-Losers.txt" 
+                               {% if player_2_files['Player2-Losers.txt'] == '1' %}checked{% endif %}>
+                        <span class="losers-text">From Losers</span>
+                    </label>
                 </div>
             </div>
 
@@ -818,6 +869,15 @@
 
                     // Use fetch API for AJAX form submission
                     const formData = new FormData(form);
+                    
+                    // Handle checkboxes manually - convert to 1/0 values
+                    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+                    checkboxes.forEach(checkbox => {
+                        if (checkbox.name) {
+                            formData.delete(checkbox.name);
+                            formData.append(checkbox.name, checkbox.checked ? '1' : '0');
+                        }
+                    });
 
                     fetch(form.action || window.location.href, {
                         method: 'POST',

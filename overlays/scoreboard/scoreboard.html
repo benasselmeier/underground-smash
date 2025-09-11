@@ -225,6 +225,10 @@
             font-size: 1.2em;
         }
 
+        .losers-indicator::before {
+            content: "(L)";
+        }
+
         /* Pubstomp theme enhancements */
         .pubstomp-active .scoreboard-center,
         .pubstomp-active .scoreboard-side-box,
@@ -426,6 +430,121 @@
             padding: 0;
         }
 
+        /* Hot Set Alert Styles */
+        .hot-set-alert {
+            position: absolute;
+            top: 15vh;
+            left: 5vw;
+            transform: none;
+            background: linear-gradient(45deg, #ff4444, #ff6666, #ff2222, #ff8888);
+            background-size: 400% 400%;
+            border: 4px solid #000;
+            border-radius: 15px;
+            padding: 8px 20px;
+            font-family: 'Bebitron', sans-serif;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 
+                2px 2px 0 #000,
+                -2px -2px 0 #000,
+                2px -2px 0 #000,
+                -2px 2px 0 #000,
+                0 0 10px rgba(255, 255, 255, 0.8);
+            letter-spacing: 3px;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            animation: flame-pulse 2s ease-in-out infinite, flame-bg 3s ease-in-out infinite;
+            box-shadow: 
+                0 0 20px rgba(255, 68, 68, 0.8),
+                0 0 40px rgba(255, 68, 68, 0.4),
+                inset 0 2px 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .hot-set-alert.visible {
+            opacity: 1;
+        }
+
+        .hot-set-alert::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff0000, #ff4444, #ff8800, #ff4444);
+            border-radius: 17px;
+            z-index: -1;
+            animation: flame-border 2.5s ease-in-out infinite;
+        }
+
+        .hot-set-alert::after {
+            content: '🔥';
+            position: absolute;
+            top: -15px;
+            left: -25px;
+            font-size: 1.5em;
+            animation: flame-flicker 1.5s ease-in-out infinite;
+        }
+
+        @keyframes flame-pulse {
+            0%, 100% { 
+                transform: scale(1);
+                filter: brightness(1);
+            }
+            50% { 
+                transform: scale(1.05);
+                filter: brightness(1.2);
+            }
+        }
+
+        @keyframes flame-bg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes flame-border {
+            0%, 100% { 
+                box-shadow: 0 0 25px rgba(255, 0, 0, 0.8);
+            }
+            50% { 
+                box-shadow: 0 0 35px rgba(255, 136, 0, 0.9);
+            }
+        }
+
+        @keyframes flame-flicker {
+            0%, 100% { 
+                opacity: 1;
+                transform: rotate(-5deg);
+            }
+            25% { 
+                opacity: 0.8;
+                transform: rotate(5deg);
+            }
+            50% { 
+                opacity: 1;
+                transform: rotate(-3deg);
+            }
+            75% { 
+                opacity: 0.9;
+                transform: rotate(3deg);
+            }
+        }
+
+        /* Pubstomp theme adjustments for hot set alert */
+        .pubstomp-active .hot-set-alert {
+            font-family: 'p5hatty', 'Persona5MenuFontPrototype-Rg', 'Arial Black', sans-serif;
+            background: linear-gradient(45deg, #E31E24, #ff4444, #B71C1C, #ff6666);
+            text-shadow: 
+                3px 3px 0 #000,
+                -3px -3px 0 #000,
+                3px -3px 0 #000,
+                -3px 3px 0 #000,
+                0 0 15px rgba(255, 255, 255, 0.9);
+        }
+
     </style>
 </head>
 
@@ -477,6 +596,11 @@
         <div class="startgg-container">
             <p class="fade-update">start.gg/</p>
             <p id="startgg-url" class="fade-update"></p>
+        </div>
+
+        <!-- Hot Set Alert -->
+        <div id="hot-set-alert" class="hot-set-alert">
+            HOT SET ALERT
         </div>
 
         <!-- <div class="scoreboard-player-cam-container">
@@ -655,8 +779,28 @@
         function fetchText(url, id) {
             fetch(url + '?t=' + Date.now())
                 .then(r => r.text())
-                .then(txt => fadeText(document.getElementById(id), txt))
+                .then(txt => {
+                    fadeText(document.getElementById(id), txt);
+                    
+                    // Check for hot set after score updates
+                    if (id === 'p1-score' || id === 'p2-score') {
+                        checkHotSet();
+                    }
+                })
                 .catch(console.error);
+        }
+
+        function checkHotSet() {
+            const p1Score = document.getElementById('p1-score').textContent.trim();
+            const p2Score = document.getElementById('p2-score').textContent.trim();
+            const hotSetAlert = document.getElementById('hot-set-alert');
+            
+            // Show alert if both players have score 2 (game 5)
+            if (p1Score === '2' && p2Score === '2') {
+                hotSetAlert.classList.add('visible');
+            } else {
+                hotSetAlert.classList.remove('visible');
+            }
         }
 
         function fetchSponsor(url, id, pipeId) {

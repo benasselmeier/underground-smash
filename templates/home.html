@@ -888,6 +888,37 @@
             gap: 15px;
             align-items: flex-start;
         }
+
+        /* Losers bracket checkbox styling */
+        .losers-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: white;
+            font-size: 0.8em;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .losers-label:hover {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: rgba(255, 215, 0, 0.6);
+        }
+
+        .losers-checkbox {
+            width: 14px;
+            height: 14px;
+            accent-color: #FFD700;
+        }
+
+        .losers-text {
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 
@@ -937,6 +968,16 @@
                             <option value="3" {% if player_1_files['Player1-Score.txt']=='3' %}selected{% endif
                                 %}>3</option>
                         </select>
+                    </div>
+
+                    <div class="form-item">
+                        <label class="losers-label">
+                            <input type="checkbox" class="losers-checkbox" name="Player1-Losers.txt" 
+                                   {% if player_1_files['Player1-Losers.txt'] == '1' %}checked{% endif %}
+                                   title="Player 1 from Losers Bracket"
+                                   aria-label="Player 1 from Losers Bracket">
+                            <span class="losers-text">Losers Bracket</span>
+                        </label>
                     </div>
     
                     <div class="form-item hidden"> <!-- Hide the character selection container -->
@@ -989,6 +1030,16 @@
                             <option value="3" {% if player_2_files['Player2-Score.txt']=='3' %}selected{% endif
                                 %}>3</option>
                         </select>
+                    </div>
+
+                    <div class="form-item">
+                        <label class="losers-label">
+                            <input type="checkbox" class="losers-checkbox" name="Player2-Losers.txt" 
+                                   {% if player_2_files['Player2-Losers.txt'] == '1' %}checked{% endif %}
+                                   title="Player 2 from Losers Bracket"
+                                   aria-label="Player 2 from Losers Bracket">
+                            <span class="losers-text">Losers Bracket</span>
+                        </label>
                     </div>
     
                     <div class="form-item hidden"> <!-- Hide the character selection container -->
@@ -1247,6 +1298,15 @@
 
                     // Use fetch API for AJAX form submission
                     const formData = new FormData(form);
+                    
+                    // Handle checkboxes manually - convert to 1/0 values
+                    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+                    checkboxes.forEach(checkbox => {
+                        if (checkbox.name) {
+                            formData.delete(checkbox.name);
+                            formData.append(checkbox.name, checkbox.checked ? '1' : '0');
+                        }
+                    });
 
                     fetch(form.action || window.location.href, {
                         method: 'POST',

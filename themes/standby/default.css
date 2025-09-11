@@ -1,0 +1,35 @@
+/* Default Standby Theme */
+
+:root {
+    --theme-primary: #E31E24;
+    --theme-secondary: #B71C1C;
+    --theme-accent: #FFFFFF;
+    --theme-outline: #000;
+    --standby-bg: #5e0808;
+    --standby-text: white;
+    --standby-accent: #FFD700;
+}
+
+/* Override default styles for theme customization */
+.standby-header {
+    background-color: var(--standby-bg) !important;
+    color: var(--standby-text) !important;
+}
+
+.event-info {
+    background-color: var(--standby-bg) !important;
+    color: var(--standby-text) !important;
+}
+
+.event-subtitle {
+    color: var(--standby-accent) !important;
+}
+
+.video-label {
+    background-color: rgba(94, 8, 8, 0.9) !important;
+    color: var(--standby-text) !important;
+}
+
+.video-container {
+    border-color: var(--theme-outline) !important;
+}

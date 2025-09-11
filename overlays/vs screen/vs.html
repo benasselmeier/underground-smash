@@ -281,7 +281,7 @@
         }
 
         function update() {
-            fetchText('../../text-files/info/Current-Round.txt', 'round');
+            fadeText(document.getElementById('round'), 'Coming Up:');
             fetchFighter('../../text-files/player-1/Player1-Fighter.txt', 'p1-character');
             fetchFighter('../../text-files/player-2/Player2-Fighter.txt', 'p2-character');
             fetchText('../../text-files/player-1/Enter Player 1 Name.txt', 'p1-player');

@@ -1,0 +1,58 @@
+/* Dark Standby Theme */
+
+:root {
+    --theme-primary: #2C3E50;
+    --theme-secondary: #34495E;
+    --theme-accent: #FFFFFF;
+    --theme-outline: #000;
+    --standby-bg: #1a1a1a;
+    --standby-text: #ECEFF1;
+    --standby-accent: #64B5F6;
+}
+
+/* Override styles for dark theme */
+body {
+    background-image: none !important;
+    background-color: #0f0f0f !important;
+}
+
+.standby-header {
+    background-image: none !important;
+    background-color: var(--standby-bg) !important;
+    color: var(--standby-text) !important;
+    border: 3px solid #333 !important;
+    box-shadow: 
+        0 0 15px rgba(100, 181, 246, 0.3),
+        0 4px 8px rgba(0, 0, 0, 0.6) !important;
+}
+
+.event-info {
+    background-image: none !important;
+    background-color: var(--standby-bg) !important;
+    color: var(--standby-text) !important;
+    border: 3px solid #333 !important;
+    box-shadow: 
+        0 0 15px rgba(100, 181, 246, 0.3),
+        0 4px 8px rgba(0, 0, 0, 0.6) !important;
+}
+
+.event-subtitle {
+    color: var(--standby-accent) !important;
+}
+
+.video-label {
+    background-color: rgba(26, 26, 26, 0.9) !important;
+    color: var(--standby-text) !important;
+}
+
+.video-container {
+    border-color: #333 !important;
+    box-shadow: 
+        0 0 15px rgba(100, 181, 246, 0.2),
+        0 4px 8px rgba(0, 0, 0, 0.5) !important;
+}
+
+.video-placeholder {
+    background: linear-gradient(45deg, #2a2a2a, #1a1a1a) !important;
+    color: #888 !important;
+}
