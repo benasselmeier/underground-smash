@@ -511,9 +511,9 @@
                                 <div class="theme-field">
                                     <label for="theme-selector">Theme Selection</label>
                                     <select id="theme-selector" onchange="changeTheme()">
-                                        <option value="sonic">Sonic</option>
-                                        <option value="default">Default</option>
                                         <option value="pubstomp">Pubstomp</option>
+                                        <option value="default">Default</option>
+                                        <option value="sonic">Sonic</option>
                                     </select>
                                 </div>
                             </div>
@@ -793,7 +793,11 @@
                 .then((theme) => {
                     const selector = document.getElementById('theme-selector');
                     const t = theme.trim().toLowerCase();
-                    if (selector.querySelector(`option[value="${t}"]`)) selector.value = t;
+                    selector.value = selector.querySelector(`option[value="${t}"]`) ? t : 'pubstomp';
+                })
+                .catch(() => {
+                    const selector = document.getElementById('theme-selector');
+                    selector.value = 'pubstomp';
                 });
         }
 

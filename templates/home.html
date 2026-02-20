@@ -1202,9 +1202,9 @@
                     <div class="theme-selector-container">
                         <label for="theme-selector" class="theme-selector-label">Scoreboard Theme:</label>
                         <select id="theme-selector" class="theme-selector" onchange="changeTheme()">
-                            <option value="sonic">Sonic (Green Hill Zone)</option>
-                            <option value="default">Default (Blue Modern)</option>
                             <option value="pubstomp">Pubstomp (Persona Theme)</option>
+                            <option value="default">Default (Blue Modern)</option>
+                            <option value="sonic">Sonic (Green Hill Zone)</option>
                         </select>
                     </div>
                 </div>
@@ -1449,13 +1449,13 @@
                     if (theme && themeSelector.querySelector(`option[value="${theme}"]`)) {
                         themeSelector.value = theme;
                     } else {
-                        // Default to sonic if no valid theme found
-                        themeSelector.value = 'sonic';
+                        // Default to pubstomp if no valid theme found
+                        themeSelector.value = 'pubstomp';
                     }
                 })
                 .catch(error => {
                     console.error('Error loading current theme:', error);
-                    themeSelector.value = 'sonic'; // Default fallback
+                    themeSelector.value = 'pubstomp'; // Default fallback
                 });
         }
         
