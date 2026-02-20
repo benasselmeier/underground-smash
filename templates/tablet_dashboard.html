@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Tablet Tournament Control</title>
+    <style>
+        :root {
+            --bg: #25273f;
+            --panel: #111319;
+            --ink: #f4f7ff;
+            --p1: #d53c45;
+            --p2: #4045d8;
+            --cpu: #5d616f;
+            --accent: #9ca6ff;
+            --stroke: #d7d9e2;
+            --tile: #1d212e;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: radial-gradient(circle at top, #3c3f64 0%, var(--bg) 56%, #171928 100%);
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 8px;
+        }
+
+        .app {
+            display: grid;
+            grid-template-rows: auto auto 1fr;
+            gap: 10px;
+            max-width: 1600px;
+            margin: 0 auto;
+            min-height: calc(100vh - 16px);
+        }
+
+        .header {
+            background: #000;
+            border: 2px solid var(--stroke);
+            border-radius: 8px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: clamp(18px, 2.2vw, 34px);
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .link-btn {
+            text-decoration: none;
+            color: #fff;
+            font-weight: 800;
+            border: 1px solid #6f7284;
+            border-radius: 6px;
+            padding: 8px 10px;
+            background: #181b25;
+            font-size: 13px;
+        }
+
+        .fighter-grid-wrap {
+            position: relative;
+            background:
+                radial-gradient(circle at 18% 22%, rgba(122, 172, 255, 0.34), transparent 42%),
+                radial-gradient(circle at 78% 18%, rgba(255, 232, 136, 0.26), transparent 38%),
+                linear-gradient(145deg, #1f2333 0%, #161a29 54%, #0f1220 100%);
+            border: 2px solid #525666;
+            border-radius: 10px;
+            padding: 8px;
+            max-height: min(50vh, 500px);
+            overflow: auto;
+            box-shadow: inset 0 0 22px rgba(109, 140, 215, 0.22);
+        }
+
+        .fighter-grid {
+            display: grid;
+            grid-template-columns: repeat(13, minmax(78px, 1fr));
+            gap: 4px;
+        }
+
+        .char-tile {
+            height: 52px;
+            background:
+                linear-gradient(180deg, rgba(95, 130, 210, 0.22) 0%, rgba(35, 46, 79, 0.24) 32%, rgba(18, 23, 40, 0.9) 100%),
+                linear-gradient(180deg, #2c3145 0%, var(--tile) 100%);
+            border: 1px solid #5a6382;
+            border-radius: 5px;
+            padding: 4px;
+            display: grid;
+            grid-template-rows: 1fr auto;
+            justify-items: center;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .char-tile:hover {
+            border-color: #d7ddf3;
+            box-shadow: inset 0 0 12px rgba(161, 190, 255, 0.28);
+        }
+
+        .char-tile img {
+            width: 54px;
+            height: 28px;
+            object-fit: contain;
+            pointer-events: none;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+        }
+
+        .char-tile span {
+            font-size: 10px;
+            line-height: 1;
+            text-align: center;
+            font-weight: 900;
+            text-transform: uppercase;
+            pointer-events: none;
+            color: #f7fbff;
+            letter-spacing: 0.25px;
+            text-shadow: 0 1px 0 #000, 0 0 4px rgba(0, 0, 0, 0.7);
+        }
+
+        .char-tile.is-p1 { box-shadow: inset 0 0 0 2px var(--p1); }
+        .char-tile.is-p2 { box-shadow: inset 0 0 0 2px var(--p2); }
+        .char-tile.is-both {
+            box-shadow: inset 0 0 0 2px var(--p1), inset 0 -12px 0 0 var(--p2);
+        }
+
+        .token {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            border: 3px solid #fff;
+            display: grid;
+            place-items: center;
+            font-weight: 900;
+            font-size: 16px;
+            pointer-events: auto;
+            touch-action: none;
+            cursor: grab;
+            z-index: 3;
+            user-select: none;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
+            transform: translate(-50%, -50%);
+        }
+
+        .token.active { outline: 3px solid #ffd543; }
+        .token.dragging {
+            cursor: grabbing;
+            z-index: 9999;
+            filter: brightness(1.08);
+        }
+        .token.p1 { background: var(--p1); }
+        .token.p2 { background: var(--p2); }
+
+        .main {
+            display: grid;
+            grid-template-columns: 1.45fr 1.2fr 0.95fr;
+            gap: 8px;
+            align-items: stretch;
+            min-height: 0;
+        }
+
+        .panel {
+            background: rgba(0, 0, 0, 0.48);
+            border: 2px solid #5f667c;
+            border-radius: 8px;
+            padding: 6px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel h2 {
+            margin: 0 0 6px;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+
+        .players {
+            display: grid;
+            grid-template-columns: 1fr 0.62fr 1fr;
+            gap: 6px;
+            flex: 1;
+            min-height: 0;
+            align-items: stretch;
+        }
+
+        .player-card {
+            border: 2px solid #111;
+            border-radius: 8px;
+            padding: 6px;
+            background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.03), rgba(255,255,255,0.03) 2px, transparent 2px, transparent 4px);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-card.p1 { background-color: rgba(213, 60, 69, 0.7); }
+        .player-card.p2 { background-color: rgba(64, 69, 216, 0.7); }
+
+        .card-label {
+            margin: 0 0 4px;
+            font-weight: 900;
+            text-transform: uppercase;
+            border: 2px solid #fff;
+            border-radius: 12px;
+            display: inline-block;
+            padding: 1px 8px;
+            background: #171717;
+        }
+
+        .field {
+            display: grid;
+            gap: 2px;
+            margin-bottom: 4px;
+        }
+
+        .field label {
+            font-size: 10px;
+            text-transform: uppercase;
+            opacity: 0.95;
+            font-weight: 800;
+        }
+
+        .field input, .field textarea, .field select, .info-grid input, .info-grid textarea, .info-grid select {
+            width: 100%;
+            border: 2px solid #d8dbe3;
+            border-radius: 4px;
+            padding: 4px 6px;
+            background: #14161f;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        textarea { min-height: 32px; resize: vertical; }
+
+        .player-preview {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            align-items: center;
+            margin: 4px 0 10px;
+            background: rgba(0,0,0,0.28);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            padding: 6px;
+            min-height: 124px;
+            flex: 1;
+        }
+
+        .portrait-slot {
+            position: relative;
+            width: 100%;
+            height: 108px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-preview img {
+            width: 100%;
+            height: 104px;
+            object-fit: contain;
+            object-position: center;
+            display: block;
+        }
+
+        .score-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .field.score-field {
+            margin-top: auto;
+        }
+
+        .score-value {
+            flex: 1;
+            border: 2px solid #d8dbe3;
+            border-radius: 4px;
+            background: #14161f;
+            color: #fff;
+            font-weight: 900;
+            text-align: center;
+            font-size: 24px;
+            line-height: 1;
+            padding: 6px 0;
+            min-width: 54px;
+        }
+
+        .score-bump {
+            min-width: 52px;
+            font-size: 20px;
+            padding: 8px 10px;
+        }
+
+        .btn {
+            border: 2px solid #d8dbe3;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-weight: 900;
+            color: #fff;
+            background: #2b3043;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            font-size: 14px;
+        }
+
+        .btn:active { transform: translateY(1px); }
+        .btn.p1 { background: #c6343e; }
+        .btn.p2 { background: #3439c6; }
+        .btn.swap { background: #8e8d34; }
+        .btn.reset { background: #3f9e43; }
+        .btn.save { background: #be7f25; }
+        .btn.next { background: #2d8c9f; }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .full-row {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 7px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .sub-panel {
+            border: 2px solid #6e7280;
+            border-radius: 6px;
+            padding: 6px;
+            background: rgba(255,255,255,0.04);
+        }
+
+        .sub-title {
+            margin: 0 0 4px;
+            text-transform: uppercase;
+            font-size: 12px;
+            font-weight: 900;
+            opacity: 0.95;
+        }
+
+        .between-actions {
+            border: 2px solid #59607a;
+            border-radius: 8px;
+            padding: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            display: grid;
+            align-content: start;
+            gap: 6px;
+            height: 100%;
+        }
+
+        .between-actions .sub-title {
+            text-align: center;
+            margin-bottom: 0;
+        }
+
+        .between-actions .quick-grid {
+            margin: 0;
+        }
+
+        .stack-actions {
+            display: grid;
+            gap: 6px;
+        }
+
+        .theme-field {
+            display: grid;
+            gap: 4px;
+            margin-top: 2px;
+        }
+
+        .theme-field label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        .pickban-status {
+            min-height: 38px;
+            display: grid;
+            align-items: center;
+            border: 1px solid #76809a;
+            border-radius: 6px;
+            padding: 5px;
+            margin-bottom: 6px;
+            background: rgba(0,0,0,0.35);
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .saving {
+            position: fixed;
+            right: 10px;
+            top: 10px;
+            background: #0f1320;
+            border: 1px solid #99a5c9;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-weight: 800;
+            font-size: 12px;
+            display: none;
+            z-index: 100;
+        }
+
+        @media (max-width: 1150px) {
+            .fighter-grid { grid-template-columns: repeat(12, minmax(70px, 1fr)); }
+            .main { grid-template-columns: 1fr; }
+            .players { grid-template-columns: 1fr; }
+            .info-grid { grid-template-columns: 1fr; }
+            .panel { height: auto; }
+        }
+
+        @media (max-height: 950px) {
+            .header h1 { font-size: clamp(15px, 1.8vw, 26px); }
+            .fighter-grid-wrap { max-height: min(47vh, 420px); }
+            .char-tile { height: 48px; }
+            .char-tile img { width: 48px; height: 24px; }
+            .char-tile span { font-size: 9px; }
+            .panel h2 { font-size: 15px; }
+            .btn { font-size: 13px; padding: 5px 7px; }
+            .score-bump { min-width: 56px; font-size: 16px; padding: 6px 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="saving" id="saving-indicator">Saving...</div>
+    <div class="app">
+        <header class="header">
+            <h1>MB STANDS FOR MANAGE BROADCAST</h1>
+            <div class="header-links">
+                <a class="link-btn" href="/">Desktop</a>
+                <a class="link-btn" href="/mobile">Mobile</a>
+            </div>
+        </header>
+
+        <section class="fighter-grid-wrap" id="fighter-grid-wrap">
+            <div class="fighter-grid" id="fighter-grid"></div>
+        </section>
+
+        <form id="auto-save-form" method="POST">
+            <main class="main">
+                <section class="panel">
+                    <h2>Players</h2>
+                    <div class="players">
+                        <article class="player-card p1">
+                            <div class="card-label">P1</div>
+            <div class="field"><label>Sponsor</label><input type="text" name="Player1-Sponsor.txt" value="{{ player_1_files['Player1-Sponsor.txt'] }}"></div>
+            <div class="field"><label>Name</label><textarea name="Enter Player 1 Name.txt">{{ player_1_files['Enter Player 1 Name.txt'] }}</textarea></div>
+                            <div class="player-preview">
+                                <div class="portrait-slot">
+                                    <img id="player1-fighter-preview" src="/images/fighter-portraits-stylized/cropped/{{ player_1_files['Player1-Fighter.txt']|lower }}.png" alt="P1">
+                                    <div class="token p1" data-player="player1" id="token-p1">P1</div>
+                                </div>
+                                <div>
+                                    <div id="player1-fighter-name">{{ player_1_files['Player1-Fighter.txt'] }}</div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="Player1-Fighter.txt" id="player1-fighter-input" value="{{ player_1_files['Player1-Fighter.txt'] }}">
+                            <div class="field score-field">
+                                <label>Score</label>
+                                <div class="score-controls">
+                                    <button class="btn p1 score-bump" type="button" onclick="updatePlayerScore('player1', -1)">-</button>
+                                    <div class="score-value" id="player1-score-display">{{ player_1_files['Player1-Score.txt'] }}</div>
+                                    <button class="btn p1 score-bump" type="button" onclick="updatePlayerScore('player1', 1)">+1</button>
+                                </div>
+                                <input type="hidden" name="Player1-Score.txt" id="player1-score" value="{{ player_1_files['Player1-Score.txt'] }}">
+                            </div>
+                            <div class="field">
+                                <label><input type="checkbox" name="Player1-Losers.txt" {% if player_1_files['Player1-Losers.txt'] == '1' %}checked{% endif %}> Losers Bracket</label>
+                            </div>
+                        </article>
+
+                        <article class="between-actions">
+                            <p class="sub-title">Quick Actions</p>
+                            <div class="stack-actions">
+                                <button class="btn swap" type="button" onclick="swapPlayers()">Swap Players</button>
+                                <button class="btn reset" type="button" onclick="resetScoreboard()">Reset</button>
+                                <button class="btn" type="button" onclick="newRound()">New Round</button>
+                                <button class="btn save" type="button" onclick="saveAllChangesNow()">Save</button>
+                                <div class="theme-field">
+                                    <label for="theme-selector">Theme Selection</label>
+                                    <select id="theme-selector" onchange="changeTheme()">
+                                        <option value="sonic">Sonic</option>
+                                        <option value="default">Default</option>
+                                        <option value="pubstomp">Pubstomp</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="player-card p2">
+                            <div class="card-label">P2</div>
+                            <div class="field"><label>Sponsor</label><input type="text" name="Player2-Sponsor.txt" value="{{ player_2_files['Player2-Sponsor.txt'] }}"></div>
+                            <div class="field"><label>Name</label><textarea name="Enter Player 2 Name.txt">{{ player_2_files['Enter Player 2 Name.txt'] }}</textarea></div>
+                            <div class="player-preview">
+                                <div class="portrait-slot">
+                                    <img id="player2-fighter-preview" src="/images/fighter-portraits-stylized/cropped/{{ player_2_files['Player2-Fighter.txt']|lower }}.png" alt="P2">
+                                    <div class="token p2" data-player="player2" id="token-p2">P2</div>
+                                </div>
+                                <div>
+                                    <div id="player2-fighter-name">{{ player_2_files['Player2-Fighter.txt'] }}</div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="Player2-Fighter.txt" id="player2-fighter-input" value="{{ player_2_files['Player2-Fighter.txt'] }}">
+                            <div class="field score-field">
+                                <label>Score</label>
+                                <div class="score-controls">
+                                    <button class="btn p2 score-bump" type="button" onclick="updatePlayerScore('player2', -1)">-</button>
+                                    <div class="score-value" id="player2-score-display">{{ player_2_files['Player2-Score.txt'] }}</div>
+                                    <button class="btn p2 score-bump" type="button" onclick="updatePlayerScore('player2', 1)">+1</button>
+                                </div>
+                                <input type="hidden" name="Player2-Score.txt" id="player2-score" value="{{ player_2_files['Player2-Score.txt'] }}">
+                            </div>
+                            <div class="field">
+                                <label><input type="checkbox" name="Player2-Losers.txt" {% if player_2_files['Player2-Losers.txt'] == '1' %}checked{% endif %}> Losers Bracket</label>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <h2>Casters + Match Info</h2>
+                    <div class="info-grid">
+                        <div class="sub-panel">
+                            <p class="sub-title">Caster 1</p>
+                            <div class="field"><label>Sponsor</label><input type="text" name="Caster1-Sponsor.txt" value="{{ casters_files['Caster1-Sponsor.txt'] }}"></div>
+                            <div class="field"><label>Name</label><textarea name="Caster1-Name.txt">{{ casters_files['Caster1-Name.txt'] }}</textarea></div>
+                            <div class="field"><label>Profile</label><input type="text" name="Caster1-Profile.txt" value="{{ casters_files['Caster1-Profile.txt'] }}"></div>
+                        </div>
+                        <div class="sub-panel">
+                            <p class="sub-title">Caster 2</p>
+                            <div class="field"><label>Sponsor</label><input type="text" name="Caster2-Sponsor.txt" value="{{ casters_files['Caster2-Sponsor.txt'] }}"></div>
+                            <div class="field"><label>Name</label><textarea name="Caster2-Name.txt">{{ casters_files['Caster2-Name.txt'] }}</textarea></div>
+                            <div class="field"><label>Profile</label><input type="text" name="Caster2-Profile.txt" value="{{ casters_files['Caster2-Profile.txt'] }}"></div>
+                        </div>
+                        <div class="sub-panel">
+                            <p class="sub-title">Match Info</p>
+                            <div class="field"><label>Bracket</label><textarea name="Bracket-Name.txt">{{ info_files['Bracket-Name.txt'] }}</textarea></div>
+                            <div class="field"><label>Round</label><textarea name="Current-Round.txt">{{ info_files['Current-Round.txt'] }}</textarea></div>
+                            <div class="field"><label>Event Info</label><textarea name="event-info.txt">{{ info_files['event-info.txt'] }}</textarea></div>
+                        </div>
+                        <div class="sub-panel">
+                            <p class="sub-title">Broadcast</p>
+                            <div class="field"><label>Best Of</label>
+                                <select name="Best-Of.txt">
+                                    <option value="1" {% if info_files['Best-Of.txt'] == '1' %}selected{% endif %}>Best of 1</option>
+                                    <option value="3" {% if info_files['Best-Of.txt'] == '3' %}selected{% endif %}>Best of 3</option>
+                                    <option value="5" {% if info_files['Best-Of.txt'] == '5' %}selected{% endif %}>Best of 5</option>
+                                </select>
+                            </div>
+                            <div class="field"><label>start.gg</label><input type="text" name="Startgg-Slug.txt" value="{{ info_files['Startgg-Slug.txt'] }}"></div>
+                            <div class="field"><label>Stream</label><input type="text" name="Stream-Info.txt" value="{{ info_files['Stream-Info.txt'] }}"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <h2>Pick/Ban</h2>
+                    <div class="sub-panel">
+                        <p class="sub-title">Pick/Ban Controls</p>
+                        <div class="field"><label>Pick/Ban Server</label><input id="pickban-base" type="text"></div>
+                        <div class="pickban-status" id="pickban-status">Waiting for pick/ban status...</div>
+                        <div class="quick-grid">
+                            <button class="btn next" type="button" onclick="pickbanAction('session')">Refresh</button>
+                            <button class="btn" type="button" onclick="pickbanAction('setFirst', 1)">P1 First</button>
+                            <button class="btn" type="button" onclick="pickbanAction('setFirst', 2)">P2 First</button>
+                            <button class="btn next" type="button" onclick="pickbanAction('nextGeneric')">Next Game</button>
+                            <button class="btn" type="button" onclick="pickbanAction('winner', 1)">Winner P1</button>
+                            <button class="btn" type="button" onclick="pickbanAction('winner', 2)">Winner P2</button>
+                            <button class="btn reset full" style="grid-column: 1 / -1;" type="button" onclick="pickbanAction('reset')">Reset Pick/Ban</button>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </form>
+    </div>
+
+    <script>
+        const fighterOrder = [
+            'Mario', 'Donkey-Kong', 'Link', 'Samus', 'Dark-Samus', 'Yoshi', 'Kirby', 'Fox',
+            'Pikachu', 'Luigi', 'Ness', 'Captain-Falcon', 'Jigglypuff', 'Peach', 'Daisy', 'Bowser',
+            'Ice-Climbers', 'Sheik', 'Zelda', 'Dr-Mario', 'Pichu', 'Falco', 'Marth', 'Lucina',
+            'Young-Link', 'Ganondorf', 'Mewtwo', 'Roy', 'Chrom', 'Mr-Game-Watch', 'Meta-Knight',
+            'Pit', 'Dark-Pit', 'Zero-Suit-Samus', 'Wario', 'Snake', 'Ike', 'Pokemon-Trainer',
+            'Diddy-Kong', 'Lucas', 'Sonic', 'King-Dedede', 'Olimar', 'Lucario', 'ROB', 'Toon-Link',
+            'Wolf', 'Villager', 'Mega-Man', 'Wii-Fit-Trainer', 'Rosalina-Luma', 'Little-Mac',
+            'Greninja', 'Palutena', 'Pac-Man', 'Robin', 'Shulk', 'Bowser-Jr', 'Duck-Hunt', 'Ryu',
+            'Ken', 'Cloud', 'Corrin', 'Bayonetta', 'Inkling', 'Ridley', 'Simon', 'Richter', 'King-K-Rool',
+            'Isabelle', 'Incineroar', 'Piranha-Plant', 'Joker', 'Hero', 'Banjo-Kazooie', 'Terry',
+            'Byleth', 'Min-Min', 'Steve', 'Sephiroth', 'Pyra-Mythra', 'Kazuya', 'Sora',
+            'Mii-Brawler', 'Mii-Swordfighter', 'Mii-Gunner', 'Random'
+        ];
+
+        let activeTokenPlayer = 'player1';
+        let tokenDragState = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initThemeSelector();
+            initAutosave();
+            initFighterGrid();
+            initTokens();
+            syncPlayerPortraits();
+            syncTileHighlights();
+            refreshPickbanStatus();
+            setInterval(refreshPickbanStatus, 4000);
+            const pickbanBase = document.getElementById('pickban-base');
+            pickbanBase.value = `http://${location.hostname}:5002`;
+        });
+
+        function fighterToFilename(fighter) {
+            let filename = String(fighter || '').toLowerCase();
+            if (filename === 'wii-fit-trainer') filename = 'wiifit';
+            if (filename === 'meta-knight') filename = 'metaknight';
+            if (filename === 'sheik') filename = 'shiek';
+            if (filename === 'rosalina-luma') filename = 'rosalina';
+            return filename;
+        }
+
+        function fighterToPortraitFilename(fighter) {
+            let filename = String(fighter || '').toLowerCase();
+            if (filename === 'wii-fit-trainer') filename = 'wiifit';
+            if (filename === 'meta-knight') filename = 'metaknight';
+            if (filename === 'sheik') filename = 'shiek';
+            if (filename === 'rosalina-luma') filename = 'rosalina';
+            return filename;
+        }
+
+        function portraitSrcFor(fighter) {
+            return `/images/fighter-portraits-stylized/cropped/${fighterToPortraitFilename(fighter)}.png`;
+        }
+
+        function syncPlayerPortraits() {
+            const p1 = document.getElementById('player1-fighter-input').value;
+            const p2 = document.getElementById('player2-fighter-input').value;
+            const p1Img = document.getElementById('player1-fighter-preview');
+            const p2Img = document.getElementById('player2-fighter-preview');
+
+            p1Img.src = portraitSrcFor(p1);
+            p2Img.src = portraitSrcFor(p2);
+            p1Img.onerror = function () { this.src = '/images/fighter-portraits-stylized/cropped/random.png'; };
+            p2Img.onerror = function () { this.src = '/images/fighter-portraits-stylized/cropped/random.png'; };
+        }
+
+        function initAutosave() {
+            const form = document.getElementById('auto-save-form');
+            const elements = form.querySelectorAll('input, textarea, select');
+            elements.forEach((el) => {
+                el.addEventListener('change', () => saveAllChangesNow());
+            });
+        }
+
+        function buildFormData() {
+            const form = document.getElementById('auto-save-form');
+            const formData = new FormData(form);
+            form.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+                formData.delete(checkbox.name);
+                formData.append(checkbox.name, checkbox.checked ? '1' : '0');
+            });
+            return formData;
+        }
+
+        function saveAllChangesNow() {
+            const saving = document.getElementById('saving-indicator');
+            saving.style.display = 'block';
+            const form = document.getElementById('auto-save-form');
+            fetch(form.action || window.location.href, {
+                method: 'POST',
+                body: buildFormData(),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(() => {
+                setTimeout(() => { saving.style.display = 'none'; }, 350);
+            })
+            .catch(() => {
+                saving.textContent = 'Save Error';
+                setTimeout(() => {
+                    saving.textContent = 'Saving...';
+                    saving.style.display = 'none';
+                }, 1200);
+            });
+        }
+
+        function updatePlayerScore(player, amount) {
+            const num = player === 'player1' ? '1' : '2';
+            const input = document.getElementById(`player${num}-score`);
+            const display = document.getElementById(`player${num}-score-display`);
+            const current = Number(input.value || 0);
+            const next = Math.max(0, Math.min(3, current + amount));
+            input.value = String(next);
+            if (display) display.textContent = String(next);
+            saveAllChangesNow();
+        }
+
+        function assignCharacter(player, fighter) {
+            const input = document.getElementById(`${player}-fighter-input`);
+            const name = document.getElementById(`${player}-fighter-name`);
+            const img = document.getElementById(`${player}-fighter-preview`);
+            input.value = fighter;
+            name.textContent = fighter.replace(/-/g, ' ');
+            img.src = portraitSrcFor(fighter);
+            img.onerror = function () { this.src = '/images/fighter-portraits-stylized/cropped/random.png'; };
+            syncTileHighlights();
+            saveAllChangesNow();
+        }
+
+        function swapPlayers() {
+            const pairs = [
+                ['input[name="Player1-Sponsor.txt"]', 'input[name="Player2-Sponsor.txt"]'],
+                ['textarea[name="Enter Player 1 Name.txt"]', 'textarea[name="Enter Player 2 Name.txt"]'],
+                ['input[name="Player1-Score.txt"]', 'input[name="Player2-Score.txt"]'],
+                ['input[name="Player1-Fighter.txt"]', 'input[name="Player2-Fighter.txt"]'],
+                ['input[name="Player1-Losers.txt"]', 'input[name="Player2-Losers.txt"]']
+            ];
+
+            pairs.forEach(([aSel, bSel]) => {
+                const a = document.querySelector(aSel);
+                const b = document.querySelector(bSel);
+                if (a.type === 'checkbox') {
+                    const tmp = a.checked;
+                    a.checked = b.checked;
+                    b.checked = tmp;
+                } else {
+                    const tmp = a.value;
+                    a.value = b.value;
+                    b.value = tmp;
+                }
+            });
+
+            const p1 = document.getElementById('player1-fighter-input').value;
+            const p2 = document.getElementById('player2-fighter-input').value;
+            document.getElementById('player1-fighter-name').textContent = p1.replace(/-/g, ' ');
+            document.getElementById('player2-fighter-name').textContent = p2.replace(/-/g, ' ');
+            document.getElementById('player1-fighter-preview').src = portraitSrcFor(p1);
+            document.getElementById('player2-fighter-preview').src = portraitSrcFor(p2);
+            document.getElementById('player1-score-display').textContent = document.getElementById('player1-score').value;
+            document.getElementById('player2-score-display').textContent = document.getElementById('player2-score').value;
+            syncTileHighlights();
+            saveAllChangesNow();
+        }
+
+        function resetScoreboard() {
+            document.getElementById('player1-score').value = '0';
+            document.getElementById('player2-score').value = '0';
+            document.getElementById('player1-score-display').textContent = '0';
+            document.getElementById('player2-score-display').textContent = '0';
+            assignCharacter('player1', 'Random');
+            assignCharacter('player2', 'Random');
+            saveAllChangesNow();
+        }
+
+        function newRound() {
+            document.querySelector('input[name="Player1-Sponsor.txt"]').value = '';
+            document.querySelector('textarea[name="Enter Player 1 Name.txt"]').value = '';
+            document.querySelector('input[name="Player2-Sponsor.txt"]').value = '';
+            document.querySelector('textarea[name="Enter Player 2 Name.txt"]').value = '';
+            resetScoreboard();
+        }
+
+        function initThemeSelector() {
+            fetch('/text-files/info/Theme.txt?t=' + Date.now())
+                .then((r) => r.text())
+                .then((theme) => {
+                    const selector = document.getElementById('theme-selector');
+                    const t = theme.trim().toLowerCase();
+                    if (selector.querySelector(`option[value="${t}"]`)) selector.value = t;
+                });
+        }
+
+        function changeTheme() {
+            const selectedTheme = document.getElementById('theme-selector').value;
+            const formData = new FormData();
+            formData.append('Theme.txt', selectedTheme);
+            fetch('/save-theme', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+        }
+
+        function initFighterGrid() {
+            const grid = document.getElementById('fighter-grid');
+            grid.innerHTML = '';
+            fighterOrder.forEach((fighter) => {
+                const tile = document.createElement('button');
+                tile.type = 'button';
+                tile.className = 'char-tile';
+                tile.dataset.fighter = fighter;
+                tile.innerHTML = `<img src="/images/fighter-ui-slice/${fighterToFilename(fighter)}.png" alt="${fighter}"><span>${fighter.replace(/-/g, ' ')}</span>`;
+                tile.addEventListener('click', () => {
+                    assignCharacter(activeTokenPlayer, fighter);
+                });
+                grid.appendChild(tile);
+            });
+        }
+
+        function syncTileHighlights() {
+            const p1 = document.getElementById('player1-fighter-input').value;
+            const p2 = document.getElementById('player2-fighter-input').value;
+            document.querySelectorAll('.char-tile').forEach((tile) => {
+                const fighter = tile.dataset.fighter;
+                tile.classList.remove('is-p1', 'is-p2', 'is-both');
+                if (fighter === p1 && fighter === p2) tile.classList.add('is-both');
+                else if (fighter === p1) tile.classList.add('is-p1');
+                else if (fighter === p2) tile.classList.add('is-p2');
+            });
+        }
+
+        function initTokens() {
+            ['player1', 'player2'].forEach((player) => {
+                const token = document.getElementById(player === 'player1' ? 'token-p1' : 'token-p2');
+                token.addEventListener('pointerdown', (e) => startTokenDrag(e, player));
+            });
+            setActiveToken('player1');
+        }
+
+        function setActiveToken(player) {
+            activeTokenPlayer = player;
+            document.querySelectorAll('.token').forEach((t) => t.classList.remove('active'));
+            const id = player === 'player1' ? 'token-p1' : 'token-p2';
+            document.getElementById(id).classList.add('active');
+        }
+
+        function resetTokenToHome(token) {
+            token.classList.remove('dragging');
+            token.style.position = 'absolute';
+            token.style.left = '50%';
+            token.style.top = '50%';
+            token.style.transform = 'translate(-50%, -50%)';
+            token.style.zIndex = '';
+        }
+
+        function startTokenDrag(e, player) {
+            const token = e.currentTarget;
+            setActiveToken(player);
+
+            tokenDragState = {
+                token,
+                player,
+                pointerId: e.pointerId,
+                startX: e.clientX,
+                startY: e.clientY,
+                moved: false
+            };
+
+            token.setPointerCapture(e.pointerId);
+            token.addEventListener('pointermove', onTokenDragMove);
+            token.addEventListener('pointerup', onTokenDragEnd);
+            token.addEventListener('pointercancel', onTokenDragEnd);
+        }
+
+        function onTokenDragMove(e) {
+            if (!tokenDragState) return;
+            if (e.pointerId !== tokenDragState.pointerId) return;
+
+            const { token, startX, startY } = tokenDragState;
+            const movedPx = Math.hypot(e.clientX - startX, e.clientY - startY);
+
+            if (!tokenDragState.moved && movedPx > 6) {
+                tokenDragState.moved = true;
+                token.classList.add('dragging');
+            }
+
+            if (!tokenDragState.moved) return;
+
+            token.style.position = 'fixed';
+            token.style.left = `${e.clientX}px`;
+            token.style.top = `${e.clientY}px`;
+            token.style.transform = 'translate(-50%, -50%)';
+            token.style.zIndex = '9999';
+        }
+
+        function onTokenDragEnd(e) {
+            if (!tokenDragState) return;
+            if (e.pointerId !== tokenDragState.pointerId) return;
+
+            const { token, player, moved } = tokenDragState;
+            token.removeEventListener('pointermove', onTokenDragMove);
+            token.removeEventListener('pointerup', onTokenDragEnd);
+            token.removeEventListener('pointercancel', onTokenDragEnd);
+            token.releasePointerCapture(e.pointerId);
+
+            if (moved) {
+                // The dragged token is under the pointer; inspect the full stack to find a tile beneath it.
+                token.style.pointerEvents = 'none';
+                const stack = document.elementsFromPoint(e.clientX, e.clientY);
+                token.style.pointerEvents = '';
+                const tileEl = stack.find((el) => el.classList && el.classList.contains('char-tile'));
+                const tile = tileEl || null;
+                if (tile) {
+                    assignCharacter(player, tile.dataset.fighter);
+                }
+            } else {
+                setActiveToken(player);
+            }
+
+            resetTokenToHome(token);
+            tokenDragState = null;
+        }
+
+        function getPickbanBase() {
+            return document.getElementById('pickban-base').value.replace(/\/$/, '');
+        }
+
+        function refreshPickbanStatus() {
+            pickbanAction('session', null, true);
+        }
+
+        async function pickbanAction(type, value = null, silent = false) {
+            const status = document.getElementById('pickban-status');
+            const base = getPickbanBase();
+            let url = `${base}/api/session`;
+            let method = 'GET';
+            let body = null;
+
+            if (type === 'reset') {
+                url = `${base}/api/reset`;
+                method = 'POST';
+                body = {};
+            } else if (type === 'nextGeneric') {
+                url = `${base}/api/start_next_game_generic`;
+                method = 'POST';
+                body = {};
+            } else if (type === 'winner') {
+                url = `${base}/api/start_next_game`;
+                method = 'POST';
+                body = { winner_player: value };
+            } else if (type === 'setFirst') {
+                url = `${base}/api/set_first_striker`;
+                method = 'POST';
+                body = { first_player: value };
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: body ? JSON.stringify(body) : null
+                });
+                const data = await response.json();
+                const session = data.session || data;
+                status.textContent = `Game ${session.game_number || '?'} | ${session.phase_message || 'Ready'} | ${session.turn_message || ''}`;
+                if (!silent && data.error) {
+                    status.textContent = `Pick/Ban error: ${data.error}`;
+                }
+            } catch (err) {
+                status.textContent = 'Pick/Ban server unreachable. Check base URL/port 5002.';
+            }
+        }
+    </script>
+</body>
+</html>

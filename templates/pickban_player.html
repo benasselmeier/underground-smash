@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Player {{ player_id }} - Pick/Ban</title>
+    <style>
+        @font-face {
+            font-family: 'p5hatty';
+            src: local('p5hatty'),
+                 url('/resources/fonts/p5hatty.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'PersonaMenu';
+            src: local('Persona5MenuFontPrototype-Regular'),
+                 url('/resources/fonts/Persona5MenuFontPrototype-Regular.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-red: #4f0609;
+            --bg-black: #08080b;
+            --ink-white: #f4f3f5;
+            --ink-black: #0a0a0d;
+            --accent-red: #df151d;
+            --accent-cyan: #3cc2e6;
+            --accent-gold: #f0c44a;
+            --stroke: #111;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 30% 20%, rgba(220, 35, 35, 0.22), transparent 42%),
+                radial-gradient(circle at 75% 10%, rgba(0, 0, 0, 0.45), transparent 55%),
+                linear-gradient(145deg, #250304 0%, var(--bg-red) 50%, var(--bg-black) 100%);
+            color: var(--ink-white);
+            font-family: 'p5hatty', 'Arial Black', sans-serif;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .tablet-shell {
+            width: min(1024px, 100vw);
+            height: min(640px, 100vh);
+            margin: 0 auto;
+            padding: 10px 12px;
+            display: grid;
+            grid-template-rows: auto auto auto 1fr;
+            gap: 8px;
+            background-image:
+                linear-gradient(0deg, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+                url('/images/background/persona-background-red.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .top-row {
+            display: grid;
+            grid-template-columns: 160px 1fr 160px;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn {
+            justify-self: start;
+            border: 3px solid var(--stroke);
+            border-radius: 8px;
+            padding: 8px 14px;
+            color: var(--ink-white);
+            background: linear-gradient(145deg, #e41820 0%, #a40f15 100%);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            transform: skew(-12deg);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
+        }
+
+        .back-btn span {
+            display: inline-block;
+            transform: skew(12deg);
+        }
+
+        .title {
+            font-family: 'PersonaMenu', 'p5hatty', 'Arial Black', sans-serif;
+            text-align: center;
+            font-size: clamp(2rem, 6vw, 3.3rem);
+            color: var(--ink-white);
+            text-shadow:
+                3px 3px 0 #000,
+                -3px -3px 0 #000,
+                2px -2px 0 #000,
+                -2px 2px 0 #000;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            line-height: 0.95;
+        }
+
+        .reset-btn {
+            border: 3px solid var(--stroke);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: var(--ink-white);
+            background: linear-gradient(145deg, #ff6c6c 0%, #ce181f 100%);
+            cursor: pointer;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
+            font-family: inherit;
+        }
+
+        .reset-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .top-controls {
+            justify-self: end;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .next-game-btn {
+            border: 3px solid var(--stroke);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            font-weight: 900;
+            color: var(--ink-white);
+            background: linear-gradient(145deg, #6de9ff 0%, #2b8ba3 100%);
+            cursor: pointer;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
+            font-family: inherit;
+        }
+
+        .next-game-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .status-strip {
+            display: grid;
+            grid-template-columns: 160px 1fr 220px;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .player-tag,
+        .phase-info,
+        .ban-status {
+            border: 3px solid var(--stroke);
+            border-radius: 7px;
+            background: rgba(0, 0, 0, 0.66);
+            padding: 7px 10px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .player-tag {
+            background: linear-gradient(145deg, #ffffff 0%, #ded8df 100%);
+            color: var(--ink-black);
+            font-size: 1rem;
+        }
+
+        .phase-info {
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .action-banner {
+            display: flex;
+            border: 3px solid var(--stroke);
+            border-radius: 7px;
+            background: linear-gradient(145deg, #68d26f 0%, #3ea34a 100%);
+            color: #091109;
+            font-size: 1.05rem;
+            font-weight: 900;
+            min-height: 44px;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 10px;
+            letter-spacing: 0.4px;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+
+        .action-banner.waiting {
+            background: linear-gradient(145deg, #e7bc32 0%, #b18012 100%);
+            color: #191303;
+        }
+
+        .action-banner.info {
+            background: linear-gradient(145deg, #6de9ff 0%, #2b8ba3 100%);
+            color: #081116;
+        }
+
+        .ban-status {
+            justify-content: space-between;
+            gap: 10px;
+            padding: 6px 10px;
+        }
+
+        .ban-text {
+            font-size: 0.84rem;
+            opacity: 0.95;
+            white-space: nowrap;
+        }
+
+        .bans-used {
+            display: flex;
+            gap: 6px;
+        }
+
+        .auto-refresh-timer {
+            margin-left: auto;
+            border: 2px solid #111;
+            border-radius: 6px;
+            padding: 2px 8px;
+            background: rgba(0, 0, 0, 0.68);
+            color: #fff;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .auto-refresh-timer.is-hidden {
+            display: none;
+        }
+
+        .ban-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #5f5a60;
+            background: #1f1f24;
+        }
+
+        .ban-dot.used {
+            background: var(--accent-red);
+            border-color: #dfe1e8;
+        }
+
+        .stage-board {
+            display: grid;
+            grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 10px;
+            min-height: 0;
+        }
+
+        .stage-row {
+            display: grid;
+            grid-template-rows: minmax(0, 1fr);
+            gap: 8px;
+            min-height: 0;
+        }
+
+        .stage-row.starters {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+
+        .stage-row.counterpicks {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .stage-card {
+            position: relative;
+            border: 3px solid var(--stroke);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #24262f;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            height: 100%;
+            min-height: 120px;
+            transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+        }
+
+        .stage-card:active {
+            transform: scale(0.98);
+        }
+
+        .stage-image-layer {
+            position: absolute;
+            inset: 0;
+            background: var(--stage-fallback, linear-gradient(145deg, #51617c, #1c2230));
+            z-index: 0;
+        }
+
+        .stage-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            z-index: 1;
+        }
+
+        .stage-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0.18) 0%,
+                rgba(0, 0, 0, 0.05) 35%,
+                rgba(0, 0, 0, 0.42) 100%
+            );
+            z-index: 1;
+        }
+
+        .stage-card:not(.banned):not(.picked):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        .type-badge {
+            position: absolute;
+            top: 6px;
+            left: 8px;
+            z-index: 2;
+            border: 2px solid var(--stroke);
+            border-radius: 6px;
+            background: rgba(244, 243, 245, 0.92);
+            color: var(--ink-black);
+            padding: 2px 8px;
+            font-size: 0.9rem;
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .stage-name {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            bottom: 7px;
+            z-index: 2;
+            font-size: clamp(0.78rem, 1.7vw, 1rem);
+            text-align: center;
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--ink-white);
+            text-shadow:
+                2px 2px 0 #000,
+                -1px -1px 0 #000;
+        }
+
+        .stage-card.banned {
+            filter: grayscale(0.95) brightness(0.42);
+            cursor: not-allowed;
+        }
+
+        .stage-card.locked {
+            filter: saturate(0.75) brightness(0.85);
+            cursor: default;
+        }
+
+        .stage-card.banned .lock-ribbon,
+        .stage-card.picked .lock-ribbon,
+        .stage-card.locked .lock-ribbon {
+            position: absolute;
+            z-index: 3;
+            left: -22px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-14deg);
+            border: 2px solid #111;
+            border-radius: 6px;
+            padding: 5px 22px;
+            font-size: 1rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .stage-card.banned .lock-ribbon {
+            background: linear-gradient(145deg, #f4f4f4 0%, #d6d6d6 100%);
+            color: #161616;
+        }
+
+        .stage-card.picked {
+            outline: 4px solid var(--accent-cyan);
+            box-shadow: 0 0 0 3px #050505, 0 0 18px rgba(60, 194, 230, 0.8);
+        }
+
+        .stage-card.picked .lock-ribbon {
+            background: linear-gradient(145deg, #46c9ea 0%, #1389ab 100%);
+            color: #09131a;
+        }
+
+        .stage-card.locked .lock-ribbon {
+            background: linear-gradient(145deg, #ececec 0%, #cfcfd3 100%);
+            color: #1a1a1d;
+        }
+
+        @media (max-width: 900px), (max-height: 560px) {
+            .tablet-shell {
+                height: 100vh;
+                width: 100vw;
+                padding: 8px;
+                gap: 6px;
+            }
+
+            .top-row {
+                grid-template-columns: 140px 1fr 140px;
+            }
+
+            .status-strip {
+                grid-template-columns: 140px 1fr 200px;
+            }
+
+            .stage-row {
+                gap: 6px;
+            }
+
+            .stage-name {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="tablet-shell">
+        <div class="top-row">
+            <a href="/" class="back-btn"><span>GO BACK</span></a>
+            <h1 class="title">Stage Select</h1>
+            <div class="top-controls">
+                <button id="nextGameBtn" class="next-game-btn" onclick="goToNextGame()">Next Game</button>
+                <button id="resetBtn" class="reset-btn" onclick="resetSession()">Reset</button>
+            </div>
+        </div>
+
+        <div class="status-strip">
+            <div class="player-tag">PLAYER {{ player_id }}</div>
+            <div class="phase-info" id="phaseInfo">Loading phase...</div>
+            <div class="ban-status">
+                <span class="ban-text" id="banText">Bans: 0 / 0</span>
+                <div class="bans-used" id="bansUsed"></div>
+                <span id="autoRefreshTimer" class="auto-refresh-timer is-hidden"></span>
+            </div>
+        </div>
+
+    <div id="actionBanner" class="action-banner">Loading stage flow...</div>
+
+        <section class="stage-board">
+            <div class="stage-row starters" id="startersRow"></div>
+            <div class="stage-row counterpicks" id="counterpicksRow"></div>
+        </section>
+    </main>
+
+    <script>
+        const playerId = {{ player_id }};
+        let currentSession = null;
+        let selectedStageDeadline = null;
+        let selectedStageSignature = null;
+        let autoAdvanceRequested = false;
+        let autoAdvanceInFlight = false;
+        const STAGE_LOCK_REFRESH_MS = 10000;
+
+        const stageImages = {
+            'battlefield': '/images/stages/Battlefield.png',
+            'small battlefield': '/images/stages/Small-Battlefield.jpg',
+            'pokemon stadium 2': '/images/stages/PS2.png',
+            'town and city': '/images/stages/Town_and_City.png',
+            'smashville': '/images/stages/Smashville.png',
+            'final destination': '/images/stages/Final_Destination.jpg',
+            'hollow bastion': '/images/stages/Hollow_Bastion.jpg',
+            'kalos pokemon league': '/images/stages/Kalos.png'
+        };
+
+        const stageBackgrounds = {
+            'battlefield': 'linear-gradient(150deg, #8cc8ff 0%, #4e84bb 28%, #2b465f 62%, #111217 100%)',
+            'small battlefield': 'linear-gradient(145deg, #97ddff 0%, #58a8df 30%, #2f5e8f 60%, #1a2334 100%)',
+            'pokemon stadium 2': 'linear-gradient(145deg, #36c65d 0%, #86e39d 33%, #4a8ad1 68%, #1f2742 100%)',
+            'town and city': 'linear-gradient(145deg, #84cff9 0%, #5ba7da 28%, #ecb06f 62%, #704734 100%)',
+            'smashville': 'linear-gradient(145deg, #9fd7f6 0%, #7abbe4 30%, #7ac17d 62%, #4f6f43 100%)',
+            'final destination': 'linear-gradient(145deg, #f6f1fe 0%, #d9c9fb 28%, #7e65d6 58%, #2a1f43 100%)',
+            'hollow bastion': 'linear-gradient(145deg, #8ce2ff 0%, #5ea9cc 30%, #3c4f75 62%, #161a2d 100%)',
+            'kalos pokemon league': 'linear-gradient(145deg, #f1a7b9 0%, #d884a9 30%, #8bbcf2 64%, #2a3248 100%)'
+        };
+
+        function stageKey(name) {
+            return String(name || '').trim().toLowerCase();
+        }
+
+        function getStageImage(name) {
+            return stageImages[stageKey(name)] || null;
+        }
+
+        function getStageBackground(name) {
+            return stageBackgrounds[stageKey(name)] || 'linear-gradient(145deg, #7080a6 0%, #4b5879 40%, #262b3a 100%)';
+        }
+
+        function updateInterface() {
+            fetch('/api/session')
+                .then(response => response.json())
+                .then(session => {
+                    currentSession = session;
+                    renderInterface();
+                })
+                .catch(error => console.error('Error fetching session:', error));
+        }
+
+        function renderInterface() {
+            const phaseInfo = document.getElementById('phaseInfo');
+            const actionBanner = document.getElementById('actionBanner');
+            const bansUsed = document.getElementById('bansUsed');
+            const banText = document.getElementById('banText');
+
+            const playerKey = `player${playerId}`;
+            const strikesUsed = currentSession.strikes_used || currentSession.bans_used || { player1: 0, player2: 0 };
+            const strikesTarget = currentSession.strikes_target || { player1: currentSession.max_bans || 0, player2: currentSession.max_bans || 0 };
+            const playerUsed = strikesUsed[playerKey] || 0;
+            const playerTarget = strikesTarget[playerKey] || 0;
+
+            bansUsed.innerHTML = '';
+            for (let i = 0; i < Math.max(playerTarget, 1); i++) {
+                const dot = document.createElement('div');
+                dot.className = 'ban-dot';
+                if (i < playerUsed) {
+                    dot.classList.add('used');
+                }
+                bansUsed.appendChild(dot);
+            }
+
+            if (currentSession.flow_phase === 'stage_selected') {
+                phaseInfo.textContent = currentSession.phase_message || 'Stage selected.';
+                banText.textContent = currentSession.picked_stage
+                    ? `Selected: ${currentSession.picked_stage}`
+                    : 'Stage selected';
+                actionBanner.className = 'action-banner info';
+                if (currentSession.picked_stage) {
+                    actionBanner.textContent = `Stage selected: ${currentSession.picked_stage}`;
+                } else {
+                    actionBanner.textContent = 'Stage selected.';
+                }
+            } else if (currentSession.current_player && currentSession.current_player !== playerId) {
+                phaseInfo.textContent = currentSession.phase_message || 'Waiting for turn...';
+                banText.textContent = currentSession.turn_message || `Player ${currentSession.current_player} is acting`;
+                actionBanner.className = 'action-banner waiting';
+                if (currentSession.flow_phase === 'postgame_pick') {
+                    actionBanner.textContent = 'Your opponent is picking a stage... please wait.';
+                } else {
+                    actionBanner.textContent = 'Your opponent is banning a stage... please wait.';
+                }
+            } else {
+                phaseInfo.textContent = currentSession.phase_message || 'Your turn';
+                if (currentSession.flow_phase === 'postgame_pick') {
+                    banText.textContent = 'Your turn: pick the next stage';
+                    actionBanner.className = 'action-banner';
+                    actionBanner.textContent = 'Choose one stage to PLAY next.';
+                } else {
+                    banText.textContent = `Your strikes: ${playerUsed} / ${playerTarget}`;
+                    actionBanner.className = 'action-banner';
+                    actionBanner.textContent = 'Choose one stage you wish to BAN from play.';
+                }
+            }
+
+            updateAutoRefreshTimer(currentSession);
+            renderStages();
+        }
+
+        function updateAutoRefreshTimer(session) {
+            const timerEl = document.getElementById('autoRefreshTimer');
+            if (!timerEl) return;
+
+            if (session.flow_phase !== 'stage_selected') {
+                selectedStageDeadline = null;
+                selectedStageSignature = null;
+                autoAdvanceRequested = false;
+                autoAdvanceInFlight = false;
+                timerEl.classList.add('is-hidden');
+                timerEl.textContent = '';
+                return;
+            }
+
+            const signature = `${session.game_number || 0}|${session.picked_stage || ''}|${(session.stage_strikes || []).length}`;
+
+            if (selectedStageSignature !== signature) {
+                selectedStageSignature = signature;
+                selectedStageDeadline = Date.now() + STAGE_LOCK_REFRESH_MS;
+                autoAdvanceRequested = false;
+            }
+
+            const remainingMs = Math.max(0, selectedStageDeadline - Date.now());
+            const remainingSec = Math.ceil(remainingMs / 1000);
+            timerEl.classList.remove('is-hidden');
+            timerEl.textContent = `Next game in ${remainingSec}s`;
+
+            if (remainingMs <= 0) {
+                timerEl.textContent = 'Advancing...';
+                if (autoAdvanceRequested || autoAdvanceInFlight) return;
+
+                autoAdvanceRequested = true;
+                autoAdvanceInFlight = true;
+
+                fetch('/api/start_next_game_generic', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success && data.session) {
+                        currentSession = data.session;
+                        renderInterface();
+                    }
+                })
+                .catch(error => {
+                    console.error('Auto-advance error:', error);
+                })
+                .finally(() => {
+                    autoAdvanceInFlight = false;
+                    updateInterface();
+                });
+            }
+        }
+
+        function renderStages() {
+            const startersRow = document.getElementById('startersRow');
+            const counterpicksRow = document.getElementById('counterpicksRow');
+            startersRow.innerHTML = '';
+            counterpicksRow.innerHTML = '';
+
+            if (currentSession.stage_categories) {
+                (currentSession.stage_categories.starters || []).forEach(stage => {
+                    startersRow.appendChild(createStageCard(stage, 'starter'));
+                });
+
+                (currentSession.stage_categories.counterpicks || []).forEach(stage => {
+                    counterpicksRow.appendChild(createStageCard(stage, 'counterpick'));
+                });
+            } else {
+                (currentSession.stage_list || []).forEach((stage, index) => {
+                    const type = index < 5 ? 'starter' : 'counterpick';
+                    if (type === 'starter') {
+                        startersRow.appendChild(createStageCard(stage, type));
+                    } else {
+                        counterpicksRow.appendChild(createStageCard(stage, type));
+                    }
+                });
+            }
+        }
+
+        function createStageCard(stage, stageType) {
+            const stageCard = document.createElement('div');
+            stageCard.className = 'stage-card';
+            const stageImage = getStageImage(stage);
+            stageCard.style.setProperty('--stage-fallback', getStageBackground(stage));
+            const selectable = (currentSession.selectable_stages || []).includes(stage);
+            const isMyTurn = currentSession.current_player === playerId || !currentSession.current_player;
+
+            if (currentSession.banned_stages.includes(stage)) {
+                stageCard.classList.add('banned');
+            } else if (currentSession.picked_stage === stage) {
+                stageCard.classList.add('picked');
+            } else if (!selectable) {
+                stageCard.classList.add('locked');
+            }
+
+            const typeLabel = stageType === 'starter' ? 'Starter' : 'Counterpick';
+            stageCard.innerHTML = `
+                <div class="stage-image-layer"></div>
+                <span class="type-badge">${typeLabel}</span>
+                <span class="stage-name">${stage}</span>
+            `;
+
+            if (stageImage) {
+                const img = document.createElement('img');
+                img.className = 'stage-image';
+                img.src = stageImage;
+                img.alt = stage;
+                stageCard.prepend(img);
+            }
+
+            if (stageCard.classList.contains('banned')) {
+                const ribbon = document.createElement('span');
+                ribbon.className = 'lock-ribbon';
+                ribbon.textContent = 'Banned';
+                stageCard.appendChild(ribbon);
+            }
+
+            if (stageCard.classList.contains('picked')) {
+                const ribbon = document.createElement('span');
+                ribbon.className = 'lock-ribbon';
+                ribbon.textContent = 'Picked';
+                stageCard.appendChild(ribbon);
+            }
+
+            if (stageCard.classList.contains('locked')) {
+                const ribbon = document.createElement('span');
+                ribbon.className = 'lock-ribbon';
+                ribbon.textContent = 'Unavailable';
+                stageCard.appendChild(ribbon);
+            }
+
+            if (selectable && isMyTurn && !currentSession.picked_stage) {
+                stageCard.addEventListener('click', () => handleStageClick(stage));
+            }
+
+            return stageCard;
+        }
+
+        function handleStageClick(stageName) {
+            if (currentSession.flow_phase === 'game1_strike' || currentSession.flow_phase === 'postgame_strike') {
+                strikeStage(stageName);
+            } else if (currentSession.flow_phase === 'postgame_pick') {
+                pickStage(stageName);
+            }
+        }
+
+        function strikeStage(stageName) {
+            fetch('/api/strike_stage', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    stage: stageName,
+                    player_id: playerId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateInterface();
+                } else {
+                    alert(data.error || 'Failed to strike stage');
+                }
+            })
+            .catch(error => console.error('Error striking stage:', error));
+        }
+
+        function pickStage(stageName) {
+            fetch('/api/pick_stage', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    stage: stageName,
+                    player_id: playerId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateInterface();
+                } else {
+                    alert(data.error || 'Failed to pick stage');
+                }
+            })
+            .catch(error => console.error('Error picking stage:', error));
+        }
+
+        function resetSession() {
+            if (!confirm('Reset the full pick/ban session for both players?')) return;
+
+            const resetBtn = document.getElementById('resetBtn');
+            resetBtn.disabled = true;
+            resetBtn.textContent = 'Resetting...';
+
+            fetch('/api/reset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateInterface();
+                    alert('Session reset.');
+                } else {
+                    alert(data.error || 'Failed to reset session');
+                }
+            })
+            .catch(error => {
+                console.error('Error resetting session:', error);
+                alert('Error resetting session');
+            })
+            .finally(() => {
+                resetBtn.disabled = false;
+                resetBtn.textContent = 'Reset';
+            });
+        }
+
+        function goToNextGame() {
+            const nextGameBtn = document.getElementById('nextGameBtn');
+            nextGameBtn.disabled = true;
+            const originalText = nextGameBtn.textContent;
+            nextGameBtn.textContent = 'Starting...';
+
+            fetch('/api/start_next_game_generic', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateInterface();
+                } else {
+                    alert(data.error || 'Failed to move to next game');
+                }
+            })
+            .catch(error => {
+                console.error('Error starting next game:', error);
+                alert('Error moving to next game');
+            })
+            .finally(() => {
+                nextGameBtn.disabled = false;
+                nextGameBtn.textContent = originalText;
+            });
+        }
+
+        setInterval(updateInterface, 1000);
+        updateInterface();
+    </script>
+</body>
+</html>

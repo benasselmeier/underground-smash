@@ -1,0 +1,10 @@
+// Starter Stages
+Battlefield
+Small Battlefield
+Pokemon Stadium 2
+Town and City
+Smashville
+// Counterpick Stages
+Final Destination
+Hollow Bastion
+Kalos Pokemon League

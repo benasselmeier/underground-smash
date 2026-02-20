@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage Bar Overlay</title>
+    <style>
+        @font-face {
+            font-family: 'p5hatty';
+            src: local('p5hatty'),
+                 url('/resources/fonts/p5hatty.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'PersonaMenu';
+            src: local('Persona5MenuFontPrototype-Regular'),
+                 url('/resources/fonts/Persona5MenuFontPrototype-Regular.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            overflow: hidden;
+            font-family: 'p5hatty', 'Arial Black', sans-serif;
+            pointer-events: none;
+        }
+
+        .overlay-root {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .stage-strip {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 6%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 10px;
+            padding: 0 7%;
+            opacity: 1;
+            transition: opacity 220ms ease;
+        }
+
+        .stage-strip.hidden {
+            opacity: 0;
+        }
+
+        .stage-tile {
+            width: min(16vw, 270px);
+            aspect-ratio: 16 / 9;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 3px solid #121212;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.65);
+            transform: skew(-7deg);
+            background: linear-gradient(140deg, #646b7a 0%, #2e3445 55%, #171b22 100%);
+        }
+
+        .stage-tile img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            transform: skew(7deg) scale(1.06);
+            transform-origin: center;
+        }
+
+        .tile-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0.15) 0%,
+                rgba(0, 0, 0, 0.5) 72%,
+                rgba(0, 0, 0, 0.72) 100%
+            );
+        }
+
+        .tile-label {
+            position: absolute;
+            top: 6px;
+            left: 8px;
+            right: 8px;
+            color: #f8f8f8;
+            font-size: clamp(0.7rem, 1.2vw, 1rem);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            text-shadow: 2px 2px 0 #000;
+            z-index: 2;
+            transform: skew(7deg);
+            line-height: 1;
+        }
+
+        .tile-stage {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            bottom: 7px;
+            color: #fff;
+            font-size: clamp(0.65rem, 1.1vw, 0.95rem);
+            text-transform: uppercase;
+            text-align: center;
+            text-shadow: 2px 2px 0 #000;
+            z-index: 2;
+            transform: skew(7deg);
+            line-height: 1;
+        }
+
+        .strike-x {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff1242;
+            font-size: clamp(4rem, 8vw, 8rem);
+            font-weight: 900;
+            text-shadow:
+                0 0 10px rgba(255, 18, 66, 0.85),
+                2px 2px 0 #000;
+            z-index: 3;
+            transform: skew(7deg);
+        }
+
+        .picked {
+            border-color: #6de9ff;
+            box-shadow:
+                0 0 0 2px #0a1117,
+                0 0 18px rgba(109, 233, 255, 0.9);
+        }
+
+        .picked .tile-label {
+            color: #d0f8ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay-root">
+        <div id="stage-strip" class="stage-strip"></div>
+    </div>
+
+    <script>
+        const stageImageFiles = {
+            'battlefield': 'Battlefield.png',
+            'small battlefield': 'Small-Battlefield.jpg',
+            'pokemon stadium 2': 'PS2.png',
+            'town and city': 'Town_and_City.png',
+            'smashville': 'Smashville.png',
+            'final destination': 'Final_Destination.jpg',
+            'hollow bastion': 'Hollow_Bastion.jpg',
+            'kalos pokemon league': 'Kalos.png'
+        };
+
+        let resolvedApiBase = null;
+        let stageSelectedStartedAt = null;
+        let stageSelectedSignature = null;
+        const STAGE_FADE_MS = 5000;
+
+        function stageKey(name) {
+            return String(name || '').trim().toLowerCase();
+        }
+
+        function buildAssetBase() {
+            if (resolvedApiBase) return resolvedApiBase;
+            if (window.location.protocol !== 'file:' && window.location.origin && window.location.origin !== 'null') {
+                return window.location.origin;
+            }
+            const host = window.location.hostname || '127.0.0.1';
+            return `http://${host}:5002`;
+        }
+
+        function imageForStage(name) {
+            const file = stageImageFiles[stageKey(name)];
+            if (!file) return '';
+            return `${buildAssetBase()}/images/stages/${file}`;
+        }
+
+        function apiCandidates() {
+            const host = window.location.hostname || '127.0.0.1';
+            const out = [];
+
+            if (window.location.protocol !== 'file:' && window.location.origin && window.location.origin !== 'null') {
+                out.push(window.location.origin);
+            }
+
+            out.push(`http://${host}:5002`);
+            out.push('http://127.0.0.1:5002');
+            return [...new Set(out)];
+        }
+
+        async function resolveApiBase() {
+            if (resolvedApiBase) return resolvedApiBase;
+            const candidates = apiCandidates();
+            for (const base of candidates) {
+                try {
+                    const r = await fetch(`${base}/api/session?t=${Date.now()}`, { cache: 'no-store' });
+                    if (r.ok) {
+                        resolvedApiBase = base;
+                        return base;
+                    }
+                } catch (_) {
+                    // try next
+                }
+            }
+            throw new Error('No reachable /api/session endpoint');
+        }
+
+        function createStrikeTile(item) {
+            const tile = document.createElement('div');
+            tile.className = 'stage-tile';
+            const stageName = item.stage || 'Unknown Stage';
+            const banner = `BANNED BY P${item.player_id || '?'}`;
+            const src = imageForStage(stageName);
+
+            tile.innerHTML = `
+                ${src ? `<img src="${src}" alt="${stageName}">` : ''}
+                <div class="tile-overlay"></div>
+                <div class="tile-label">${banner}</div>
+                <div class="tile-stage">${stageName}</div>
+                <div class="strike-x">X</div>
+            `;
+            return tile;
+        }
+
+        function createPickTile(session) {
+            if (!session.picked_stage) return null;
+            const tile = document.createElement('div');
+            tile.className = 'stage-tile picked';
+            const stageName = session.picked_stage;
+            const src = imageForStage(stageName);
+            let banner = 'STARTER RESULT';
+            if (session.picked_by === 1 || session.picked_by === 2) {
+                banner = `PICKED BY P${session.picked_by}`;
+            }
+
+            tile.innerHTML = `
+                ${src ? `<img src="${src}" alt="${stageName}">` : ''}
+                <div class="tile-overlay"></div>
+                <div class="tile-label">${banner}</div>
+                <div class="tile-stage">${stageName}</div>
+            `;
+            return tile;
+        }
+
+        function renderSession(session) {
+            const strip = document.getElementById('stage-strip');
+            strip.innerHTML = '';
+
+            const strikes = session.stage_strikes || [];
+            strikes.forEach(item => {
+                strip.appendChild(createStrikeTile(item));
+            });
+
+            const pickTile = createPickTile(session);
+            if (pickTile) {
+                strip.appendChild(pickTile);
+            }
+
+            // Keep game result visible briefly, then fade out quietly.
+            const isStageSelected = session.flow_phase === 'stage_selected';
+            const signature = `${session.game_number || 0}|${session.picked_stage || ''}|${(session.stage_strikes || []).length}`;
+
+            if (isStageSelected) {
+                if (stageSelectedSignature !== signature) {
+                    stageSelectedSignature = signature;
+                    stageSelectedStartedAt = Date.now();
+                }
+
+                const elapsed = Date.now() - stageSelectedStartedAt;
+                if (elapsed >= STAGE_FADE_MS) {
+                    strip.classList.add('hidden');
+                    return;
+                }
+            } else {
+                stageSelectedSignature = null;
+                stageSelectedStartedAt = null;
+            }
+
+            strip.classList.remove('hidden');
+        }
+
+        async function update() {
+            try {
+                const base = await resolveApiBase();
+                const r = await fetch(base + '/api/session?t=' + Date.now(), { cache: 'no-store' });
+                if (!r.ok) return;
+                const session = await r.json();
+                renderSession(session);
+            } catch (_) {
+                // Keep overlay silent if API is temporarily unavailable.
+            }
+        }
+
+        update();
+        setInterval(update, 1000);
+    </script>
+</body>
+</html>

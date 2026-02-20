@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pick/Ban Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .status-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .status-card h3 {
+            color: #4ecdc4;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-value {
+            font-weight: bold;
+        }
+
+        .phase-indicator {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .phase-banning {
+            background: #f44336;
+            color: white;
+        }
+
+        .phase-picking {
+            background: #4caf50;
+            color: white;
+        }
+
+        .controls-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .controls-section h3 {
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff6b6b, #f44336);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #4caf50, #2e7d32);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .stages-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .stages-list {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stages-list h4 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .stage-item {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .stage-banned {
+            background: rgba(244, 67, 54, 0.3);
+            border-left: 4px solid #f44336;
+        }
+
+        .stage-picked {
+            background: rgba(76, 175, 80, 0.3);
+            border-left: 4px solid #4caf50;
+            font-weight: bold;
+        }
+
+        .refresh-indicator {
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.7;
+        }
+
+        .ban-counter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ban-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .ban-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #333;
+            border: 1px solid #666;
+        }
+
+        .ban-dot.used {
+            background: #f44336;
+            border-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ Pick/Ban Admin Panel</h1>
+            <p class="subtitle">Monitor and control the pick/ban session</p>
+        </div>
+
+        <div class="status-panel">
+            <div class="status-card">
+                <h3>📊 Session Status</h3>
+                <div class="status-item">
+                    <span>Current Phase:</span>
+                    <span class="status-value">
+                        <span id="currentPhase" class="phase-indicator">Loading...</span>
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span>Total Bans Used:</span>
+                    <span class="status-value" id="totalBans">0 / 6</span>
+                </div>
+                <div class="status-item">
+                    <span>Current Turn:</span>
+                    <span class="status-value" id="currentTurn">-</span>
+                </div>
+                <div class="status-item">
+                    <span>Game Number:</span>
+                    <span class="status-value" id="gameNumber">1</span>
+                </div>
+                <div class="status-item">
+                    <span>Stage Picked:</span>
+                    <span class="status-value" id="pickedStage">None</span>
+                </div>
+            </div>
+
+            <div class="status-card">
+                <h3>🎮 Player Bans</h3>
+                <div class="status-item">
+                    <span>Player 1:</span>
+                    <div class="ban-counter">
+                        <span id="player1BanCount">0 / 3</span>
+                        <div class="ban-dots" id="player1Dots"></div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span>Player 2:</span>
+                    <div class="ban-counter">
+                        <span id="player2BanCount">0 / 3</span>
+                        <div class="ban-dots" id="player2Dots"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls-section">
+            <h3>🎛️ Controls</h3>
+            <div class="control-buttons">
+                <button class="btn btn-danger" onclick="resetSession()">
+                    🔄 Reset Session
+                </button>
+                <button class="btn btn-primary" onclick="setFirstStriker(1)">
+                    🎲 Game 1: P1 First
+                </button>
+                <button class="btn btn-primary" onclick="setFirstStriker(2)">
+                    🎲 Game 1: P2 First
+                </button>
+                <button class="btn btn-success" onclick="startNextGame(1)">
+                    🏆 Last Winner: P1
+                </button>
+                <button class="btn btn-success" onclick="startNextGame(2)">
+                    🏆 Last Winner: P2
+                </button>
+                <button class="btn btn-success" onclick="startNextGameGeneric()">
+                    ➡️ Next Game (Generic)
+                </button>
+                <a href="/player/1" class="btn btn-primary" target="_blank">
+                    🎮 View Player 1
+                </a>
+                <a href="/player/2" class="btn btn-primary" target="_blank">
+                    🎮 View Player 2
+                </a>
+                <button class="btn btn-success" onclick="updateNow()">
+                    ♻️ Refresh Now
+                </button>
+            </div>
+        </div>
+
+        <div class="stages-overview">
+            <div class="stages-list">
+                <h4>🚫 Banned Stages (<span id="bannedCount">0</span>)</h4>
+                <div id="bannedStages">
+                    <div class="stage-item">No stages banned yet</div>
+                </div>
+            </div>
+
+            <div class="stages-list">
+                <h4>✅ Available Stages</h4>
+                <div id="availableStages">
+                    Loading...
+                </div>
+            </div>
+        </div>
+
+        <div class="refresh-indicator">
+            <p>🔄 Auto-refreshing every 3 seconds</p>
+        </div>
+    </div>
+
+    <script>
+        let currentSession = null;
+
+        function updateInterface() {
+            fetch('/api/session')
+                .then(response => response.json())
+                .then(session => {
+                    currentSession = session;
+                    renderInterface();
+                })
+                .catch(error => {
+                    console.error('Error fetching session:', error);
+                    document.getElementById('currentPhase').textContent = 'Error';
+                });
+        }
+
+        function renderInterface() {
+            // Update phase indicator
+            const phaseElement = document.getElementById('currentPhase');
+            phaseElement.textContent = currentSession.flow_phase || currentSession.current_phase || 'unknown';
+            phaseElement.className = 'phase-indicator ' + 
+                ((currentSession.current_phase === 'banning' || currentSession.flow_phase === 'game1_strike' || currentSession.flow_phase === 'postgame_strike')
+                    ? 'phase-banning'
+                    : 'phase-picking');
+
+            document.getElementById('currentTurn').textContent =
+                currentSession.current_player ? `Player ${currentSession.current_player}` : 'None';
+            document.getElementById('gameNumber').textContent = currentSession.game_number || 1;
+
+            // Update ban counts
+            const strikesUsed = currentSession.strikes_used || currentSession.bans_used || { player1: 0, player2: 0 };
+            const strikesTarget = currentSession.strikes_target || { player1: 0, player2: 0 };
+            const totalBans = strikesUsed.player1 + strikesUsed.player2;
+            const totalTarget = (strikesTarget.player1 || 0) + (strikesTarget.player2 || 0);
+            document.getElementById('totalBans').textContent = `${totalBans} / ${totalTarget}`;
+            
+            // Update individual player bans
+            updatePlayerBans('player1', strikesUsed.player1 || 0, strikesTarget.player1 || 0);
+            updatePlayerBans('player2', strikesUsed.player2 || 0, strikesTarget.player2 || 0);
+
+            // Update picked stage
+            document.getElementById('pickedStage').textContent = 
+                currentSession.picked_stage || 'None';
+
+            // Update banned stages
+            updateBannedStages();
+            updateAvailableStages();
+        }
+
+        function updatePlayerBans(player, banCount, target) {
+            const countElement = document.getElementById(`${player}BanCount`);
+            const dotsElement = document.getElementById(`${player}Dots`);
+            
+            countElement.textContent = `${banCount} / ${target}`;
+            
+            dotsElement.innerHTML = '';
+            for (let i = 0; i < Math.max(target, 1); i++) {
+                const dot = document.createElement('div');
+                dot.className = 'ban-dot';
+                if (i < banCount) {
+                    dot.classList.add('used');
+                }
+                dotsElement.appendChild(dot);
+            }
+        }
+
+        function updateBannedStages() {
+            const bannedContainer = document.getElementById('bannedStages');
+            const bannedCountElement = document.getElementById('bannedCount');
+            
+            bannedCountElement.textContent = currentSession.banned_stages.length;
+            
+            if (currentSession.banned_stages.length === 0) {
+                bannedContainer.innerHTML = '<div class="stage-item">No stages banned yet</div>';
+            } else {
+                bannedContainer.innerHTML = currentSession.banned_stages
+                    .map(stage => `<div class="stage-item stage-banned">${stage}</div>`)
+                    .join('');
+            }
+        }
+
+        function updateAvailableStages() {
+            const availableContainer = document.getElementById('availableStages');
+            const availableStages = currentSession.stage_list.filter(
+                stage => !currentSession.banned_stages.includes(stage) && stage !== currentSession.picked_stage
+            );
+            
+            if (availableStages.length === 0) {
+                availableContainer.innerHTML = '<div class="stage-item">No stages available</div>';
+            } else {
+                availableContainer.innerHTML = availableStages
+                    .map(stage => {
+                        const classes = stage === currentSession.picked_stage ? 'stage-item stage-picked' : 'stage-item';
+                        return `<div class="${classes}">${stage}</div>`;
+                    })
+                    .join('');
+            }
+        }
+
+        function resetSession() {
+            if (confirm('Are you sure you want to reset the pick/ban session?')) {
+                fetch('/api/reset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateInterface();
+                        alert('Session reset successfully!');
+                    } else {
+                        alert('Failed to reset session');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error resetting session:', error);
+                    alert('Error resetting session');
+                });
+            }
+        }
+
+        function updateNow() {
+            updateInterface();
+        }
+
+        function setFirstStriker(player) {
+            fetch('/api/set_first_striker', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ first_player: player })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateInterface();
+                } else {
+                    alert(data.error || 'Failed to set first striker');
+                }
+            })
+            .catch(error => {
+                console.error('Error setting first striker:', error);
+                alert('Error setting first striker');
+            });
+        }
+
+        function startNextGame(winner) {
+            fetch('/api/start_next_game', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ winner_player: winner })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateInterface();
+                } else {
+                    alert(data.error || 'Failed to start next game');
+                }
+            })
+            .catch(error => {
+                console.error('Error starting next game:', error);
+                alert('Error starting next game');
+            });
+        }
+
+        function startNextGameGeneric() {
+            fetch('/api/start_next_game_generic', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateInterface();
+                } else {
+                    alert(data.error || 'Failed to start generic next game');
+                }
+            })
+            .catch(error => {
+                console.error('Error starting generic next game:', error);
+                alert('Error starting generic next game');
+            });
+        }
+
+        // Auto-refresh every 3 seconds
+        setInterval(updateInterface, 3000);
+        
+        // Initial load
+        updateInterface();
+    </script>
+</body>
+</html>

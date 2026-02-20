@@ -161,6 +161,50 @@ def format_filename(filename):
 
 app.jinja_env.globals.update(format_filename=format_filename)
 
+
+def read_text_file_safe(relative_path):
+    """Read a text file from text-files safely; return empty string on failure."""
+    try:
+        with open(os.path.join(base_directory, relative_path), 'r') as f:
+            return f.read()
+    except Exception:
+        return ''
+
+
+@app.route('/api/overlay-state')
+def overlay_state():
+    """Single payload for scoreboard-style overlays to reduce polling request count."""
+    payload = {
+        'info': {
+            'theme': read_text_file_safe('info/Theme.txt'),
+            'round': read_text_file_safe('info/Current-Round.txt'),
+            'bracket': read_text_file_safe('info/Bracket-Name.txt'),
+            'event': read_text_file_safe('info/Event-Info.txt'),
+            'startgg': read_text_file_safe('info/StartGG-Slug.txt')
+        },
+        'player1': {
+            'score': read_text_file_safe('player-1/Player1-Score.txt'),
+            'name': read_text_file_safe('player-1/Enter Player 1 Name.txt'),
+            'sponsor': read_text_file_safe('player-1/Player1-Sponsor.txt'),
+            'fighter': read_text_file_safe('player-1/Player1-Fighter.txt'),
+            'losers': read_text_file_safe('player-1/Player1-Losers.txt')
+        },
+        'player2': {
+            'score': read_text_file_safe('player-2/Player2-Score.txt'),
+            'name': read_text_file_safe('player-2/Enter Player 2 Name.txt'),
+            'sponsor': read_text_file_safe('player-2/Player2-Sponsor.txt'),
+            'fighter': read_text_file_safe('player-2/Player2-Fighter.txt'),
+            'losers': read_text_file_safe('player-2/Player2-Losers.txt')
+        },
+        'casters': {
+            'c1_sponsor': read_text_file_safe('casters/Caster1-Sponsor.txt'),
+            'c1_name': read_text_file_safe('casters/Caster1-Name.txt'),
+            'c2_sponsor': read_text_file_safe('casters/Caster2-Sponsor.txt'),
+            'c2_name': read_text_file_safe('casters/Caster2-Name.txt')
+        }
+    }
+    return jsonify(payload)
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     # Read the contents of the Fighters.txt file
@@ -249,6 +293,31 @@ def mobile():
             return redirect(url_for('mobile'))
 
     return render_template('mobile.html', info_files=info_files, player_1_files=player_1_files, player_2_files=player_2_files, casters_files=casters_files, fighters=fighters)
+
+@app.route('/tablet-dashboard', methods=['GET', 'POST'])
+def tablet_dashboard():
+    # Read the contents of the Fighters.txt file
+    with open(os.path.join('resources', 'Fighters.txt'), 'r') as file:
+        fighters = file.read().splitlines()
+    info_files = read_files_from_directory(os.path.join(base_directory, 'info'))
+    player_1_files = read_files_from_directory(os.path.join(base_directory, 'player-1'))
+    player_2_files = read_files_from_directory(os.path.join(base_directory, 'player-2'))
+    casters_files = read_files_from_directory(os.path.join(base_directory, 'casters'))
+
+    if request.method == 'POST':
+        for directory, files in [('info', info_files), ('player-1', player_1_files), ('player-2', player_2_files), ('casters', casters_files)]:
+            for file in files:
+                content = request.form.get(file)
+                if content is not None:
+                    with open(os.path.join(base_directory, directory, file), 'w') as f:
+                        f.write(content)
+
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return {'status': 'success', 'message': 'Files updated successfully'}
+        else:
+            return redirect(url_for('tablet_dashboard'))
+
+    return render_template('tablet_dashboard.html', info_files=info_files, player_1_files=player_1_files, player_2_files=player_2_files, casters_files=casters_files, fighters=fighters)
 
 @app.route('/debug-static')
 def debug_static():

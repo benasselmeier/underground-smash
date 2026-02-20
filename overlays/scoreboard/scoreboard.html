@@ -218,6 +218,49 @@
             background-color: #000000c5
         }
 
+        .casters-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            font-size: 1em;
+            font-weight: bolder;
+            color: white;
+            text-align: right;
+            margin: 4px 8px 4px auto;
+            padding: 4px 6px;
+            border-radius: 10px;
+            border: 2px solid #000;
+            background-color: #000000c5;
+            gap: 2px;
+        }
+
+        .caster-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.9em;
+        }
+
+        .caster-mic {
+            font-size: 1em;
+            margin-right: 2px;
+        }
+
+        .caster-sponsor {
+            color: #FFD700;
+            font-size: 0.8em;
+        }
+
+        .caster-name {
+            color: white;
+        }
+
+        .caster-pipe {
+            color: #FFD700;
+            margin: 0 2px;
+        }
+
         .losers-indicator {
             display: none;
             margin-left: 0.5em;
@@ -338,6 +381,32 @@
                 0 0 15px rgba(227, 30, 36, 0.4),
                 0 4px 8px rgba(0, 0, 0, 0.6);
             font-family: 'Persona5MenuFontPrototype-Rg', 'Arial Black', sans-serif;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .pubstomp-active .casters-container {
+            background-image: url('../../images/background/persona-background-red.png') !important;
+            background-size: 1000px auto !important;
+            background-repeat: no-repeat !important;
+            background-position: 75% 20% !important;
+            background-color: #5e0808 !important;
+            border-color: #000;
+            border-width: 5px;
+            box-shadow: 
+                0 0 15px rgba(227, 30, 36, 0.4),
+                0 4px 8px rgba(0, 0, 0, 0.6);
+            font-family: 'Persona5MenuFontPrototype-Rg', 'Arial Black', sans-serif;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .pubstomp-active .caster-sponsor {
+            font-family: 'p5hatty', 'Arial', sans-serif;
+        }
+
+        .pubstomp-active .caster-name {
+            font-family: 'p5hatty', 'Persona5MenuFontPrototype-Rg', 'Arial Black', sans-serif;
             font-weight: bold;
             letter-spacing: 1px;
         }
@@ -593,6 +662,20 @@
         <div class="scoreboard-bottom-row">
             <p id="event-info" class="scoreboard-event-title fade-update"></p>
         </div>
+        <div class="casters-container">
+            <div class="caster-row">
+                <span class="caster-mic">🎤</span>
+                <span id="c1-sponsor" class="caster-sponsor fade-update"></span>
+                <span id="c1-pipe" class="caster-pipe">|</span>
+                <span id="c1-name" class="caster-name fade-update"></span>
+            </div>
+            <div class="caster-row">
+                <span class="caster-mic">🎤</span>
+                <span id="c2-sponsor" class="caster-sponsor fade-update"></span>
+                <span id="c2-pipe" class="caster-pipe">|</span>
+                <span id="c2-name" class="caster-name fade-update"></span>
+            </div>
+        </div>
         <div class="startgg-container">
             <p class="fade-update">start.gg/</p>
             <p id="startgg-url" class="fade-update"></p>
@@ -615,6 +698,8 @@
 
     <script>
         const FADE_TIME = 200;
+        const OVERLAY_STATE_ENDPOINT = '../../api/overlay-state';
+        let useBatchEndpoint = window.location.protocol !== 'file:';
 
         // Theme definitions
         const themes = {
@@ -834,7 +919,68 @@
                 .catch(console.error);
         }
 
-        function update() {
+        function setLosersIndicator(id, value) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (String(value).trim() === '1') {
+                el.style.display = '';
+            } else {
+                el.style.display = 'none';
+            }
+        }
+
+        function fighterPath(name) {
+            const cleanName = String(name || '').trim().toLowerCase();
+            if (!cleanName) return '../../images/fighter-ui-slice/random.png';
+            return '../../images/fighter-ui-slice/' + cleanName + '.png';
+        }
+
+        function applyOverlayState(state) {
+            const info = state.info || {};
+            const player1 = state.player1 || {};
+            const player2 = state.player2 || {};
+            const casters = state.casters || {};
+
+            const cleanTheme = String(info.theme || '').trim().toLowerCase();
+            if (themes[cleanTheme]) {
+                applyTheme(cleanTheme);
+            }
+
+            fadeText(document.getElementById('p1-score'), String(player1.score || ''));
+            fadeText(document.getElementById('p1-player'), String(player1.name || ''));
+            fadeSponsor(document.getElementById('p1-sponsor'), String(player1.sponsor || ''), 'p1-pipe');
+            fadeImage(
+                document.getElementById('p1-character'),
+                fighterPath(player1.fighter),
+                '../../images/fighter-ui-slice/random.png'
+            );
+
+            fadeText(document.getElementById('round'), String(info.round || ''));
+            fadeText(document.getElementById('bracket'), String(info.bracket || ''));
+
+            fadeSponsor(document.getElementById('p2-sponsor'), String(player2.sponsor || ''), 'p2-pipe');
+            fadeText(document.getElementById('p2-player'), String(player2.name || ''));
+            fadeImage(
+                document.getElementById('p2-character'),
+                fighterPath(player2.fighter),
+                '../../images/fighter-ui-slice/random.png'
+            );
+            fadeText(document.getElementById('p2-score'), String(player2.score || ''));
+
+            fadeText(document.getElementById('event-info'), String(info.event || ''));
+            fadeText(document.getElementById('startgg-url'), String(info.startgg || ''));
+            setLosersIndicator('p1-losers', player1.losers);
+            setLosersIndicator('p2-losers', player2.losers);
+
+            fadeSponsor(document.getElementById('c1-sponsor'), String(casters.c1_sponsor || ''), 'c1-pipe');
+            fadeText(document.getElementById('c1-name'), String(casters.c1_name || ''));
+            fadeSponsor(document.getElementById('c2-sponsor'), String(casters.c2_sponsor || ''), 'c2-pipe');
+            fadeText(document.getElementById('c2-name'), String(casters.c2_name || ''));
+
+            checkHotSet();
+        }
+
+        function updateLegacy() {
             fetchTheme();
             fetchText('../../text-files/player-1/Player1-Score.txt', 'p1-score');
             fetchText('../../text-files/player-1/Enter Player 1 Name.txt', 'p1-player');
@@ -850,11 +996,42 @@
             fetchText('../../text-files/info/StartGG-Slug.txt', 'startgg-url');
             fetchLosers('../../text-files/player-1/Player1-Losers.txt', 'p1-losers');
             fetchLosers('../../text-files/player-2/Player2-Losers.txt', 'p2-losers');
+            
+            // Fetch caster information
+            fetchSponsor('../../text-files/casters/Caster1-Sponsor.txt', 'c1-sponsor', 'c1-pipe');
+            fetchText('../../text-files/casters/Caster1-Name.txt', 'c1-name');
+            fetchSponsor('../../text-files/casters/Caster2-Sponsor.txt', 'c2-sponsor', 'c2-pipe');
+            fetchText('../../text-files/casters/Caster2-Name.txt', 'c2-name');
 
         }
 
+        function updateBatch() {
+            fetch(OVERLAY_STATE_ENDPOINT + '?t=' + Date.now())
+                .then(r => {
+                    if (!r.ok) {
+                        throw new Error('overlay-state unavailable');
+                    }
+                    return r.json();
+                })
+                .then(state => {
+                    applyOverlayState(state);
+                })
+                .catch(err => {
+                    console.warn('Batch overlay-state fetch failed; falling back to legacy polling.', err);
+                    useBatchEndpoint = false;
+                    updateLegacy();
+                });
+        }
+
+        function update() {
+            if (useBatchEndpoint) {
+                updateBatch();
+                return;
+            }
+            updateLegacy();
+        }
+
         // Initialize theme and start updates
-        fetchTheme();
         update();
         setInterval(update, 1000);
     </script>

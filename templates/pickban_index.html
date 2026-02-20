@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Underground Smash - Pick/Ban Server</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+
+        .links-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .link-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-decoration: none;
+            color: #ffffff;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .link-card:hover {
+            border-color: #4ecdc4;
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .link-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #4ecdc4;
+        }
+
+        .link-card p {
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+
+        .link-card .url {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        .info-section {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .actions {
+            margin-top: 24px;
+        }
+
+        .reset-btn {
+            border: none;
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(135deg, #ff6b6b 0%, #f44336 100%);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.35);
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(244, 67, 54, 0.45);
+        }
+
+        .reset-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reset-status {
+            min-height: 22px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .info-section h4 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4ecdc4;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Pick/Ban Server</h1>
+        <p class="subtitle">
+            <span class="status-indicator"></span>
+            Underground Smash Overlay - Player Interface Hub
+        </p>
+
+        <div class="links-container">
+            <a href="/player/1" class="link-card">
+                <h3>🎮 Player 1</h3>
+                <p>Pick/Ban interface for Player 1 tablet</p>
+                <div class="url">{{ local_ip }}:{{ port }}/player/1</div>
+            </a>
+
+            <a href="/player/2" class="link-card">
+                <h3>🎮 Player 2</h3>
+                <p>Pick/Ban interface for Player 2 tablet</p>
+                <div class="url">{{ local_ip }}:{{ port }}/player/2</div>
+            </a>
+
+            <a href="/admin" class="link-card">
+                <h3>⚙️ Admin Panel</h3>
+                <p>Manage pick/ban session and reset</p>
+                <div class="url">{{ local_ip }}:{{ port }}/admin</div>
+            </a>
+
+            <a href="/overlays/pick-ban" class="link-card" target="_blank">
+                <h3>🎬 Stream Overlay</h3>
+                <p>Transparent stage strike/pick bar for OBS</p>
+                <div class="url">{{ local_ip }}:{{ port }}/overlays/pick-ban</div>
+            </a>
+        </div>
+
+        <div class="info-section">
+            <h4>📋 Setup Instructions</h4>
+            <p>1. Open each tablet to the respective player URL above</p>
+            <p>2. Players can tap stages to ban (3 bans each) then pick</p>
+            <p>3. Use the admin panel to reset between sets</p>
+        </div>
+
+        <div class="actions">
+            <button id="resetBtn" class="reset-btn" onclick="resetSession()">🔄 Reset Session</button>
+            <p id="resetStatus" class="reset-status"></p>
+        </div>
+    </div>
+    <script>
+        function resetSession() {
+            if (!confirm('Reset the full pick/ban session for both players?')) return;
+
+            const resetBtn = document.getElementById('resetBtn');
+            const status = document.getElementById('resetStatus');
+            resetBtn.disabled = true;
+            resetBtn.textContent = 'Resetting...';
+            status.textContent = '';
+
+            fetch('/api/reset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    status.textContent = 'Session reset successfully.';
+                } else {
+                    status.textContent = data.error || 'Failed to reset session.';
+                }
+            })
+            .catch(() => {
+                status.textContent = 'Error resetting session.';
+            })
+            .finally(() => {
+                resetBtn.disabled = false;
+                resetBtn.textContent = '🔄 Reset Session';
+            });
+        }
+    </script>
+</body>
+</html>
