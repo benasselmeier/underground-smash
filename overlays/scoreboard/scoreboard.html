@@ -861,8 +861,18 @@
             }
         }
 
+        function setCasterSectionVisibility(c1Sponsor, c1Name, c2Sponsor, c2Name) {
+            const castersContainer = document.querySelector('.casters-container');
+            if (!castersContainer) return;
+
+            const hasCasterData = [c1Sponsor, c1Name, c2Sponsor, c2Name]
+                .some(value => String(value || '').trim().length > 0);
+
+            castersContainer.style.display = hasCasterData ? '' : 'none';
+        }
+
         function fetchText(url, id) {
-            fetch(url + '?t=' + Date.now())
+            return fetch(url + '?t=' + Date.now())
                 .then(r => r.text())
                 .then(txt => {
                     fadeText(document.getElementById(id), txt);
@@ -871,6 +881,7 @@
                     if (id === 'p1-score' || id === 'p2-score') {
                         checkHotSet();
                     }
+                    return txt;
                 })
                 .catch(console.error);
         }
@@ -889,9 +900,12 @@
         }
 
         function fetchSponsor(url, id, pipeId) {
-            fetch(url + '?t=' + Date.now())
+            return fetch(url + '?t=' + Date.now())
                 .then(r => r.text())
-                .then(txt => fadeSponsor(document.getElementById(id), txt, pipeId))
+                .then(txt => {
+                    fadeSponsor(document.getElementById(id), txt, pipeId);
+                    return txt;
+                })
                 .catch(console.error);
         }
 
@@ -976,6 +990,7 @@
             fadeText(document.getElementById('c1-name'), String(casters.c1_name || ''));
             fadeSponsor(document.getElementById('c2-sponsor'), String(casters.c2_sponsor || ''), 'c2-pipe');
             fadeText(document.getElementById('c2-name'), String(casters.c2_name || ''));
+            setCasterSectionVisibility(casters.c1_sponsor, casters.c1_name, casters.c2_sponsor, casters.c2_name);
 
             checkHotSet();
         }
@@ -997,11 +1012,15 @@
             fetchLosers('../../text-files/player-1/Player1-Losers.txt', 'p1-losers');
             fetchLosers('../../text-files/player-2/Player2-Losers.txt', 'p2-losers');
             
-            // Fetch caster information
-            fetchSponsor('../../text-files/casters/Caster1-Sponsor.txt', 'c1-sponsor', 'c1-pipe');
-            fetchText('../../text-files/casters/Caster1-Name.txt', 'c1-name');
-            fetchSponsor('../../text-files/casters/Caster2-Sponsor.txt', 'c2-sponsor', 'c2-pipe');
-            fetchText('../../text-files/casters/Caster2-Name.txt', 'c2-name');
+            // Fetch caster information and auto-hide section when empty
+            Promise.all([
+                fetchSponsor('../../text-files/casters/Caster1-Sponsor.txt', 'c1-sponsor', 'c1-pipe'),
+                fetchText('../../text-files/casters/Caster1-Name.txt', 'c1-name'),
+                fetchSponsor('../../text-files/casters/Caster2-Sponsor.txt', 'c2-sponsor', 'c2-pipe'),
+                fetchText('../../text-files/casters/Caster2-Name.txt', 'c2-name')
+            ]).then(([c1Sponsor, c1Name, c2Sponsor, c2Name]) => {
+                setCasterSectionVisibility(c1Sponsor, c1Name, c2Sponsor, c2Name);
+            });
 
         }
 
