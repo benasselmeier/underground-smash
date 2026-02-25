@@ -1192,6 +1192,24 @@
 
         // Quick Action Functions
 
+        async function executeMatchCommand(endpoint, payload = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`Command failed: ${endpoint}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Command API failed, falling back to form save:', error);
+                saveAllChangesNow();
+                return null;
+            }
+        }
+
         function updatePlayerScore(player, amount) {
             const playerNumber = player === 'player1' ? '1' : '2';
             const selectElement = document.querySelector(`select[name="Player${playerNumber}-Score.txt"]`);
@@ -1218,7 +1236,10 @@
                         button.style.color = 'white';
                     }, 200);
 
-                    saveAllChangesNow();
+                    executeMatchCommand('/api/commands/score', {
+                        player: playerNumber,
+                        value: newScore
+                    });
                 }
             }
         }
@@ -1278,7 +1299,7 @@
             button.style.transform = 'rotate(180deg)';
             setTimeout(() => {
                 button.style.transform = 'none';
-                saveAllChangesNow();
+                executeMatchCommand('/api/commands/swap-players');
             }, 300);
         }
 
@@ -1310,7 +1331,7 @@
             button.classList.add('pulse-animation');
             setTimeout(() => {
                 button.classList.remove('pulse-animation');
-                saveAllChangesNow();
+                executeMatchCommand('/api/commands/reset-scoreboard');
             }, 300);
         }
 
@@ -1353,7 +1374,7 @@
             button.classList.add('pulse-animation');
             setTimeout(() => {
                 button.classList.remove('pulse-animation');
-                saveAllChangesWithDelay();
+                executeMatchCommand('/api/commands/new-round');
             }, 300);
         }
 

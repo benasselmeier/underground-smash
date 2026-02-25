@@ -10,6 +10,7 @@ import json
 import socket
 from datetime import datetime
 from pathlib import Path
+from core.state_backend import OverlayStateBackend
 
 # Import for mDNS registration
 try:
@@ -24,6 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent
 IMAGES_DIR = BASE_DIR / 'images'
 RESOURCES_DIR = BASE_DIR / 'resources'
 TEXT_FILES_DIR = BASE_DIR / 'text-files'
+STATE_DB_PATH = BASE_DIR / 'runtime' / 'state.db'
+state_backend = OverlayStateBackend(
+    text_base_dir=TEXT_FILES_DIR,
+    db_path=STATE_DB_PATH,
+    mode=os.environ.get('STATE_BACKEND', 'sqlite')
+)
 
 
 @app.after_request
@@ -82,20 +89,13 @@ def load_stages():
 
 
 def read_files_from_directory(directory_path):
-    """Read all UTF-8 decodable files in a directory into a dict."""
-    file_contents = {}
-    if not Path(directory_path).exists():
-        return file_contents
-
-    for file_name in sorted(os.listdir(directory_path)):
-        file_path = Path(directory_path) / file_name
-        if not file_path.is_file():
-            continue
-        try:
-            file_contents[file_name] = file_path.read_text()
-        except UnicodeDecodeError:
-            continue
-    return file_contents
+    """Read text-file directory state via shared backend."""
+    path_obj = Path(directory_path).resolve()
+    try:
+        rel_dir = path_obj.relative_to(TEXT_FILES_DIR.resolve()).as_posix()
+    except ValueError:
+        rel_dir = ''
+    return state_backend.read_directory(rel_dir)
 
 def get_local_ip():
     """Get the local IP address of this machine"""
@@ -505,8 +505,7 @@ def tablet_dashboard():
             for file_name in files:
                 content = request.form.get(file_name)
                 if content is not None:
-                    file_path = TEXT_FILES_DIR / directory / file_name
-                    file_path.write_text(content)
+                    state_backend.set(f'{directory}/{file_name}', content)
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({'status': 'success', 'message': 'Files updated successfully'})

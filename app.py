@@ -6,6 +6,7 @@ import subprocess
 import socket
 from datetime import datetime, timedelta
 from pathlib import Path
+from core.state_backend import OverlayStateBackend
 
 # Import for mDNS registration
 try:
@@ -22,6 +23,11 @@ current_theme = {
     'casters': 'default',
     'vs-screen': 'default'
 }
+state_backend = OverlayStateBackend(
+    text_base_dir=base_directory,
+    db_path='runtime/state.db',
+    mode=os.environ.get('STATE_BACKEND', 'sqlite')
+)
 
 # Global variable for mDNS service
 zeroconf_service = None
@@ -141,17 +147,10 @@ def serve_static_image(filename):
     return add_cache_headers(response)
 
 def read_files_from_directory(directory):
-    print(f"Reading files from directory: {directory}")  # Debug statement
-    files = sorted(os.listdir(directory))
-    file_contents = {}
-    for file in files:
-        try:
-            with open(os.path.join(directory, file), 'r') as f:
-                file_contents[file] = f.read()
-        except UnicodeDecodeError:
-            print(f"Skipping file {file} because it could not be decoded")
-    print(f"Files read from {directory}: {file_contents.keys()}")  # Debug statement
-    return file_contents
+    rel_dir = os.path.relpath(directory, base_directory).replace('\\', '/')
+    if rel_dir == '.':
+        rel_dir = ''
+    return state_backend.read_directory(rel_dir)
 
 def format_filename(filename):
     # Remove the file extension
@@ -163,18 +162,15 @@ app.jinja_env.globals.update(format_filename=format_filename)
 
 
 def read_text_file_safe(relative_path):
-    """Read a text file from text-files safely; return empty string on failure."""
+    """Read state safely via backend; return empty string on failure."""
     try:
-        with open(os.path.join(base_directory, relative_path), 'r') as f:
-            return f.read()
+        return state_backend.get(relative_path)
     except Exception:
         return ''
 
 
-@app.route('/api/overlay-state')
-def overlay_state():
-    """Single payload for scoreboard-style overlays to reduce polling request count."""
-    payload = {
+def build_overlay_state_payload():
+    return {
         'info': {
             'theme': read_text_file_safe('info/Theme.txt'),
             'round': read_text_file_safe('info/Current-Round.txt'),
@@ -203,7 +199,155 @@ def overlay_state():
             'c2_name': read_text_file_safe('casters/Caster2-Name.txt')
         }
     }
-    return jsonify(payload)
+
+
+def parse_player_id(raw_value):
+    normalized = str(raw_value or '').strip().lower()
+    if normalized in {'1', 'p1', 'player1', 'player-1'}:
+        return 1
+    if normalized in {'2', 'p2', 'player2', 'player-2'}:
+        return 2
+    return None
+
+
+def player_path(player_id, suffix):
+    if player_id == 1:
+        return f'player-1/{suffix}'
+    return f'player-2/{suffix}'
+
+
+def read_score(player_id):
+    raw_score = read_text_file_safe(player_path(player_id, f'Player{player_id}-Score.txt')).strip()
+    try:
+        return int(raw_score)
+    except ValueError:
+        return 0
+
+
+def write_score(player_id, score):
+    bounded = max(0, min(3, int(score)))
+    state_backend.set(player_path(player_id, f'Player{player_id}-Score.txt'), str(bounded))
+    return bounded
+
+
+def swap_players_state():
+    pairs = [
+        ('player-1/Player1-Sponsor.txt', 'player-2/Player2-Sponsor.txt'),
+        ('player-1/Enter Player 1 Name.txt', 'player-2/Enter Player 2 Name.txt'),
+        ('player-1/Player1-Score.txt', 'player-2/Player2-Score.txt'),
+        ('player-1/Player1-Fighter.txt', 'player-2/Player2-Fighter.txt'),
+        ('player-1/Player1-Losers.txt', 'player-2/Player2-Losers.txt'),
+    ]
+
+    updates = {}
+    for left, right in pairs:
+        left_value = read_text_file_safe(left)
+        right_value = read_text_file_safe(right)
+        updates[left] = right_value
+        updates[right] = left_value
+    state_backend.bulk_set(updates)
+
+
+def reset_scoreboard_state():
+    state_backend.bulk_set({
+        'player-1/Player1-Score.txt': '0',
+        'player-2/Player2-Score.txt': '0',
+        'player-1/Player1-Fighter.txt': 'Random',
+        'player-2/Player2-Fighter.txt': 'Random',
+    })
+
+
+def new_round_state():
+    state_backend.bulk_set({
+        'player-1/Player1-Sponsor.txt': '',
+        'player-1/Enter Player 1 Name.txt': '',
+        'player-2/Player2-Sponsor.txt': '',
+        'player-2/Enter Player 2 Name.txt': '',
+    })
+    reset_scoreboard_state()
+
+
+def apply_form_updates(form_data, info_files, player_1_files, player_2_files, casters_files):
+    updates = {}
+    for directory, files in [
+        ('info', info_files),
+        ('player-1', player_1_files),
+        ('player-2', player_2_files),
+        ('casters', casters_files),
+    ]:
+        for filename in files:
+            content = form_data.get(filename)
+            if content is not None:
+                updates[f'{directory}/{filename}'] = content
+
+    if updates:
+        state_backend.bulk_set(updates)
+
+
+@app.route('/api/overlay-state')
+def overlay_state():
+    """Single payload for scoreboard-style overlays to reduce polling request count."""
+    return jsonify(build_overlay_state_payload())
+
+
+@app.route('/api/commands/score', methods=['POST'])
+def command_score():
+    data = request.get_json(silent=True) or request.form
+    player_id = parse_player_id(data.get('player') or data.get('player_id'))
+    if player_id is None:
+        return jsonify({'success': False, 'error': 'player must be 1 or 2'}), 400
+
+    if data.get('value') is not None:
+        try:
+            score = int(data.get('value'))
+        except (TypeError, ValueError):
+            return jsonify({'success': False, 'error': 'value must be an integer'}), 400
+    else:
+        try:
+            delta = int(data.get('delta', 0))
+        except (TypeError, ValueError):
+            return jsonify({'success': False, 'error': 'delta must be an integer'}), 400
+        score = read_score(player_id) + delta
+
+    final_score = write_score(player_id, score)
+    return jsonify({
+        'success': True,
+        'player': player_id,
+        'score': final_score,
+        'overlay_state': build_overlay_state_payload()
+    })
+
+
+@app.route('/api/commands/set-fighter', methods=['POST'])
+def command_set_fighter():
+    data = request.get_json(silent=True) or request.form
+    player_id = parse_player_id(data.get('player') or data.get('player_id'))
+    fighter = str(data.get('fighter', '')).strip()
+    if player_id is None:
+        return jsonify({'success': False, 'error': 'player must be 1 or 2'}), 400
+    if not fighter:
+        return jsonify({'success': False, 'error': 'fighter is required'}), 400
+
+    state_backend.set(player_path(player_id, f'Player{player_id}-Fighter.txt'), fighter)
+    return jsonify({'success': True, 'overlay_state': build_overlay_state_payload()})
+
+
+@app.route('/api/commands/swap-players', methods=['POST'])
+def command_swap_players():
+    swap_players_state()
+    return jsonify({'success': True, 'overlay_state': build_overlay_state_payload()})
+
+
+@app.route('/api/commands/reset-scoreboard', methods=['POST'])
+def command_reset_scoreboard():
+    reset_scoreboard_state()
+    return jsonify({'success': True, 'overlay_state': build_overlay_state_payload()})
+
+
+@app.route('/api/commands/new-round', methods=['POST'])
+def command_new_round():
+    new_round_state()
+    return jsonify({'success': True, 'overlay_state': build_overlay_state_payload()})
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -216,12 +360,7 @@ def home():
     casters_files = read_files_from_directory(os.path.join(base_directory, 'casters'))
 
     if request.method == 'POST':
-        for directory, files in [('info', info_files), ('player-1', player_1_files), ('player-2', player_2_files), ('casters', casters_files)]:
-            for file in files:
-                content = request.form.get(file)
-                if content is not None:
-                    with open(os.path.join(base_directory, directory, file), 'w') as f:
-                        f.write(content)
+        apply_form_updates(request.form, info_files, player_1_files, player_2_files, casters_files)
         
         # Check if it's an AJAX request
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -233,15 +372,13 @@ def home():
 
 @app.route('/view/<filename>')
 def view(filename):
-    with open(os.path.join(base_directory, filename), 'r') as f:
-        content = f.read()
+    content = read_text_file_safe(filename)
     return '<form action="/update/{}" method="POST"><textarea name="content" rows="30" cols="100">{}</textarea><br><input type="submit" value="Update"></form>'.format(filename, content)
 
 @app.route('/update/<filename>', methods=['POST'])
 def update(filename):
     content = request.form['content']
-    with open(os.path.join(base_directory, filename), 'w') as f:
-        f.write(content)
+    state_backend.set(filename, content)
     return redirect(url_for('view', filename=filename))
 
 @app.route('/save-theme', methods=['POST'])
@@ -249,9 +386,7 @@ def save_theme():
     try:
         theme_content = request.form.get('Theme.txt')
         if theme_content:
-            theme_file_path = os.path.join(base_directory, 'info', 'Theme.txt')
-            with open(theme_file_path, 'w') as f:
-                f.write(theme_content)
+            state_backend.set('info/Theme.txt', theme_content)
             
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return {'status': 'success', 'message': 'Theme updated successfully'}
@@ -279,12 +414,7 @@ def mobile():
     casters_files = read_files_from_directory(os.path.join(base_directory, 'casters'))
 
     if request.method == 'POST':
-        for directory, files in [('info', info_files), ('player-1', player_1_files), ('player-2', player_2_files), ('casters', casters_files)]:
-            for file in files:
-                content = request.form.get(file)
-                if content is not None:
-                    with open(os.path.join(base_directory, directory, file), 'w') as f:
-                        f.write(content)
+        apply_form_updates(request.form, info_files, player_1_files, player_2_files, casters_files)
         
         # Check if it's an AJAX request
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -305,12 +435,7 @@ def tablet_dashboard():
     casters_files = read_files_from_directory(os.path.join(base_directory, 'casters'))
 
     if request.method == 'POST':
-        for directory, files in [('info', info_files), ('player-1', player_1_files), ('player-2', player_2_files), ('casters', casters_files)]:
-            for file in files:
-                content = request.form.get(file)
-                if content is not None:
-                    with open(os.path.join(base_directory, directory, file), 'w') as f:
-                        f.write(content)
+        apply_form_updates(request.form, info_files, player_1_files, player_2_files, casters_files)
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return {'status': 'success', 'message': 'Files updated successfully'}

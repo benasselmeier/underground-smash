@@ -1742,6 +1742,24 @@
 
         // Quick Action Functions
 
+        async function executeMatchCommand(endpoint, payload = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`Command failed: ${endpoint}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Command API failed, falling back to form save:', error);
+                saveAllChangesNow();
+                return null;
+            }
+        }
+
         // Update player score by the given amount
         function updatePlayerScore(player, amount) {
             const playerNumber = player === 'player1' ? '1' : '2';
@@ -1777,8 +1795,10 @@
                         button.style.color = 'white';
                     }, 200);
 
-                    // Save the changes
-                    saveAllChangesNow();
+                    executeMatchCommand('/api/commands/score', {
+                        player: playerNumber,
+                        value: newScore
+                    });
                 }
             }
         }
@@ -1853,8 +1873,7 @@
             setTimeout(() => {
                 button.style.transform = 'none';
 
-                // Save changes
-                saveAllChangesNow();
+                executeMatchCommand('/api/commands/swap-players');
             }, 300);
         }
 
@@ -1912,8 +1931,7 @@
             setTimeout(() => {
                 button.classList.remove('pulse-animation');
 
-                // Save changes
-                saveAllChangesNow();
+                executeMatchCommand('/api/commands/reset-scoreboard');
             }, 300);
         }
 
@@ -1981,8 +1999,7 @@
             setTimeout(() => {
                 button.classList.remove('pulse-animation');
 
-                // Save changes with delay
-                saveAllChangesWithDelay();
+                executeMatchCommand('/api/commands/new-round');
             }, 300);
         }
 

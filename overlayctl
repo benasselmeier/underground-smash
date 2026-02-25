@@ -1,0 +1,297 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT_DIR"
+
+RUNTIME_DIR="$ROOT_DIR/runtime"
+LOG_DIR="$ROOT_DIR/logs"
+MAIN_PID_FILE="$RUNTIME_DIR/main.pid"
+PICKBAN_PID_FILE="$RUNTIME_DIR/pickban.pid"
+MAIN_LOG="$LOG_DIR/main.log"
+PICKBAN_LOG="$LOG_DIR/pickban.log"
+
+MAIN_PORT="${MAIN_PORT:-3000}"
+PICKBAN_PORT="${PICKBAN_PORT:-5002}"
+MAIN_HEALTH_PATH="${MAIN_HEALTH_PATH:-/api/overlay-state}"
+PICKBAN_HEALTH_PATH="${PICKBAN_HEALTH_PATH:-/api/session}"
+PYTHON_BIN=""
+
+ensure_dirs() {
+  mkdir -p "$RUNTIME_DIR" "$LOG_DIR"
+}
+
+ensure_python_env() {
+  if [[ -x "$ROOT_DIR/env/bin/python3" ]]; then
+    PYTHON_BIN="$ROOT_DIR/env/bin/python3"
+  else
+    echo "🧰 Creating local virtual environment..."
+    python3 -m venv "$ROOT_DIR/env"
+    PYTHON_BIN="$ROOT_DIR/env/bin/python3"
+  fi
+
+  if ! "$PYTHON_BIN" -c "import flask" >/dev/null 2>&1; then
+    echo "📦 Installing Python dependencies..."
+    "$PYTHON_BIN" -m pip install -r "$ROOT_DIR/requirements.txt" >/dev/null
+  fi
+}
+
+local_ip() {
+  ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo "127.0.0.1"
+}
+
+is_pid_running() {
+  local pid="$1"
+  [[ -n "$pid" ]] && ps -p "$pid" >/dev/null 2>&1
+}
+
+pid_from_file() {
+  local file="$1"
+  [[ -f "$file" ]] || return 0
+  tr -d '[:space:]' <"$file"
+}
+
+write_pid() {
+  local file="$1"
+  local pid="$2"
+  echo "$pid" >"$file"
+}
+
+remove_pid_file() {
+  local file="$1"
+  if [[ -f "$file" ]]; then
+    rm -f "$file"
+  fi
+  return 0
+}
+
+health_ok() {
+  local port="$1"
+  local path="$2"
+  curl -fsS --max-time 1 "http://127.0.0.1:${port}${path}" >/dev/null 2>&1
+}
+
+wait_for_health() {
+  local port="$1"
+  local path="$2"
+  local name="$3"
+  local attempts="${4:-30}"
+  local i
+  for ((i=1; i<=attempts; i++)); do
+    if health_ok "$port" "$path"; then
+      echo "✅ ${name} is healthy on port ${port}"
+      return 0
+    fi
+    sleep 0.5
+  done
+  echo "❌ ${name} failed health check on port ${port}"
+  return 1
+}
+
+start_main() {
+  local main_pid
+  main_pid="$(pid_from_file "$MAIN_PID_FILE")"
+  if is_pid_running "$main_pid"; then
+    echo "ℹ️  Main server already running (PID ${main_pid})"
+    return 0
+  fi
+
+  echo "🎮 Starting main overlay server on :${MAIN_PORT}..."
+  FLASK_RUN_PORT="$MAIN_PORT" "$PYTHON_BIN" app.py >>"$MAIN_LOG" 2>&1 &
+  main_pid="$!"
+  write_pid "$MAIN_PID_FILE" "$main_pid"
+  if ! wait_for_health "$MAIN_PORT" "$MAIN_HEALTH_PATH" "Main server"; then
+    stop_by_pid_file "Main server" "$MAIN_PID_FILE" >/dev/null 2>&1 || true
+    return 1
+  fi
+}
+
+start_pickban() {
+  local pickban_pid
+  pickban_pid="$(pid_from_file "$PICKBAN_PID_FILE")"
+  if is_pid_running "$pickban_pid"; then
+    echo "ℹ️  Pick/Ban server already running (PID ${pickban_pid})"
+    return 0
+  fi
+
+  echo "🎯 Starting pick/ban server on :${PICKBAN_PORT}..."
+  PICKBAN_DEBUG=0 "$PYTHON_BIN" pickban-server.py >>"$PICKBAN_LOG" 2>&1 &
+  pickban_pid="$!"
+  write_pid "$PICKBAN_PID_FILE" "$pickban_pid"
+  if ! wait_for_health "$PICKBAN_PORT" "$PICKBAN_HEALTH_PATH" "Pick/Ban server"; then
+    stop_by_pid_file "Pick/Ban server" "$PICKBAN_PID_FILE" >/dev/null 2>&1 || true
+    return 1
+  fi
+}
+
+stop_by_pid_file() {
+  local name="$1"
+  local file="$2"
+  local pid
+  pid="$(pid_from_file "$file")"
+  if ! is_pid_running "$pid"; then
+    remove_pid_file "$file"
+    echo "ℹ️  ${name} not running"
+    return 0
+  fi
+
+  echo "🛑 Stopping ${name} (PID ${pid})..."
+  kill "$pid" >/dev/null 2>&1 || true
+  sleep 1
+  if is_pid_running "$pid"; then
+    kill -9 "$pid" >/dev/null 2>&1 || true
+  fi
+  remove_pid_file "$file"
+  echo "✅ ${name} stopped"
+}
+
+print_status_line() {
+  local name="$1"
+  local file="$2"
+  local port="$3"
+  local path="$4"
+  local pid
+  pid="$(pid_from_file "$file")"
+
+  if is_pid_running "$pid"; then
+    if health_ok "$port" "$path"; then
+      echo "✅ ${name}: running (PID ${pid}) healthy on :${port}"
+    else
+      echo "⚠️  ${name}: running (PID ${pid}) not healthy on :${port}"
+    fi
+  else
+    echo "❌ ${name}: stopped"
+  fi
+}
+
+cmd_start() {
+  ensure_dirs
+  ensure_python_env
+  start_main
+  start_pickban
+  cmd_urls
+}
+
+cmd_stop() {
+  stop_by_pid_file "Pick/Ban server" "$PICKBAN_PID_FILE"
+  stop_by_pid_file "Main server" "$MAIN_PID_FILE"
+}
+
+cmd_status() {
+  print_status_line "Main server" "$MAIN_PID_FILE" "$MAIN_PORT" "$MAIN_HEALTH_PATH"
+  print_status_line "Pick/Ban server" "$PICKBAN_PID_FILE" "$PICKBAN_PORT" "$PICKBAN_HEALTH_PATH"
+}
+
+cmd_urls() {
+  local ip
+  ip="$(local_ip)"
+  cat <<EOF
+🌐 Operator URLs
+Main Control:      http://${ip}:${MAIN_PORT}/
+Mobile Control:    http://${ip}:${MAIN_PORT}/mobile
+Tablet Dashboard:  http://${ip}:${MAIN_PORT}/tablet-dashboard
+Pick/Ban Hub:      http://${ip}:${PICKBAN_PORT}/
+Pick/Ban Admin:    http://${ip}:${PICKBAN_PORT}/admin
+Player 1:          http://${ip}:${PICKBAN_PORT}/player/1
+Player 2:          http://${ip}:${PICKBAN_PORT}/player/2
+EOF
+}
+
+cmd_logs() {
+  ensure_dirs
+  cat <<EOF
+Main log:    ${MAIN_LOG}
+Pick/Ban log:${PICKBAN_LOG}
+EOF
+}
+
+cmd_doctor() {
+  local ip
+  ip="$(local_ip)"
+  ensure_dirs
+  ensure_python_env
+
+  echo "🩺 overlayctl doctor"
+  echo "Local IP: ${ip}"
+  echo "Main port: ${MAIN_PORT}"
+  echo "Pick/Ban port: ${PICKBAN_PORT}"
+  echo "Python: ${PYTHON_BIN}"
+  echo "State backend mode: ${STATE_BACKEND:-sqlite}"
+
+  local required_paths=(
+    "$ROOT_DIR/app.py"
+    "$ROOT_DIR/pickban-server.py"
+    "$ROOT_DIR/requirements.txt"
+    "$ROOT_DIR/text-files/info"
+    "$ROOT_DIR/text-files/player-1"
+    "$ROOT_DIR/text-files/player-2"
+    "$ROOT_DIR/text-files/casters"
+    "$ROOT_DIR/resources/Fighters.txt"
+    "$ROOT_DIR/resources/Stages.txt"
+  )
+
+  local missing=0
+  echo "Required paths:"
+  for p in "${required_paths[@]}"; do
+    if [[ -e "$p" ]]; then
+      echo "  ✅ $p"
+    else
+      echo "  ❌ $p (missing)"
+      missing=1
+    fi
+  done
+
+  echo "Port checks:"
+  local main_listener pickban_listener
+  main_listener="$(lsof -nP -iTCP:${MAIN_PORT} -sTCP:LISTEN 2>/dev/null | tail -n +2 || true)"
+  pickban_listener="$(lsof -nP -iTCP:${PICKBAN_PORT} -sTCP:LISTEN 2>/dev/null | tail -n +2 || true)"
+  if [[ -n "$main_listener" ]]; then
+    echo "  ⚠️  Port ${MAIN_PORT} in use"
+    echo "$main_listener" | sed 's/^/     /'
+  else
+    echo "  ✅ Port ${MAIN_PORT} available (or used by current run only after start)"
+  fi
+  if [[ -n "$pickban_listener" ]]; then
+    echo "  ⚠️  Port ${PICKBAN_PORT} in use"
+    echo "$pickban_listener" | sed 's/^/     /'
+  else
+    echo "  ✅ Port ${PICKBAN_PORT} available (or used by current run only after start)"
+  fi
+
+  cmd_status
+  if [[ "$missing" -ne 0 ]]; then
+    echo "❌ Doctor found missing required files/directories."
+    return 1
+  fi
+  echo "✅ Doctor checks completed."
+}
+
+usage() {
+  cat <<EOF
+Usage: ./overlayctl <command>
+
+Commands:
+  start    Start both services and wait for health checks
+  stop     Stop both services
+  status   Show running/health status
+  urls     Print LAN URLs for operators/tablets
+  logs     Show log file paths
+  doctor   Print basic diagnostics
+EOF
+}
+
+main() {
+  local command="${1:-}"
+  case "$command" in
+    start) cmd_start ;;
+    stop) cmd_stop ;;
+    status) cmd_status ;;
+    urls) cmd_urls ;;
+    logs) cmd_logs ;;
+    doctor) cmd_doctor ;;
+    *) usage; exit 1 ;;
+  esac
+}
+
+main "$@"

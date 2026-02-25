@@ -711,6 +711,24 @@
             });
         }
 
+        async function executeMatchCommand(endpoint, payload = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`Command failed: ${endpoint}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Command API failed, falling back to form save:', error);
+                saveAllChangesNow();
+                return null;
+            }
+        }
+
         function updatePlayerScore(player, amount) {
             const num = player === 'player1' ? '1' : '2';
             const input = document.getElementById(`player${num}-score`);
@@ -719,7 +737,10 @@
             const next = Math.max(0, Math.min(3, current + amount));
             input.value = String(next);
             if (display) display.textContent = String(next);
-            saveAllChangesNow();
+            executeMatchCommand('/api/commands/score', {
+                player: num,
+                value: next
+            });
         }
 
         function assignCharacter(player, fighter) {
@@ -731,7 +752,10 @@
             img.src = portraitSrcFor(fighter);
             img.onerror = function () { this.src = '/images/fighter-portraits-stylized/cropped/random.png'; };
             syncTileHighlights();
-            saveAllChangesNow();
+            executeMatchCommand('/api/commands/set-fighter', {
+                player: player === 'player1' ? 1 : 2,
+                fighter
+            });
         }
 
         function swapPlayers() {
@@ -766,7 +790,7 @@
             document.getElementById('player1-score-display').textContent = document.getElementById('player1-score').value;
             document.getElementById('player2-score-display').textContent = document.getElementById('player2-score').value;
             syncTileHighlights();
-            saveAllChangesNow();
+            executeMatchCommand('/api/commands/swap-players');
         }
 
         function resetScoreboard() {
@@ -774,9 +798,14 @@
             document.getElementById('player2-score').value = '0';
             document.getElementById('player1-score-display').textContent = '0';
             document.getElementById('player2-score-display').textContent = '0';
-            assignCharacter('player1', 'Random');
-            assignCharacter('player2', 'Random');
-            saveAllChangesNow();
+            document.getElementById('player1-fighter-input').value = 'Random';
+            document.getElementById('player2-fighter-input').value = 'Random';
+            document.getElementById('player1-fighter-name').textContent = 'Random';
+            document.getElementById('player2-fighter-name').textContent = 'Random';
+            document.getElementById('player1-fighter-preview').src = portraitSrcFor('Random');
+            document.getElementById('player2-fighter-preview').src = portraitSrcFor('Random');
+            syncTileHighlights();
+            executeMatchCommand('/api/commands/reset-scoreboard');
         }
 
         function newRound() {
@@ -784,7 +813,18 @@
             document.querySelector('textarea[name="Enter Player 1 Name.txt"]').value = '';
             document.querySelector('input[name="Player2-Sponsor.txt"]').value = '';
             document.querySelector('textarea[name="Enter Player 2 Name.txt"]').value = '';
-            resetScoreboard();
+            document.getElementById('player1-score').value = '0';
+            document.getElementById('player2-score').value = '0';
+            document.getElementById('player1-score-display').textContent = '0';
+            document.getElementById('player2-score-display').textContent = '0';
+            document.getElementById('player1-fighter-input').value = 'Random';
+            document.getElementById('player2-fighter-input').value = 'Random';
+            document.getElementById('player1-fighter-name').textContent = 'Random';
+            document.getElementById('player2-fighter-name').textContent = 'Random';
+            document.getElementById('player1-fighter-preview').src = portraitSrcFor('Random');
+            document.getElementById('player2-fighter-preview').src = portraitSrcFor('Random');
+            syncTileHighlights();
+            executeMatchCommand('/api/commands/new-round');
         }
 
         function initThemeSelector() {

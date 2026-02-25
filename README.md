@@ -1,104 +1,64 @@
-# Underground Smash Overlay - Info, Instructions, Future Plans, To-Do List
+# Underground Smash Overlay
 
-## Instructions for Use:
+Local LAN overlay/control system for Smash Ultimate events.
 
-**Important: for now, until I am able to package and deploy this to a web server, you'll need Python and Git installed.**
+## Current canonical runtime
 
-### Easy Startup (Recommended)
+- Main server: `http://<host>:3000`
+- Pick/Ban server: `http://<host>:5002`
+- Lifecycle command: `./overlayctl`
 
-1. Open the `underground-smash-overlay` folder.
-2. Double-click the `start-smash-overlay.sh` script or run it from a terminal:
-   ```
-   ./start-smash-overlay.sh
-   ```
-3. This will automatically start the application and provide URLs for both desktop and mobile access.
-4. To stop the application, use the `stop-smash-overlay.sh` script:
-   ```
-   ./stop-smash-overlay.sh
-   ```
+## Quick start
 
-### Accessing the Control Panel
+```bash
+cd /Users/benasselmeier/Workspace/underground-smash-overlay
+./overlayctl start
+./overlayctl status
+./overlayctl urls
+```
 
-**Desktop Control Panel:**
-- Main URL: `http://127.0.0.1:5000` (localhost)
-- Network URL: `http://[YOUR_IP]:5000` (access from other devices)
+Stop:
 
-**📱 Mobile Control Panel:**
-- Mobile URL: `http://[YOUR_IP]:5000/mobile`
-- Optimized for phones and tablets
-- Touch-friendly interface with all the same functionality as desktop
-- Access from any device on the same WiFi network
+```bash
+./overlayctl stop
+```
 
-**Note:** The start script will display your specific IP address and URLs when it runs.
+## Operator URLs
 
-### Manual Startup
+`./overlayctl urls` prints LAN-ready links for:
 
-If you prefer to start the application manually:
+- Main Control (`/`)
+- Mobile Control (`/mobile`)
+- Tablet Dashboard (`/tablet-dashboard`)
+- Pick/Ban Hub (`:5002/`)
+- Pick/Ban Admin (`:5002/admin`)
+- Pick/Ban Player 1/2 (`:5002/player/1`, `:5002/player/2`)
 
-1. Open the `underground-smash-overlay` folder.
-2. Right click somewhere in the folder and open a terminal window.
-3. Run the setup script with the following command:
-   ```
-   bash dev-setup.sh
-   ```
+## Diagnostics
 
-## Player/Caster Sponsors
+```bash
+./overlayctl doctor
+./overlayctl logs
+```
 
-The application now supports adding sponsor information for players and casters:
+- `doctor` checks required paths, ports, Python env, and service health.
+- `logs` prints log paths (`logs/main.log`, `logs/pickban.log`).
 
-1. In the player and caster sections, you'll find optional fields for entering sponsor information.
-2. The sponsor names will display in gold above the player/caster names in the overlays.
-3. Leave the field blank if the player/caster doesn't have a sponsor.
+## State backend modes
 
-## Visual Character Selection
+Default mode is sqlite-canonical with text-file mirror:
 
-The application now features a visual character selection interface:
+- Canonical DB: `runtime/state.db`
+- OBS compatibility mirror: `text-files/*`
 
-1. Click the "Select Character" button for either player.
-2. A grid of all available fighters will appear with images.
-3. Click on the desired character to select them.
-4. The selected character's image and name will appear below the selection button.
-5. You can also select "Random" as a character option, which appears as the first choice in the character grid.
+Fallback legacy mode:
 
-## Quick Actions
+```bash
+STATE_BACKEND=textfiles ./overlayctl start
+```
 
-The application features a Quick Actions section for common operations:
+## Docs
 
-1. **Score Adjustment**: Use the +1/-1 buttons to quickly adjust player scores.
-2. **Swap Players**: The swap button (⇄) exchanges player information between Player 1 and Player 2.
-3. **Reset Scoreboard**: The reset button (↺) sets both player scores to 0 and characters to "Random".
-4. **New Round**: The new round button (🏁) clears all player data for a fresh start.
-5. **Save Changes**: The save button (💾) manually saves all current form values.
-
-## Mobile Control Panel Features
-
-The mobile interface (`/mobile`) provides all the functionality of the desktop version, optimized for touch devices:
-
-- **Touch-optimized character selection** with large, easy-to-tap character portraits
-- **Quick score adjustment** with prominent +/- buttons
-- **Auto-saving** - changes are saved automatically as you type or make selections
-- **Responsive design** that works on phones, tablets, and other mobile devices
-- **Same data sync** - changes made on mobile instantly appear on desktop and vice versa
-- **Network access** - control your stream from anywhere on the same WiFi network
-
-### Mobile Usage Tips:
-- Add the mobile URL to your phone's home screen for quick access
-- The interface works in both portrait and landscape orientations
-- All quick actions are prominently displayed at the top for easy access
-- Character selection uses a scrollable grid optimized for touch
-
-## Future Plans:
-
-- Web UI on an actual website, so we can access it from anywhere
-- Theme switching capability
-- Modular theme organization
-- Custom logo support
-
-## To-Do List:
-- Fix graphics for the following fighters
-
-    Vs. Screen:
-    - Luigi
-
-
-# Development
+- System overview: [docs/current-system-overview.md](/Users/benasselmeier/Workspace/underground-smash-overlay/docs/current-system-overview.md)
+- Command API: [docs/command-api.md](/Users/benasselmeier/Workspace/underground-smash-overlay/docs/command-api.md)
+- Event runbook: [docs/runbook.md](/Users/benasselmeier/Workspace/underground-smash-overlay/docs/runbook.md)
