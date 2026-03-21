@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Player {{ player_id }} - Pick/Ban</title>
+    <title>{% if combined_mode %}Combined{% else %}Player {{ player_id }}{% endif %} - Pick/Ban</title>
     <style>
         @font-face {
             font-family: 'p5hatty';
@@ -154,6 +154,114 @@
             grid-template-columns: 160px 1fr 220px;
             gap: 8px;
             align-items: center;
+        }
+
+        .combined-actor-strip {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .actor-btn {
+            border: 3px solid var(--stroke);
+            border-radius: 8px;
+            padding: 7px 12px;
+            font-size: 0.9rem;
+            font-weight: 900;
+            color: var(--ink-white);
+            background: linear-gradient(145deg, #3b3f4e 0%, #171b27 100%);
+            cursor: pointer;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
+            font-family: inherit;
+        }
+
+        .actor-btn.active {
+            background: linear-gradient(145deg, #f0c44a 0%, #b18012 100%);
+            color: #191303;
+        }
+
+        .actor-hint {
+            font-size: 0.78rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .first-striker-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(2, 3, 8, 0.82);
+            backdrop-filter: blur(6px);
+        }
+
+        .first-striker-overlay.visible {
+            display: flex;
+        }
+
+        .first-striker-panel {
+            width: min(720px, 100%);
+            border: 4px solid var(--stroke);
+            border-radius: 16px;
+            padding: 22px 20px 18px;
+            background:
+                linear-gradient(160deg, rgba(235, 25, 35, 0.94) 0%, rgba(88, 12, 18, 0.94) 58%, rgba(10, 11, 17, 0.97) 100%);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .first-striker-title {
+            font-family: 'PersonaMenu', 'p5hatty', 'Arial Black', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            line-height: 0.95;
+            text-transform: uppercase;
+            text-shadow: 3px 3px 0 #000;
+        }
+
+        .first-striker-copy {
+            margin-top: 10px;
+            font-size: 1rem;
+            line-height: 1.2;
+            opacity: 0.95;
+        }
+
+        .first-striker-actions {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .first-striker-btn {
+            border: 3px solid var(--stroke);
+            border-radius: 12px;
+            padding: 16px 14px;
+            font-family: inherit;
+            font-size: 1.05rem;
+            font-weight: 900;
+            cursor: pointer;
+            color: var(--ink-white);
+            box-shadow: 0 12px 22px rgba(0, 0, 0, 0.35);
+        }
+
+        .first-striker-btn.player1 {
+            background: linear-gradient(145deg, #ff5e5e 0%, #ba121a 100%);
+        }
+
+        .first-striker-btn.player2 {
+            background: linear-gradient(145deg, #78ebff 0%, #1b90af 100%);
+            color: #091116;
+        }
+
+        .first-striker-status {
+            margin-top: 12px;
+            min-height: 22px;
+            font-size: 0.9rem;
         }
 
         .player-tag,
@@ -448,7 +556,7 @@
         </div>
 
         <div class="status-strip">
-            <div class="player-tag">PLAYER {{ player_id }}</div>
+            <div class="player-tag">{{ player_label }}</div>
             <div class="phase-info" id="phaseInfo">Loading phase...</div>
             <div class="ban-status">
                 <span class="ban-text" id="banText">Bans: 0 / 0</span>
@@ -456,6 +564,14 @@
                 <span id="autoRefreshTimer" class="auto-refresh-timer is-hidden"></span>
             </div>
         </div>
+
+        {% if combined_mode %}
+        <div class="combined-actor-strip" id="combinedActorStrip">
+            <span class="actor-hint" id="combinedActorHint">Combined control</span>
+            <button id="actorBtn1" class="actor-btn" type="button" onclick="setActingPlayer(1)">Act as P1</button>
+            <button id="actorBtn2" class="actor-btn" type="button" onclick="setActingPlayer(2)">Act as P2</button>
+        </div>
+        {% endif %}
 
     <div id="actionBanner" class="action-banner">Loading stage flow...</div>
 
@@ -465,13 +581,29 @@
         </section>
     </main>
 
+    {% if combined_mode %}
+    <div id="firstStrikerOverlay" class="first-striker-overlay">
+        <div class="first-striker-panel">
+            <div class="first-striker-title">Who Bans First?</div>
+            <p class="first-striker-copy">Choose the first striker for game 1, then start banning immediately on this tablet.</p>
+            <div class="first-striker-actions">
+                <button class="first-striker-btn player1" type="button" onclick="chooseFirstStriker(1)">Player 1 First</button>
+                <button class="first-striker-btn player2" type="button" onclick="chooseFirstStriker(2)">Player 2 First</button>
+            </div>
+            <div id="firstStrikerStatus" class="first-striker-status"></div>
+        </div>
+    </div>
+    {% endif %}
+
     <script>
         const playerId = {{ player_id }};
+        const combinedMode = {{ 'true' if combined_mode else 'false' }};
         let currentSession = null;
         let selectedStageDeadline = null;
         let selectedStageSignature = null;
         let autoAdvanceRequested = false;
         let autoAdvanceInFlight = false;
+        let actingPlayerId = combinedMode ? 1 : playerId;
         const STAGE_LOCK_REFRESH_MS = 10000;
 
         const stageImages = {
@@ -513,9 +645,74 @@
                 .then(response => response.json())
                 .then(session => {
                     currentSession = session;
+                    syncCombinedModeState();
                     renderInterface();
                 })
                 .catch(error => console.error('Error fetching session:', error));
+        }
+
+        function setActingPlayer(nextPlayerId) {
+            actingPlayerId = nextPlayerId;
+            syncCombinedModeState();
+        }
+
+        function syncCombinedModeState() {
+            if (!combinedMode) return;
+
+            if (currentSession.current_player === 1 || currentSession.current_player === 2) {
+                actingPlayerId = currentSession.current_player;
+            }
+
+            const btn1 = document.getElementById('actorBtn1');
+            const btn2 = document.getElementById('actorBtn2');
+            const hint = document.getElementById('combinedActorHint');
+            if (btn1) btn1.classList.toggle('active', actingPlayerId === 1);
+            if (btn2) btn2.classList.toggle('active', actingPlayerId === 2);
+
+            if (hint) {
+                if (currentSession.current_player === 1 || currentSession.current_player === 2) {
+                    hint.textContent = `Turn: Player ${currentSession.current_player}`;
+                } else {
+                    hint.textContent = `Combined control: acting as Player ${actingPlayerId}`;
+                }
+            }
+
+            const overlay = document.getElementById('firstStrikerOverlay');
+            if (!overlay) return;
+
+            const shouldPromptFirstStriker =
+                currentSession.flow_phase === 'game1_strike' &&
+                (currentSession.stage_strikes || []).length === 0 &&
+                !!currentSession.first_striker_selection_required;
+
+            overlay.classList.toggle('visible', shouldPromptFirstStriker);
+        }
+
+        function chooseFirstStriker(firstPlayer) {
+            const status = document.getElementById('firstStrikerStatus');
+            if (status) status.textContent = 'Setting first striker...';
+
+            fetch('/api/set_first_striker', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ first_player: firstPlayer })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to set first striker');
+                }
+                currentSession = data.session;
+                actingPlayerId = firstPlayer;
+                syncCombinedModeState();
+                renderInterface();
+            })
+            .catch(error => {
+                console.error('Error setting first striker:', error);
+                if (status) status.textContent = error.message || 'Error setting first striker.';
+            });
         }
 
         function renderInterface() {
@@ -524,7 +721,8 @@
             const bansUsed = document.getElementById('bansUsed');
             const banText = document.getElementById('banText');
 
-            const playerKey = `player${playerId}`;
+            const uiPlayerId = combinedMode ? actingPlayerId : playerId;
+            const playerKey = `player${uiPlayerId}`;
             const strikesUsed = currentSession.strikes_used || currentSession.bans_used || { player1: 0, player2: 0 };
             const strikesTarget = currentSession.strikes_target || { player1: currentSession.max_bans || 0, player2: currentSession.max_bans || 0 };
             const playerUsed = strikesUsed[playerKey] || 0;
@@ -551,7 +749,7 @@
                 } else {
                     actionBanner.textContent = 'Stage selected.';
                 }
-            } else if (currentSession.current_player && currentSession.current_player !== playerId) {
+            } else if (!combinedMode && currentSession.current_player && currentSession.current_player !== playerId) {
                 phaseInfo.textContent = currentSession.phase_message || 'Waiting for turn...';
                 banText.textContent = currentSession.turn_message || `Player ${currentSession.current_player} is acting`;
                 actionBanner.className = 'action-banner waiting';
@@ -563,13 +761,21 @@
             } else {
                 phaseInfo.textContent = currentSession.phase_message || 'Your turn';
                 if (currentSession.flow_phase === 'postgame_pick') {
-                    banText.textContent = 'Your turn: pick the next stage';
+                    banText.textContent = combinedMode
+                        ? `Player ${uiPlayerId}: pick the next stage`
+                        : 'Your turn: pick the next stage';
                     actionBanner.className = 'action-banner';
-                    actionBanner.textContent = 'Choose one stage to PLAY next.';
+                    actionBanner.textContent = combinedMode
+                        ? `Player ${uiPlayerId}, choose one stage to PLAY next.`
+                        : 'Choose one stage to PLAY next.';
                 } else {
-                    banText.textContent = `Your strikes: ${playerUsed} / ${playerTarget}`;
+                    banText.textContent = combinedMode
+                        ? `Player ${uiPlayerId} strikes: ${playerUsed} / ${playerTarget}`
+                        : `Your strikes: ${playerUsed} / ${playerTarget}`;
                     actionBanner.className = 'action-banner';
-                    actionBanner.textContent = 'Choose one stage you wish to BAN from play.';
+                    actionBanner.textContent = combinedMode
+                        ? `Player ${uiPlayerId}, choose one stage to BAN from play.`
+                        : 'Choose one stage you wish to BAN from play.';
                 }
             }
 
@@ -667,7 +873,10 @@
             const stageImage = getStageImage(stage);
             stageCard.style.setProperty('--stage-fallback', getStageBackground(stage));
             const selectable = (currentSession.selectable_stages || []).includes(stage);
-            const isMyTurn = currentSession.current_player === playerId || !currentSession.current_player;
+            const actingId = combinedMode ? actingPlayerId : playerId;
+            const isMyTurn = combinedMode
+                ? (currentSession.current_player === actingId || !currentSession.current_player)
+                : (currentSession.current_player === playerId || !currentSession.current_player);
 
             if (currentSession.banned_stages.includes(stage)) {
                 stageCard.classList.add('banned');
@@ -729,6 +938,7 @@
         }
 
         function strikeStage(stageName) {
+            const actingId = combinedMode ? actingPlayerId : playerId;
             fetch('/api/strike_stage', {
                 method: 'POST',
                 headers: {
@@ -736,7 +946,7 @@
                 },
                 body: JSON.stringify({
                     stage: stageName,
-                    player_id: playerId
+                    player_id: actingId
                 })
             })
             .then(response => response.json())
@@ -751,6 +961,7 @@
         }
 
         function pickStage(stageName) {
+            const actingId = combinedMode ? actingPlayerId : playerId;
             fetch('/api/pick_stage', {
                 method: 'POST',
                 headers: {
@@ -758,7 +969,7 @@
                 },
                 body: JSON.stringify({
                     stage: stageName,
-                    player_id: playerId
+                    player_id: actingId
                 })
             })
             .then(response => response.json())

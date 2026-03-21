@@ -174,6 +174,7 @@ def create_session(first_striker=1):
         'current_phase': 'banning',     # compatibility field for existing UIs
         'current_player': first,
         'first_striker': first,
+        'first_striker_selection_required': True,
         'winner_player': None,
         'loser_player': None,
         'game1_pattern': GAME1_PATTERN,
@@ -356,6 +357,17 @@ def player_interface(player_id):
     
     return render_template('pickban_player.html', 
                          player_id=player_id,
+                         combined_mode=False,
+                         player_label=f"PLAYER {player_id}",
+                         session=current_session)
+
+@app.route('/combined')
+def combined_interface():
+    """Single-tablet combined pick/ban interface."""
+    return render_template('pickban_player.html',
+                         player_id=0,
+                         combined_mode=True,
+                         player_label='COMBINED',
                          session=current_session)
 
 @app.route('/api/session')
@@ -387,6 +399,7 @@ def strike_stage():
         return jsonify({'success': False, 'error': 'Cannot strike this stage'})
 
     pkey = player_key(player_id)
+    current_session['first_striker_selection_required'] = False
     current_session['banned_stages'].append(stage_name)
     current_session['stage_strikes'].append({
         'stage': stage_name,
@@ -433,6 +446,7 @@ def set_first_striker():
         return jsonify({'success': False, 'error': 'first_player must be 1 or 2'})
 
     current_session = create_session(first_striker=first_player)
+    current_session['first_striker_selection_required'] = False
     update_derived_session_fields(current_session)
     return jsonify({'success': True, 'session': current_session})
 

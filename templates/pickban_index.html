@@ -166,6 +166,12 @@
         </p>
 
         <div class="links-container">
+            <a href="/combined" class="link-card">
+                <h3>📱 Combined Tablet</h3>
+                <p>Single-tablet pick/ban flow with first striker selection</p>
+                <div class="url">{{ local_ip }}:{{ port }}/combined</div>
+            </a>
+
             <a href="/player/1" class="link-card">
                 <h3>🎮 Player 1</h3>
                 <p>Pick/Ban interface for Player 1 tablet</p>
@@ -193,8 +199,8 @@
 
         <div class="info-section">
             <h4>📋 Setup Instructions</h4>
-            <p>1. Open each tablet to the respective player URL above</p>
-            <p>2. Players can tap stages to ban (3 bans each) then pick</p>
+            <p>1. Use `/combined` for one shared tablet, or `/player/1` and `/player/2` for separate player tablets</p>
+            <p>2. Players select who bans first, then tap stages to ban/pick as the session advances</p>
             <p>3. Use the admin panel to reset between sets</p>
         </div>
 
